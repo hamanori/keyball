@@ -152,22 +152,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
 
   case KC_MY_SCR:
     if (record->event.pressed) {
-        state = SCROLLING;
+        state = CLICKABLE; // スクロールキーを押した時にクリックレイヤーを有効にする。 Enable click layer when the scroll key is pressed.
     } else {
         enable_click_layer();   // スクロールキーを離した時に再度クリックレイヤーを有効にする。 Enable click layer again when the scroll key is released.
     }
   return false;
 
   default:
-    if  (record->event.pressed) {
-                  
-      if (state == CLICKING || state == SCROLLING)
-      {
-          enable_click_layer();
-          return false;
-      }
+    if (record->event.pressed) {
       disable_click_layer();
-  }
+    }
   }
 
   return true;
