@@ -56,7 +56,6 @@ enum click_state
   WAITING,   // マウスレイヤーが有効になるのを待つ。 Wait for mouse layer to activate.
   CLICKABLE, // マウスレイヤー有効になりクリック入力が取れる。 Mouse layer is enabled to take click input.
   CLICKING,  // クリック中。 Clicking.
-  SCROLLING   // スクロール中。 Scrolling.
 };
 
 enum click_state state; // 現在のクリック入力受付の状態 Current click input reception status
@@ -66,8 +65,6 @@ uint16_t to_reset_time = 1000; // この秒数(千分の一秒)、CLICKABLE状�
 
 const int16_t to_clickable_movement = 0; // クリックレイヤーが有効になるしきい値
 const uint16_t click_layer = 6;          // マウス入力が可能になった際に有効になるレイヤー。Layers enabled when mouse input is enabled
-
-int16_t after_click_lock_movement = 0;      // クリック入力後の移動量を測定する変数。 Variable that measures the amount of movement after a click input.
 
 int16_t mouse_record_threshold = 30; // ポインターの動きを一時的に記録するフレーム数。 Number of frames in which the pointer movement is temporarily recorded.
 int16_t mouse_move_count_ratio = 5;  // ポインターの動きを再生する際の移動フレームの係数。 The coefficient of the moving frame when replaying the pointer movement.
@@ -114,7 +111,7 @@ int16_t mmouse_move_y_sign(int16_t num)
 // 現在クリックが可能な状態か。 Is it currently clickable?
 bool is_clickable_mode(void)
 {
-  return state == CLICKABLE || state == CLICKING || state == SCROLLING;
+  return state == CLICKABLE || state == CLICKING;
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record)
@@ -176,123 +173,69 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
   return true;
 }
 
-report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
+{
   int16_t current_x = mouse_report.x;
   int16_t current_y = mouse_report.y;
-  int16_t current_h = 0;
-  int16_t current_v = 0;
 
-  if (current_x != 0 || current_y != 0) {
-      
-      switch (state) {
-          case CLICKABLE:
-              click_timer = timer_read();
-              break;
+  if (current_x != 0 || current_y != 0)
+  {
 
-          case CLICKING:
-              after_click_lock_movement -= my_abs(current_x) + my_abs(current_y);
+    switch (state)
+    {
+    case CLICKABLE:
+      click_timer = timer_read();
+      break;
 
-              if (after_click_lock_movement > 0) {
-                  current_x = 0;
-                  current_y = 0;
-              }
+    case CLICKING:
+      break;
 
-              break;
+    case WAITING:
+      mouse_movement += my_abs(current_x) + my_abs(current_y);
 
-          case SCROLLING:
-          {
-              int8_t rep_v = 0;
-              int8_t rep_h = 0;
-
-              // 垂直スクロールの方の感度を高める。 Increase sensitivity toward vertical scrolling.
-              if (my_abs(current_y) * 2 > my_abs(current_x)) {
-
-                  scroll_v_mouse_interval_counter += current_y;
-                  while (my_abs(scroll_v_mouse_interval_counter) > scroll_v_threshold) {
-                      if (scroll_v_mouse_interval_counter < 0) {
-                          scroll_v_mouse_interval_counter += scroll_v_threshold;
-                          rep_v += scroll_v_threshold;
-                      } else {
-                          scroll_v_mouse_interval_counter -= scroll_v_threshold;
-                          rep_v -= scroll_v_threshold;
-                      }
-                      
-                  }
-              } else {
-
-                  scroll_h_mouse_interval_counter += current_x;
-
-                  while (my_abs(scroll_h_mouse_interval_counter) > scroll_h_threshold) {
-                      if (scroll_h_mouse_interval_counter < 0) {
-                          scroll_h_mouse_interval_counter += scroll_h_threshold;
-                          rep_h += scroll_h_threshold;
-                      } else {
-                          scroll_h_mouse_interval_counter -= scroll_h_threshold;
-                          rep_h -= scroll_h_threshold;
-                      }
-                  }
-              }
-
-              current_h = rep_h / scroll_h_threshold * (user_config.mouse_scroll_h_reverse ? -1 : 1);
-              current_v = -rep_v / scroll_v_threshold * (user_config.mouse_scroll_v_reverse ? -1 : 1);
-              current_x = 0;
-              current_y = 0;
-          }
-              break;
-
-          case WAITING:
-              /*
-              if (timer_elapsed(click_timer) > user_config.to_clickable_time) {
-                  enable_click_layer();
-              }
-              */
-
-              mouse_movement += my_abs(current_x) + my_abs(current_y);
-
-              if (mouse_movement >= user_config.to_clickable_movement)
-              {
-                  mouse_movement = 0;
-                  enable_click_layer();
-              }
-              break;
-
-          default:
-              click_timer = timer_read();
-              state = WAITING;
-              mouse_movement = 0;
+      if (mouse_movement >= to_clickable_movement)
+      {
+        mouse_movement = 0;
+        enable_click_layer();
       }
+      break;
+
+    default:
+      click_timer = timer_read();
+      state = WAITING;
+      mouse_movement = 0;
+    }
   }
   else
   {
-      switch (state) {
-          case CLICKING:
-          case SCROLLING:
+    switch (state)
+    {
+    case CLICKING:
+      break;
 
-              break;
-
-          case CLICKABLE:
-              if (timer_elapsed(click_timer) > to_reset_time) {
-                  disable_click_layer();
-              }
-              break;
-
-           case WAITING:
-              if (timer_elapsed(click_timer) > 50) {
-                  mouse_movement = 0;
-                  state = NONE;
-              }
-              break;
-
-          default:
-              mouse_movement = 0;
-              state = NONE;
+    case CLICKABLE:
+      if (timer_elapsed(click_timer) > to_reset_time)
+      {
+        disable_click_layer();
       }
+      break;
+
+    case WAITING:
+      if (timer_elapsed(click_timer) > 50)
+      {
+        mouse_movement = 0;
+        state = NONE;
+      }
+      break;
+
+    default:
+      mouse_movement = 0;
+      state = NONE;
+    }
   }
 
   mouse_report.x = current_x;
   mouse_report.y = current_y;
-  mouse_report.h = current_h;
-  mouse_report.v = current_v;
 
   return mouse_report;
 }
@@ -377,5 +320,7 @@ void oledkit_render_info_user(void)
 
   oled_write_P(PSTR("Layer:"), false);
   oled_write(get_u8_str(get_highest_layer(layer_state), ' '), false);
+  oled_write_P(PSTR(" MV:"), false);
+  oled_write(get_u8_str(mouse_movement, ' '), false);
 }
 #endif
