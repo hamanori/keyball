@@ -46,6 +46,7 @@ enum custom_keycodes
   KC_MY_BTN3,                      // Remap上では 0x5DB1
   KC_MY_BTN4,                      // Remap上では 0x5DB2
   KC_MY_BTN5,                      // Remap上では 0x5DB3
+  KC_MY_SCR,                       // Remap上では 0x5DB4
 };
 
 
@@ -55,6 +56,7 @@ enum click_state
   WAITING,   // マウスレイヤーが有効になるのを待つ。 Wait for mouse layer to activate.
   CLICKABLE, // マウスレイヤー有効になりクリック入力が取れる。 Mouse layer is enabled to take click input.
   CLICKING,  // クリック中。 Clicking.
+  SCROLLING   // スクロール中。 Scrolling.
 };
 
 enum click_state state; // 現在のクリック入力受付の状態 Current click input reception status
@@ -148,6 +150,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
     pointing_device_send();
     return false;
   }
+
+  case KC_MY_SCR:
+    if (record->event.pressed) {
+        state = SCROLLING;
+    } else {
+        enable_click_layer();   // スクロールキーを離した時に再度クリックレイヤーを有効にする。 Enable click layer again when the scroll key is released.
+    }
+  return false;
 
   default:
     if (record->event.pressed)
@@ -279,8 +289,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [6] = LAYOUT_universal(
     _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , _______  , _______  , _______  , _______  ,
-    _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  ,KC_MY_BTN1, _______  ,KC_MY_BTN2, _______  , _______  ,
-    _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , KC_MY_BTN4  , _______  , KC_MY_BTN5  , _______  , _______  ,
+    _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  ,KC_MY_BTN1, KC_MY_SCR  ,KC_MY_BTN2, _______  , _______  ,
+    _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , KC_MY_BTN4  , _______  , KC_MY_BTN5  , _______  , KC_MY_SCR  ,
                   _______  , _______  , _______  ,        _______  , _______  ,                   _______  , _______  , _______       , _______  , _______
   )
 };
