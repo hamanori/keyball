@@ -46,3 +46,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Increase the number of layers to 7
 #define DYNAMIC_KEYMAP_LAYER_COUNT 7
+
+#define KEYBALL_CPI_DEFAULT 700      // 光学センサーPMW3360DM の解像度 (CPI) の規定値
+#define KEYBALL_SCROLL_DIV_DEFAULT 4 // スクロール速度の規定値
