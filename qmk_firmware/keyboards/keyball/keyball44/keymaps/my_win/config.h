@@ -41,7 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define AUTO_MOUSE_DEFAULT_LAYER 6
 
 // Tapping term
-#define TAPPING_TERM 130
+#define TAPPING_TERM 150
 #define HOLD_ON_OTHER_KEY_PRESS
 
 // Increase the number of layers to 7
