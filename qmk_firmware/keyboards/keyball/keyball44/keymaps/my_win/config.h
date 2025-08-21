@@ -44,6 +44,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define TAPPING_TERM 200
 #define HOLD_ON_OTHER_KEY_PRESS
 
+//  quick tap term
+// This is the time to wait for a quick tap before sending a hold event.
+#define QUICK_TAP_TERM 0
+
 // Increase the number of layers to 7
 #define DYNAMIC_KEYMAP_LAYER_COUNT 7
 
