@@ -4,6 +4,9 @@ MCU = atmega32u4
 # Bootloader selection
 BOOTLOADER = caterina
 
+# Target platform (required by newer QMK build system)
+PLATFORM = AVR
+
 # Link Time Optimization required for size.
 LTO_ENABLE = yes
 
