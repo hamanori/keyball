@@ -31,17 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #  define HAS_OS_DETECTION 0
 #endif
 
-static const char *format_3u(uint16_t v) {
-  // Right-aligned 3-digit decimal (space padded).
-  static char buf[4] = {' ', ' ', ' ', 0};
-  buf[2] = (v % 10) + '0';
-  v /= 10;
-  buf[1] = v ? (v % 10) + '0' : ' ';
-  v /= 10;
-  buf[0] = v ? (v % 10) + '0' : ' ';
-  return buf;
-}
-
 // コード表
 // ## 特殊キーコード
 
@@ -532,20 +521,19 @@ void oledkit_render_info_user(void)
   keyball_oled_render_ballinfo();
 
   oled_set_cursor(0, 2);
-  oled_write_P(PSTR("Info\xB1"), false);
   oled_write_P(PSTR("LYR: "), false);
-  oled_write(format_3u(get_highest_layer(layer_state)), false);
+  oled_write(get_u8_str(get_highest_layer(layer_state), ' '), false);
   oled_write_char(' ', false);
   oled_write_P(PSTR("MV: "), false);
-  oled_write(format_3u(mouse_movement), false);
+  oled_write(get_u8_str(mouse_movement, ' '), false);
   oled_write_char('/', false);
-  oled_write(format_3u(user_config.to_clickable_movement), false);
+  oled_write(get_u8_str(user_config.to_clickable_movement, ' '), false);
   oled_write_P(PSTR("   "), false); // clear remainder if digits shrink
 
   oled_set_cursor(0, 3);
   oled_write_P(PSTR("Info\xB1"), false);
   oled_write_P(PSTR("ST: "), false);
-  oled_write(format_3u(user_config.scroll_threshold), false);
+  oled_write(get_u8_str(user_config.scroll_threshold, ' '), false);
   oled_write_char(' ', false);
   oled_write_P(PSTR("OS: "), false);
 #if HAS_OS_DETECTION
