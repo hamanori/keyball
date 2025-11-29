@@ -117,7 +117,7 @@ uint8_t cached_os = 0;      // 一度だけ判定して保持
 
 void eeconfig_init_user(void) {
   user_config.raw = 0;
-  user_config.to_clickable_movement = 5; // 少し動かせばクリックレイヤー有効化
+  user_config.to_clickable_movement = 1; // 1動きでクリックレイヤー有効化
   user_config.scroll_threshold = 50;
   eeconfig_update_user(user_config.raw);
 }
@@ -252,8 +252,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
     if (record->event.pressed) {
       user_config.to_clickable_movement -= 5; // user_config.to_clickable_time -= 10;
 
-      if (user_config.to_clickable_movement < 5) {
-        user_config.to_clickable_movement = 5;
+      if (user_config.to_clickable_movement < 1) {
+        user_config.to_clickable_movement = 1;
       }
 
       // if (user_config.to_clickable_time < 10) {
