@@ -521,9 +521,10 @@ void oledkit_render_info_user(void)
   keyball_oled_render_ballinfo();
 
   oled_set_cursor(0, 2);
-  oled_write_P(PSTR("LYR: "), false);
+  oled_write_P(PSTR("Info\xB1"), false);
+  oled_write_P(PSTR("LY: "), false);
   oled_write(get_u8_str(get_highest_layer(layer_state), ' '), false);
-  oled_write_char(' ', false);
+  oled_set_cursor(12, 2);
   oled_write_P(PSTR("MV: "), false);
   oled_write(get_u8_str(mouse_movement, ' '), false);
   oled_write_char('/', false);
@@ -531,10 +532,10 @@ void oledkit_render_info_user(void)
   oled_write_P(PSTR("   "), false); // clear remainder if digits shrink
 
   oled_set_cursor(0, 3);
-  oled_write_P(PSTR("Info\xB1"), false);
+  oled_write_P(PSTR("    \xB1"), false);
   oled_write_P(PSTR("ST: "), false);
   oled_write(get_u8_str(user_config.scroll_threshold, ' '), false);
-  oled_write_char(' ', false);
+  oled_set_cursor(12, 3);
   oled_write_P(PSTR("OS: "), false);
 #if HAS_OS_DETECTION
   switch (cached_os) {
