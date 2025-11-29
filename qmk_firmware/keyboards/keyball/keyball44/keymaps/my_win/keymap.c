@@ -241,17 +241,6 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
   int16_t current_h = mouse_report.h;
   int16_t current_v = mouse_report.v;
 
-  // レイヤー3（標準スクロール）では miniZone の状態機械を完全に無効化して通過させる
-  if (get_highest_layer(layer_state) == 3) {
-    disable_click_layer();
-    state = NONE;
-    mouse_movement = 0;
-    scroll_v_mouse_interval_counter = 0;
-    scroll_h_mouse_interval_counter = 0;
-    click_timer = timer_read();
-    return mouse_report; // Keyball標準のh/vをそのまま通す
-  }
-
   if (current_x != 0 || current_y != 0 || current_h != 0 || current_v != 0)
   {
 
@@ -430,18 +419,23 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 // clang-format on
 
-layer_state_t layer_state_set_user(layer_state_t state)
+layer_state_t layer_state_set_user(layer_state_t ly_state)
 {
-  // レイヤー3に入ったらクリックレイヤーを強制的にオフにしてスクロールを優先
-  if (get_highest_layer(state) == 3 && layer_state_is(click_layer)) {
+  uint8_t highest = get_highest_layer(ly_state);
+
+  // レイヤー3はminiZoneスクロールを使うため、Keyball標準スクロールを無効化し状態をSCROLLINGにセット
+  if (highest == 3) {
+    keyball_set_scroll_mode(false); // x/yを保持
     disable_click_layer();
+    state = SCROLLING;
+    scroll_v_mouse_interval_counter = 0;
+    scroll_h_mouse_interval_counter = 0;
+    click_timer = timer_read();
+  } else {
+    keyball_set_scroll_mode(false); // 他レイヤーは通常ポインタ
   }
 
-  // レイヤーが3の場合、スクロールモードが有効になる
-  keyball_set_scroll_mode(get_highest_layer(state) == 3);
-  // keyball_set_scroll_mode(get_highest_layer(state) == 1 || get_highest_layer(state) == 3);
-
-  return state;
+  return ly_state;
 }
 
 #ifdef OLED_ENABLE
