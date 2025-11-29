@@ -23,7 +23,7 @@ jobs:
 
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/qmk/qmk_cli:0.22.14
+      image: ghcr.io/qmk/qmk_cli:latest
 
     steps:
 
@@ -37,7 +37,34 @@ jobs:
       run: ln -s $(pwd)/qmk_firmware/keyboards/keyball __qmk__/keyboards/keyball
 
     - name: Install missing python modules
-      run: /usr/bin/python3 -m pip install -r __qmk__/requirements.txt
+      run: /opt/uv/tools/qmk/bin/python -m pip install -r __qmk__/requirements.txt
+
+    - name: Patch qmk math for Python 3.14
+      run: |
+        python - <<'PY'
+        from pathlib import Path
+        import re
+
+        path = Path("__qmk__/lib/python/qmk/math.py")
+        text = path.read_text()
+
+        new_eval = """def _eval(node):
+    if isinstance(node, ast.Constant):  # Py3.8+; replaces ast.Num in Py3.14
+        if isinstance(node.value, (int, float, complex)):
+            return node.value
+    if isinstance(node, ast.Num):  # <number> (backward compat)
+        return node.n
+    elif isinstance(node, ast.BinOp):  # <left> <operator> <right>
+        return operators[type(node.op)](_eval(node.left), _eval(node.right))
+    elif isinstance(node, ast.UnaryOp):  # <operator> <operand> e.g., -1
+        return operators[type(node.op)](_eval(node.operand))
+    else:
+        raise TypeError(node)
+"""
+
+        patched = re.sub(r"def _eval\(node\):[\s\S]*", new_eval, text, count=1)
+        path.write_text(patched)
+        PY
 
     - name: Compile and link
       run: qmk compile -j 4 -kb keyball/${{ inputs.keyboard }} -km ${{ inputs.keymap }}
