@@ -100,7 +100,11 @@ int16_t mouse_move_count_ratio = 5;  // ポインターの動きを再生する�
 
 int16_t mouse_movement;
 bool invert_scroll = false; // OS判定でスクロール方向を反転する
-uint8_t detected_os = 0;    // 一度だけ判定して保持 (OS_UNSURE)
+#ifdef OS_DETECTION_ENABLE
+host_os_t cached_os = OS_UNSURE; // 一度だけ判定して保持
+#else
+uint8_t cached_os = 0;           // OS_UNSURE 相当のプレースホルダ
+#endif
 
 void eeconfig_init_user(void) {
   user_config.raw = 0;
@@ -123,8 +127,8 @@ void keyboard_post_init_user(void) {
 #ifdef OS_DETECTION_ENABLE
   // OS自動判定 (少し待ってから実行する必要あり)
   wait_ms(400);
-  detected_os = detected_host_os();
-  switch (detected_os) {
+  cached_os = detected_host_os();
+  switch (cached_os) {
     case OS_WINDOWS:
     case OS_LINUX:
       invert_scroll = true;  // Windows/Linux用にスクロール方向を反転
@@ -518,7 +522,7 @@ void oledkit_render_info_user(void)
   oled_write(get_u8_str(user_config.scroll_threshold, ' '), false);
   oled_write_P(PSTR(" OS:"), false);
 #ifdef OS_DETECTION_ENABLE
-  switch (detected_os) {
+  switch (cached_os) {
     case OS_WINDOWS:
       oled_write_P(PSTR("WIN"), false);
       break;
