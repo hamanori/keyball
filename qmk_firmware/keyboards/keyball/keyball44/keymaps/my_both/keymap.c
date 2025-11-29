@@ -518,18 +518,22 @@ layer_state_t layer_state_set_user(layer_state_t ly_state)
 
 void oledkit_render_info_user(void)
 {
-  keyball_oled_render_keyinfo();
   keyball_oled_render_ballinfo();
 
+  // Compact status on dedicated lines to keep key/ball info intact.
+  oled_set_cursor(0, 2);
   oled_write_P(PSTR("Layer:"), false);
   oled_write(get_u8_str(get_highest_layer(layer_state), ' '), false);
   oled_write_P(PSTR(" MV:"), false);
   oled_write(get_u8_str(mouse_movement, ' '), false);
   oled_write_P(PSTR("/"), false);
   oled_write(get_u8_str(user_config.to_clickable_movement, ' '), false);
-  oled_write_P(PSTR(" ST:"), false);
+  oled_write_P(PSTR(" ST:"), false); // clear remainder if digits shrink
+
+  oled_set_cursor(0, 3);
+  oled_write_P(PSTR("ST"), false);
   oled_write(get_u8_str(user_config.scroll_threshold, ' '), false);
-  oled_write_P(PSTR(" OS:"), false);
+  oled_write_P(PSTR(" OS"), false);
 #if HAS_OS_DETECTION
   switch (cached_os) {
     case OS_WINDOWS:
@@ -551,5 +555,6 @@ void oledkit_render_info_user(void)
 #else
   oled_write_P(PSTR("NA"), false);
 #endif
+  oled_write_P(PSTR("   "), false); // clear remainder if text shrinks
 }
 #endif
