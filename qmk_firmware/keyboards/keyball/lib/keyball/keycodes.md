@@ -25,6 +25,8 @@
 | `SSNP_HOR` | `Kb 14`         | `0x7e0e` | Set scroll snap mode as horizontal                                |
 | `SSNP_FRE` | `Kb 15`         | `0x7e0f` | Set scroll snap mode as disable (free scroll)                     |
 
+> Legacy: older Remap/VIA JSONs (Keyball v1.3.2 and earlier, etc.) used `0x5DA5`–`0x5DAE` for `Kb 0`–`Kb 9` (`KBC_RST`–`SCRL_DVD`). Update to `0x7e00`–`0x7e09` when possible.
+
 [^1]: CPI, scroll divider, automatic mouse layer's enable/disable, and automatic mouse layer's timeout.
 
 <a id="japanese"></a>
@@ -48,5 +50,7 @@
 | `SSNP_VRT` | `Kb 13`         | `0x7e0d` | スクロールスナップモードを垂直にする                              |
 | `SSNP_HOR` | `Kb 14`         | `0x7e0e` | スクロールスナップモードを水平にする                              |
 | `SSNP_FRE` | `Kb 15`         | `0x7e0f` | スクロールスナップモードを無効にする(自由スクロール)              |
+
+> 補足: Remap/VIA の古い JSON（Keyball v1.3.2以前など）は `Kb 0`〜`Kb 9` に `0x5DA5`〜`0x5DAE`（KBC_RST〜SCRL_DVD）を割り当てていました。可能なら `0x7e00`〜`0x7e09` に置き換えてください。
 
 [^2]: CPI、スクロール除数、自動マウスレイヤーのON/OFF状態、及び自動マウスレイヤのタイムアウト
