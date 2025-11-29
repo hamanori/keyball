@@ -432,6 +432,14 @@ layer_state_t layer_state_set_user(layer_state_t ly_state)
     scroll_h_mouse_interval_counter = 0;
     click_timer = timer_read();
   } else {
+    // レイヤー3を抜けたらminiZoneスクロール状態を解除
+    if (state == SCROLLING) {
+      state = NONE;
+      scroll_v_mouse_interval_counter = 0;
+      scroll_h_mouse_interval_counter = 0;
+      after_click_lock_movement = 0;
+      mouse_movement = 0;
+    }
     keyball_set_scroll_mode(false); // 他レイヤーは通常ポインタ
   }
 
