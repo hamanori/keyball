@@ -100,11 +100,7 @@ int16_t mouse_move_count_ratio = 5;  // ポインターの動きを再生する�
 
 int16_t mouse_movement;
 bool invert_scroll = false; // OS判定でスクロール方向を反転する
-#ifdef OS_DETECTION_ENABLE
-host_os_t detected_os = OS_UNSURE; // 一度だけ判定して保持
-#else
-uint8_t detected_os = 0; // OS_UNSURE 相当のプレースホルダ
-#endif
+uint8_t detected_os = 0;    // 一度だけ判定して保持 (OS_UNSURE)
 
 void eeconfig_init_user(void) {
   user_config.raw = 0;
