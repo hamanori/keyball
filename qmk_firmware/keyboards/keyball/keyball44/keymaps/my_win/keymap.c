@@ -295,7 +295,9 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
       }
 
       current_h = rep_h / scroll_h_threshold;
-      current_v = -rep_v / scroll_v_threshold;
+      // my_winではスクロール方向を反転
+      current_h = -current_h;
+      current_v = rep_v / scroll_v_threshold;
       current_x = 0;
       current_y = 0;
     }
