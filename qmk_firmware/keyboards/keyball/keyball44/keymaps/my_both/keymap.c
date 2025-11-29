@@ -143,7 +143,7 @@ void keyboard_post_init_user(void) {
       invert_scroll = true;  // Windows/Linux用にスクロール方向を反転
       break;
     case OS_MACOS:
-      invert_scroll = true;  // For testing
+      invert_scroll = false; // macOS/iOSはそのまま
       break;
     case OS_IOS:
       invert_scroll = false; // macOS/iOSはそのまま
@@ -562,6 +562,5 @@ void oledkit_render_info_user(void)
 #else
   oled_write_P(PSTR("NA"), false);
 #endif
-  oled_write_P(PSTR("   "), false); // clear remainder if text shrinks
 }
 #endif
