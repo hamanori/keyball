@@ -18,7 +18,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include QMK_KEYBOARD_H
 #include "quantum.h"
-#include "os_detection.h"
+
+// OS detection is only available on newer QMK. Guard it so this keymap still
+// builds on environments that don't ship the feature.
+#if defined(OS_DETECTION_ENABLE) && defined(__has_include)
+#  if __has_include("os_detection.h")
+#    include "os_detection.h"
+#    define HAS_OS_DETECTION 1
+#  endif
+#endif
+#ifndef HAS_OS_DETECTION
+#  define HAS_OS_DETECTION 0
+#endif
 
 // コード表
 // ## 特殊キーコード
@@ -100,10 +111,8 @@ int16_t mouse_move_count_ratio = 5;  // ポインターの動きを再生する�
 
 int16_t mouse_movement;
 bool invert_scroll = false; // OS判定でスクロール方向を反転する
-#ifdef OS_DETECTION_ENABLE
-host_os_t cached_os = OS_UNSURE; // 一度だけ判定して保持
-#else
-uint8_t cached_os = 0;           // OS_UNSURE 相当のプレースホルダ
+#if HAS_OS_DETECTION
+uint8_t cached_os = 0;      // 一度だけ判定して保持
 #endif
 
 void eeconfig_init_user(void) {
@@ -124,7 +133,7 @@ void keyboard_post_init_user(void) {
     eeconfig_update_user(user_config.raw);
   }
 
-#ifdef OS_DETECTION_ENABLE
+#if HAS_OS_DETECTION
   // OS自動判定 (少し待ってから実行する必要あり)
   wait_ms(400);
   cached_os = detected_host_os();
@@ -521,7 +530,7 @@ void oledkit_render_info_user(void)
   oled_write_P(PSTR(" ST:"), false);
   oled_write(get_u8_str(user_config.scroll_threshold, ' '), false);
   oled_write_P(PSTR(" OS:"), false);
-#ifdef OS_DETECTION_ENABLE
+#if HAS_OS_DETECTION
   switch (cached_os) {
     case OS_WINDOWS:
       oled_write_P(PSTR("WIN"), false);
