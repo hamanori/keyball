@@ -30,30 +30,24 @@ jobs:
     - name: Checkout source
       uses: actions/checkout@v4
 
-    - name: Checkout qmk_firmware
-      uses: ./.github/actions/checkout-qmk_firmware
-
-    - name: Install a link to own source
-      run: ln -s $(pwd)/qmk_firmware/keyboards/keyball __qmk__/keyboards/keyball
-
     - name: Install missing python modules
       env:
         PIP_BREAK_SYSTEM_PACKAGES: "1"
-      run: /usr/bin/python3 -m pip install --break-system-packages -r __qmk__/requirements.txt
+      run: /usr/bin/python3 -m pip install --break-system-packages -r qmk_firmware/requirements.txt
 
     - name: Compile and link
-      run: make -C __qmk__ -j 4 keyball/${{ inputs.keyboard }}:${{ inputs.keymap }}
+      run: make -C qmk_firmware -j 4 keyball/${{ inputs.keyboard }}:${{ inputs.keymap }}
 
     - name: List build outputs
       run: |
-        ls -R __qmk__/.build || true
+        ls -R qmk_firmware/.build || true
 
     - name: Archive built firmware
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.keyboard }}-${{ inputs.keymap }}-firmware
         path: |
-          __qmk__/.build/**/*.hex
-          __qmk__/.build/**/*.uf2
-          __qmk__/.build/**/*.bin
+          qmk_firmware/.build/**/*.hex
+          qmk_firmware/.build/**/*.uf2
+          qmk_firmware/.build/**/*.bin
         if-no-files-found: error
