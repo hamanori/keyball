@@ -25,6 +25,6 @@ jobs:
 
     uses: ./.github/workflows/build-firmware.yml
     with:
-      qmk_version: '0.22.14'
+      qmk_version: 'latest'
       keyboard:    ${{ inputs.keyboard }}
       keymap:      ${{ inputs.keymap }}
