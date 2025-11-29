@@ -143,6 +143,8 @@ void keyboard_post_init_user(void) {
       invert_scroll = true;  // Windows/Linux用にスクロール方向を反転
       break;
     case OS_MACOS:
+      invert_scroll = true;  // For testing
+      break;
     case OS_IOS:
       invert_scroll = false; // macOS/iOSはそのまま
       break;
