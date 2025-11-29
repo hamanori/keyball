@@ -57,7 +57,9 @@ enum custom_keycodes {
   KC_MY_BTN5,                      // User4
   KC_MY_SCR,                       // User5             
   KC_TO_CLICKABLE_INC,             // User6
-  KC_TO_CLICKABLE_DEC              // User7 
+  KC_TO_CLICKABLE_DEC,             // User7 
+  KC_SCR_SPD_INC,                  // User8 スクロール閾値を下げて速度アップ
+  KC_SCR_SPD_DEC                   // User9 スクロール閾値を上げて速度ダウン
 };
 
 enum click_state {
@@ -73,6 +75,7 @@ typedef union {
   struct {
     // int16_t to_clickable_time; // // この秒数(千分の一秒)、WAITING状態ならクリックレイヤーが有効になる。  For this number of seconds (milliseconds), if in WAITING state, the click layer is activated.
     int16_t to_clickable_movement;
+    int16_t scroll_threshold;
   };
 } user_config_t;
 
@@ -89,9 +92,6 @@ const uint16_t click_layer = 6; // マウス入力が可能になった際に有
 int16_t scroll_v_mouse_interval_counter; // 垂直スクロールの入力をカウントする。　Counting Vertical Scroll Inputs
 int16_t scroll_h_mouse_interval_counter; // 水平スクロールの入力をカウントする。  Counts horizontal scrolling inputs.
 
-int16_t scroll_v_threshold = 50; // この閾値を超える度に垂直スクロールが実行される。 Vertical scrolling is performed each time this threshold is exceeded.
-int16_t scroll_h_threshold = 50; // この閾値を超える度に水平スクロールが実行される。 Each time this threshold is exceeded, horizontal scrolling is performed.
-
 int16_t after_click_lock_movement = 0; // クリック入力後の移動量を測定する変数。 Variable that measures the amount of movement after a click input.
 
 int16_t mouse_record_threshold = 30; // ポインターの動きを一時的に記録するフレーム数。 Number of frames in which the pointer movement is temporarily recorded.
@@ -102,6 +102,7 @@ int16_t mouse_movement;
 void eeconfig_init_user(void) {
   user_config.raw = 0;
   user_config.to_clickable_movement = 1; // 少しでも動かせばクリックレイヤー有効化
+  user_config.scroll_threshold = 50;     // スクロールの感度（小さいほど速い）
   eeconfig_update_user(user_config.raw);
 }
 
@@ -109,6 +110,10 @@ void keyboard_post_init_user(void) {
   user_config.raw = eeconfig_read_user();
   if (user_config.to_clickable_movement < 1) {
     user_config.to_clickable_movement = 1;
+    eeconfig_update_user(user_config.raw);
+  }
+  if (user_config.scroll_threshold < 1) {
+    user_config.scroll_threshold = 1;
     eeconfig_update_user(user_config.raw);
   }
 }
@@ -224,6 +229,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
     }
     return false;
 
+  case KC_SCR_SPD_INC:
+    if (record->event.pressed) {
+      user_config.scroll_threshold -= 5;
+      if (user_config.scroll_threshold < 1) {
+        user_config.scroll_threshold = 1;
+      }
+      eeconfig_update_user(user_config.raw);
+    }
+    return false;
+
+  case KC_SCR_SPD_DEC:
+    if (record->event.pressed) {
+      user_config.scroll_threshold += 5;
+      if (user_config.scroll_threshold > 200) {
+        user_config.scroll_threshold = 200;
+      }
+      eeconfig_update_user(user_config.raw);
+    }
+    return false;
+
   default:
     if (record->event.pressed)
     {
@@ -264,18 +289,20 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
     {
       int8_t rep_v = 0;
       int8_t rep_h = 0;
+      int16_t sv_th = user_config.scroll_threshold < 1 ? 1 : user_config.scroll_threshold;
+      int16_t sh_th = sv_th;
 
       // 垂直スクロールの方の感度を高める。 Increase sensitivity toward vertical scrolling.
       if (my_abs(current_y) * 2 > my_abs(current_x)) {
 
         scroll_v_mouse_interval_counter += current_y;
-        while (my_abs(scroll_v_mouse_interval_counter) > scroll_v_threshold) {
+        while (my_abs(scroll_v_mouse_interval_counter) > sv_th) {
           if (scroll_v_mouse_interval_counter < 0) {
-            scroll_v_mouse_interval_counter += scroll_v_threshold;
-            rep_v += scroll_v_threshold;
+            scroll_v_mouse_interval_counter += sv_th;
+            rep_v += sv_th;
           } else {
-            scroll_v_mouse_interval_counter -= scroll_v_threshold;
-            rep_v -= scroll_v_threshold;
+            scroll_v_mouse_interval_counter -= sv_th;
+            rep_v -= sv_th;
           }
 
         }
@@ -283,21 +310,21 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
 
         scroll_h_mouse_interval_counter += current_x;
 
-        while (my_abs(scroll_h_mouse_interval_counter) > scroll_h_threshold) {
+        while (my_abs(scroll_h_mouse_interval_counter) > sh_th) {
           if (scroll_h_mouse_interval_counter < 0) {
-            scroll_h_mouse_interval_counter += scroll_h_threshold;
-            rep_h += scroll_h_threshold;
+            scroll_h_mouse_interval_counter += sh_th;
+            rep_h += sh_th;
           } else {
-            scroll_h_mouse_interval_counter -= scroll_h_threshold;
-            rep_h -= scroll_h_threshold;
+            scroll_h_mouse_interval_counter -= sh_th;
+            rep_h -= sh_th;
           }
         }
       }
 
-      current_h = rep_h / scroll_h_threshold;
+      current_h = rep_h / sh_th;
       // my_winではスクロール方向を反転
       current_h = -current_h;
-      current_v = rep_v / scroll_v_threshold;
+      current_v = rep_v / sv_th;
       current_x = 0;
       current_y = 0;
     }
@@ -406,7 +433,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 
   [5] = LAYOUT_universal(
-    _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , _______  , _______  , _______  , _______  ,
+    _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , KC_SCR_SPD_INC , KC_SCR_SPD_DEC , _______  , _______  ,
     _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , _______  , _______  , _______  , _______  ,
     _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , _______  , _______  , _______  , _______  ,
                   _______  , _______  , _______  ,        _______  , _______  ,                   _______  , _______  , _______       , _______  , _______
@@ -463,5 +490,7 @@ void oledkit_render_info_user(void)
   oled_write(get_u8_str(mouse_movement, ' '), false);
   oled_write_P(PSTR("/"), false);
   oled_write(get_u8_str(user_config.to_clickable_movement, ' '), false);
+  oled_write_P(PSTR(" ST:"), false);
+  oled_write(get_u8_str(user_config.scroll_threshold, ' '), false);
 }
 #endif
