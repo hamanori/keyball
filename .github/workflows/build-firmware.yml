@@ -49,12 +49,18 @@ jobs:
         path = Path("__qmk__/lib/python/qmk/math.py")
         text = path.read_text()
 
+        # Inject AST_NUM fallback so ast.Num absence on Py3.14+ doesn't error
+        text = text.replace(
+            "import operator as op\n\n# supported operators",
+            "import operator as op\n\nAST_NUM = getattr(ast, \"Num\", tuple())\n\n# supported operators",
+        )
+
         new_eval = textwrap.dedent("""\
         def _eval(node):
             if isinstance(node, ast.Constant):  # Py3.8+; replaces ast.Num in Py3.14
                 if isinstance(node.value, (int, float, complex)):
                     return node.value
-            if isinstance(node, ast.Num):  # <number> (backward compat)
+            if AST_NUM and isinstance(node, AST_NUM):  # <number> (backward compat when available)
                 return node.n
             elif isinstance(node, ast.BinOp):  # <left> <operator> <right>
                 return operators[type(node.op)](_eval(node.left), _eval(node.right))
