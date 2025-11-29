@@ -101,12 +101,16 @@ int16_t mouse_movement;
 
 void eeconfig_init_user(void) {
   user_config.raw = 0;
-  user_config.to_clickable_movement = 0; // user_config.to_clickable_time = 10;
+  user_config.to_clickable_movement = 50; // user_config.to_clickable_time = 10;
   eeconfig_update_user(user_config.raw);
 }
 
 void keyboard_post_init_user(void) {
   user_config.raw = eeconfig_read_user();
+  if (user_config.to_clickable_movement < 5) {
+    user_config.to_clickable_movement = 50;
+    eeconfig_update_user(user_config.raw);
+  }
 }
 
 // クリック用のレイヤーを有効にする。　Enable layers for clicks
@@ -236,6 +240,14 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
   int16_t current_y = mouse_report.y;
   int16_t current_h = mouse_report.h;
   int16_t current_v = mouse_report.v;
+
+  // レイヤー3の標準スクロールモード使用時は、状態機械を介入させず既存挙動を優先。
+  if (get_highest_layer(layer_state) == 3 && state != SCROLLING) {
+    state = NONE;
+    mouse_movement = 0;
+    click_timer = timer_read();
+    return mouse_report;
+  }
 
   if (current_x != 0 || current_y != 0 || current_h != 0 || current_v != 0)
   {
@@ -417,6 +429,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 layer_state_t layer_state_set_user(layer_state_t state)
 {
+  // レイヤー3に入ったらクリックレイヤーを強制的にオフにしてスクロールを優先
+  if (get_highest_layer(state) == 3 && layer_state_is(click_layer)) {
+    disable_click_layer();
+  }
+
   // レイヤーが3の場合、スクロールモードが有効になる
   keyball_set_scroll_mode(get_highest_layer(state) == 3);
   // keyball_set_scroll_mode(get_highest_layer(state) == 1 || get_highest_layer(state) == 3);
