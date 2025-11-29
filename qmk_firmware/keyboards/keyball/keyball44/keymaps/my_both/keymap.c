@@ -119,7 +119,7 @@ uint8_t cached_os = 0;      // 一度だけ判定して保持
 void eeconfig_init_user(void) {
   user_config.raw = 0;
   user_config.to_clickable_movement = 1; // 1動きでクリックレイヤー有効化
-  user_config.scroll_threshold = 20;     // スクロール閾値の初期値
+  user_config.scroll_threshold = 30;     // スクロール閾値の初期値 (縦)
   eeconfig_update_user(user_config.raw);
 }
 
@@ -130,7 +130,7 @@ void keyboard_post_init_user(void) {
     eeconfig_update_user(user_config.raw);
   }
   if (user_config.scroll_threshold < 1) {
-    user_config.scroll_threshold = 20;
+    user_config.scroll_threshold = 30;
     eeconfig_update_user(user_config.raw);
   }
 
@@ -289,7 +289,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
 
   case KC_SCR_RST:
     if (record->event.pressed) {
-      user_config.scroll_threshold = 20;
+      user_config.scroll_threshold = 30;
       eeconfig_update_user(user_config.raw);
     }
     return false;
@@ -334,8 +334,8 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
     {
       int8_t rep_v = 0;
       int8_t rep_h = 0;
-      int16_t sv_th = user_config.scroll_threshold < 1 ? 1 : user_config.scroll_threshold;
-      int16_t sh_th = sv_th;
+      int16_t sv_th = user_config.scroll_threshold < 1 ? 1 : user_config.scroll_threshold; // vertical threshold
+      int16_t sh_th = sv_th * 2; // horizontal threshold is 2x vertical
 
       // 垂直スクロールの方の感度を高める。 Increase sensitivity toward vertical scrolling.
       if (my_abs(current_y) * 2 > my_abs(current_x)) {
