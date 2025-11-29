@@ -44,12 +44,16 @@ jobs:
     - name: Compile and link
       run: make -C __qmk__ -j 4 keyball/${{ inputs.keyboard }}:${{ inputs.keymap }}
 
+    - name: List build outputs
+      run: |
+        ls -R __qmk__/.build || true
+
     - name: Archive built firmware
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.keyboard }}-${{ inputs.keymap }}-firmware
         path: |
-          __qmk__/.build/*.hex
-          __qmk__/.build/*.uf2
-          __qmk__/.build/*.bin
+          __qmk__/.build/**/*.hex
+          __qmk__/.build/**/*.uf2
+          __qmk__/.build/**/*.bin
         if-no-files-found: error
