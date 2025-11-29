@@ -100,7 +100,11 @@ int16_t mouse_move_count_ratio = 5;  // ポインターの動きを再生する�
 
 int16_t mouse_movement;
 bool invert_scroll = false; // OS判定でスクロール方向を反転する
+#ifdef OS_DETECTION_ENABLE
 host_os_t detected_os = OS_UNSURE; // 一度だけ判定して保持
+#else
+uint8_t detected_os = 0; // OS_UNSURE 相当のプレースホルダ
+#endif
 
 void eeconfig_init_user(void) {
   user_config.raw = 0;
@@ -120,6 +124,7 @@ void keyboard_post_init_user(void) {
     eeconfig_update_user(user_config.raw);
   }
 
+#ifdef OS_DETECTION_ENABLE
   // OS自動判定 (少し待ってから実行する必要あり)
   wait_ms(400);
   detected_os = detected_host_os();
@@ -136,6 +141,7 @@ void keyboard_post_init_user(void) {
       invert_scroll = false;
       break;
   }
+#endif
 }
 
 // クリック用のレイヤーを有効にする。　Enable layers for clicks
@@ -515,6 +521,7 @@ void oledkit_render_info_user(void)
   oled_write_P(PSTR(" ST:"), false);
   oled_write(get_u8_str(user_config.scroll_threshold, ' '), false);
   oled_write_P(PSTR(" OS:"), false);
+#ifdef OS_DETECTION_ENABLE
   switch (detected_os) {
     case OS_WINDOWS:
       oled_write_P(PSTR("WIN"), false);
@@ -532,5 +539,8 @@ void oledkit_render_info_user(void)
       oled_write_P(PSTR("UNK"), false);
       break;
   }
+#else
+  oled_write_P(PSTR("NA"), false);
+#endif
 }
 #endif
