@@ -528,8 +528,8 @@ void oledkit_render_info_user(void)
   oled_write_P(PSTR(" "), false);
   oled_write_P(PSTR("MV:"), false);
   oled_write(get_u8_str(mouse_movement, ' '), false);
-  oled_write_char('/', false);
-  oled_write(get_u8_str(user_config.to_clickable_movement, ' '), false);
+  // oled_write_char('/', false);
+  // oled_write(get_u8_str(user_config.to_clickable_movement, ' '), false);
   oled_write_P(PSTR("   "), false); // clear remainder if digits shrink
 
   oled_set_cursor(0, 3);
