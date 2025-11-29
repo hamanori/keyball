@@ -101,14 +101,14 @@ int16_t mouse_movement;
 
 void eeconfig_init_user(void) {
   user_config.raw = 0;
-  user_config.to_clickable_movement = 50; // user_config.to_clickable_time = 10;
+  user_config.to_clickable_movement = 1; // 少しでも動かせばクリックレイヤー有効化
   eeconfig_update_user(user_config.raw);
 }
 
 void keyboard_post_init_user(void) {
   user_config.raw = eeconfig_read_user();
-  if (user_config.to_clickable_movement < 5) {
-    user_config.to_clickable_movement = 50;
+  if (user_config.to_clickable_movement < 1) {
+    user_config.to_clickable_movement = 1;
     eeconfig_update_user(user_config.raw);
   }
 }
@@ -212,8 +212,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
     if (record->event.pressed) {
       user_config.to_clickable_movement -= 5; // user_config.to_clickable_time -= 10;
 
-      if (user_config.to_clickable_movement < 5) {
-        user_config.to_clickable_movement = 5;
+      if (user_config.to_clickable_movement < 1) {
+        user_config.to_clickable_movement = 1;
       }
 
       // if (user_config.to_clickable_time < 10) {
