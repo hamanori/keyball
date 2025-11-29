@@ -241,12 +241,15 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
   int16_t current_h = mouse_report.h;
   int16_t current_v = mouse_report.v;
 
-  // レイヤー3の標準スクロールモード使用時は、状態機械を介入させず既存挙動を優先。
-  if (get_highest_layer(layer_state) == 3 && state != SCROLLING) {
+  // レイヤー3（標準スクロール）では miniZone の状態機械を完全に無効化して通過させる
+  if (get_highest_layer(layer_state) == 3) {
+    disable_click_layer();
     state = NONE;
     mouse_movement = 0;
+    scroll_v_mouse_interval_counter = 0;
+    scroll_h_mouse_interval_counter = 0;
     click_timer = timer_read();
-    return mouse_report;
+    return mouse_report; // Keyball標準のh/vをそのまま通す
   }
 
   if (current_x != 0 || current_y != 0 || current_h != 0 || current_v != 0)
