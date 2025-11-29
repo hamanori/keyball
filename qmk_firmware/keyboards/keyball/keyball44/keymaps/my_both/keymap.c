@@ -520,6 +520,8 @@ layer_state_t layer_state_set_user(layer_state_t ly_state)
 
 void oledkit_render_info_user(void)
 {
+  // Ensure we start rendering from the top-left.
+  oled_set_cursor(0, 0);
   keyball_oled_render_ballinfo();
 
   oled_set_cursor(0, 2);
