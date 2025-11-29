@@ -48,4 +48,8 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.keyboard }}-${{ inputs.keymap }}-firmware
-        path: __qmk__/*.hex
+        path: |
+          __qmk__/.build/*.hex
+          __qmk__/.build/*.uf2
+          __qmk__/.build/*.bin
+        if-no-files-found: error
