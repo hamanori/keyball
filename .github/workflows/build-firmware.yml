@@ -42,7 +42,7 @@ jobs:
       run: /usr/bin/python3 -m pip install --break-system-packages -r __qmk__/requirements.txt
 
     - name: Compile and link
-      run: qmk compile -j 4 -kb keyball/${{ inputs.keyboard }} -km ${{ inputs.keymap }}
+      run: make -C __qmk__ -j 4 keyball/${{ inputs.keyboard }}:${{ inputs.keymap }}
 
     - name: Archive built firmware
       uses: actions/upload-artifact@v4
