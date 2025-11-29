@@ -71,7 +71,8 @@ enum custom_keycodes {
   KC_TO_CLICKABLE_INC,             // User6
   KC_TO_CLICKABLE_DEC,             // User7 
   KC_SCR_SPD_INC,                  // User8 スクロール閾値を下げて速度アップ
-  KC_SCR_SPD_DEC                   // User9 スクロール閾値を上げて速度ダウン
+  KC_SCR_SPD_DEC,                  // User9 スクロール閾値を上げて速度ダウン
+  KC_SCR_RST                       // User10 スクロール閾値を初期値に戻す
 };
 
 enum click_state {
@@ -118,7 +119,7 @@ uint8_t cached_os = 0;      // 一度だけ判定して保持
 void eeconfig_init_user(void) {
   user_config.raw = 0;
   user_config.to_clickable_movement = 1; // 1動きでクリックレイヤー有効化
-  user_config.scroll_threshold = 50;
+  user_config.scroll_threshold = 50;     // スクロール閾値の初期値
   eeconfig_update_user(user_config.raw);
 }
 
@@ -282,6 +283,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
       if (user_config.scroll_threshold > 200) {
         user_config.scroll_threshold = 200;
       }
+      eeconfig_update_user(user_config.raw);
+    }
+    return false;
+
+  case KC_SCR_RST:
+    if (record->event.pressed) {
+      user_config.scroll_threshold = 50;
       eeconfig_update_user(user_config.raw);
     }
     return false;
@@ -472,7 +480,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 
   [5] = LAYOUT_universal(
-    _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , KC_SCR_SPD_INC , KC_SCR_SPD_DEC , _______  , _______  ,
+    _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , KC_SCR_SPD_INC , KC_SCR_SPD_DEC , KC_SCR_RST , _______  ,
     _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , _______  , _______  , _______  , _______  ,
     _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , _______  , _______  , _______  , _______  ,
                   _______  , _______  , _______  ,        _______  , _______  ,                   _______  , _______  , _______       , _______  , _______
