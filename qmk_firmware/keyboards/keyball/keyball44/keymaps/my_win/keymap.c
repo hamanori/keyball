@@ -451,11 +451,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 layer_state_t layer_state_set_user(layer_state_t ly_state)
 {
   uint8_t highest = get_highest_layer(ly_state);
+  bool on_scroll_layer = highest == 3;
+
+  // レイヤー3ではクリックレイヤー(6)を強制的に無効化する。
+  // layer_off() をここで呼ぶと layer_state_set_user が再帰して暴走するので、
+  // 状態を書き換えた値を戻り値で返す形にする。
+  if (on_scroll_layer) {
+    ly_state &= ~((layer_state_t)1 << click_layer);
+  }
 
   // レイヤー3はminiZoneスクロールを使うため、Keyball標準スクロールを無効化し状態をSCROLLINGにセット
-  if (highest == 3) {
+  if (on_scroll_layer) {
     keyball_set_scroll_mode(false); // x/yを保持
-    disable_click_layer();
     state = SCROLLING;
     scroll_v_mouse_interval_counter = 0;
     scroll_h_mouse_interval_counter = 0;
