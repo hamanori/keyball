@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include QMK_KEYBOARD_H
 #include "quantum.h"
+#include "lib/keyball/keyball.h"
 
 // OS detection is only available on newer QMK. Guard it so this keymap still
 // builds on environments that don't ship the feature.
@@ -432,6 +433,7 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
   mouse_report.y = current_y;
   mouse_report.h = current_h;
   mouse_report.v = current_v;
+  keyball.last_mouse = mouse_report; // propagate post-processed values to OLED
 
   return mouse_report;
 }
