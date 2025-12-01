@@ -530,6 +530,23 @@ layer_state_t layer_state_set_user(layer_state_t ly_state)
   return ly_state;
 }
 
+// Provide a short label for the current click/scroll state to show on OLED.
+const char *keyball_get_state_label(void) {
+  switch (state) {
+    case WAITING:
+      return "WAIT";
+    case CLICKABLE:
+      return "CLKB";
+    case CLICKING:
+      return "CLCK";
+    case SCROLLING:
+      return "SCRL";
+    case NONE:
+    default:
+      return "NONE";
+  }
+}
+
 #ifdef OLED_ENABLE
 
 #include "lib/oledkit/oledkit.h"
@@ -538,13 +555,10 @@ void oledkit_render_info_user(void)
 {
   // Ensure we start rendering from the top-left.
   oled_set_cursor(0, 0);
-  keyball_oled_render_ballinfo();
-
-  oled_set_cursor(0, 2);
   oled_write_P(PSTR("Info\xB1"), false);
   oled_write_P(PSTR("LY:"), false);
   oled_write(get_u8_str(get_highest_layer(layer_state), ' '), false);
-  oled_set_cursor(12, 2);
+  oled_set_cursor(12, 0);
   oled_write_P(PSTR(" "), false);
   oled_write_P(PSTR("MV:"), false);
   oled_write(get_u8_str(mouse_movement, ' '), false);
@@ -552,11 +566,17 @@ void oledkit_render_info_user(void)
   // oled_write(get_u8_str(user_config.to_clickable_movement, ' '), false);
   // oled_write_P(PSTR("   "), false); // clear remainder if digits shrink
 
-  oled_set_cursor(0, 3);
+  // Show CPI only (Ball info removed)
+  oled_set_cursor(0, 1);
+  oled_write_P(PSTR("\xBC\xBD\xB1"), false); // CPI label with custom font
+  oled_write(get_u8_str(keyball_get_cpi(), ' '), false);
+  oled_write_P(PSTR("00 "), false);
+
+  oled_set_cursor(0, 2);
   oled_write_P(PSTR("    \xB1"), false);
   oled_write_P(PSTR("ST:"), false);
   oled_write(get_u8_str(user_config.scroll_threshold, ' '), false);
-  oled_set_cursor(12, 3);
+  oled_set_cursor(12, 2);
   oled_write_P(PSTR(" "), false);
   oled_write_P(PSTR("OS:"), false);
 #if HAS_OS_DETECTION

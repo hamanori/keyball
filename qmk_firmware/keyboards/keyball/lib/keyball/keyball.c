@@ -59,6 +59,11 @@ keyball_t keyball = {
 
 __attribute__((weak)) void keyball_on_adjust_layout(keyball_adjust_t v) {}
 
+// State label provider for OLED. Override in keymap if you have a custom state.
+__attribute__((weak)) const char *keyball_get_state_label(void) {
+    return "----";
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // Static utilities
 
@@ -411,32 +416,14 @@ void keyball_oled_render_ballinfo(void) {
     oled_write(format_4d(keyball_get_cpi()) + 1, false);
     oled_write_P(PSTR("00 "), false);
 
-    // indicate scroll snap mode: "VT" (vertical), "HO" (horizontal), and "SCR" (free)
-#if 1 && KEYBALL_SCROLLSNAP_ENABLE == 2
-    switch (keyball_get_scrollsnap_mode()) {
-        case KEYBALL_SCROLLSNAP_MODE_VERTICAL:
-            oled_write_P(PSTR("VT"), false);
-            break;
-        case KEYBALL_SCROLLSNAP_MODE_HORIZONTAL:
-            oled_write_P(PSTR("HO"), false);
-            break;
-        default:
-            oled_write_P(PSTR("\xBE\xBF"), false);
-            break;
+    // State display (replaces scroll snap, scroll mode, and divider)
+    oled_write_P(PSTR(" ST:"), false);
+    const char *state = keyball_get_state_label();
+    if (state == NULL) {
+        state = "----";
     }
-#else
-    oled_write_P(PSTR("\xBE\xBF"), false);
-#endif
-    // indicate scroll mode: on/off
-    if (keyball.scroll_mode) {
-        oled_write_P(LFSTR_ON, false);
-    } else {
-        oled_write_P(LFSTR_OFF, false);
-    }
-
-    // indicate scroll divider:
-    oled_write_P(PSTR(" \xC0\xC1"), false);
-    oled_write_char('0' + keyball_get_scroll_div(), false);
+    oled_write(state, false);
+    oled_write_P(PSTR("   "), false); // clear leftovers from previous longer text
 #endif
 }
 

@@ -215,6 +215,10 @@ void keyball_on_apply_motion_to_mouse_scroll(keyball_motion_t *m, report_mouse_t
 /// It uses just 21 columns to show the info.
 void keyball_oled_render_ballinfo(void);
 
+/// keyball_get_state_label returns a short label shown by keyball_oled_render_ballinfo.
+/// Override this in your keymap to display custom state text.
+const char *keyball_get_state_label(void);
+
 /// keyball_oled_render_keyinfo renders last processed key information to OLED.
 /// It shows column, row, key code, and key name (if available).
 void keyball_oled_render_keyinfo(void);
