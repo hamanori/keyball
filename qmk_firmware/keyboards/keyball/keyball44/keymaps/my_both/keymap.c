@@ -416,7 +416,7 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
 
     case WAITING:
       // ポインタ停止が続いたときに待機状態を諦めて初期化するまでの猶予
-      if (timer_elapsed(click_timer) > 500) {
+      if (timer_elapsed(click_timer) > 5000) {
         mouse_movement = 0;
         state = NONE;
       }
