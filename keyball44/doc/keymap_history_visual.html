@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Keyball44 Mac Keymap - Conversation Snapshot</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17202a;
+      --muted: #66717d;
+      --line: #c8ced4;
+      --surface: #f5f6f7;
+      --key: #ffffff;
+      --accent: #167d70;
+      --accent-soft: #dff3ef;
+      --history: #fff0c2;
+      --mouse: #e4ebfb;
+      --empty: #e8ebee;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #ffffff;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+    main { max-width: 1240px; margin: 0 auto; padding: 28px 22px 42px; }
+    header { border-bottom: 1px solid var(--line); padding-bottom: 18px; }
+    h1 { margin: 0 0 8px; font-size: 26px; line-height: 1.25; }
+    .subtitle { margin: 0; color: var(--muted); font-size: 14px; }
+    .toolbar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 18px 0 14px;
+    }
+    .layer-tab {
+      min-width: 44px;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .layer-tab[aria-selected="true"] {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+    .layer-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      margin: 4px 0 12px;
+    }
+    h2 { margin: 0; font-size: 20px; }
+    .role { color: var(--muted); font-size: 14px; text-align: right; }
+    .board-wrap { overflow-x: auto; padding: 6px 0 18px; }
+    .board {
+      min-width: 1020px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 82px;
+      align-items: start;
+    }
+    .half { display: grid; gap: 7px; }
+    .key-row { display: grid; grid-template-columns: repeat(6, minmax(60px, 1fr)); gap: 7px; }
+    .key-row:nth-child(1) { padding: 0 30px; }
+    .key-row:nth-child(2) { padding: 0 14px; }
+    .key-row:nth-child(3) { padding: 0; }
+    .lower-left {
+      display: grid;
+      grid-template-columns: repeat(5, 68px);
+      justify-content: end;
+      align-items: start;
+      gap: 8px;
+      padding: 4px 2px 0 0;
+    }
+    .lower-right {
+      display: grid;
+      grid-template-columns: repeat(3, 68px);
+      justify-content: start;
+      align-items: start;
+      gap: 8px;
+      padding: 4px 0 0 2px;
+    }
+    .key {
+      min-width: 0;
+      height: 66px;
+      border: 1px solid #929ba4;
+      border-bottom-width: 3px;
+      border-radius: 6px;
+      background: var(--key);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 5px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 650;
+      line-height: 1.12;
+      overflow-wrap: anywhere;
+    }
+    .key small { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; font-weight: 500; }
+    .key.empty { background: var(--empty); color: #8b949d; }
+    .key.history { background: var(--history); border-color: #b4922b; }
+    .key.mouse { background: var(--mouse); border-color: #6d83bd; }
+    .key.layer { background: var(--accent-soft); border-color: var(--accent); }
+    .key.rot-left { transform: rotate(10deg); transform-origin: top center; }
+    .key.rot-right { transform: rotate(-10deg); transform-origin: top center; }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .swatch { width: 14px; height: 14px; border: 1px solid var(--line); border-radius: 3px; }
+    .source-note {
+      margin-top: 14px;
+      padding-left: 12px;
+      border-left: 3px solid var(--accent);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    @media (max-width: 700px) {
+      main { padding: 18px 14px 30px; }
+      h1 { font-size: 21px; }
+      .layer-head { display: block; }
+      .role { text-align: left; margin-top: 4px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Keyball44 Mac Keymap</h1>
+    <p class="subtitle">会話履歴とRemap PDFから復元した配置。Layer 1の黄色キーはPDF作成後のスクリーンショット由来です。</p>
+  </header>
+
+  <nav class="toolbar" aria-label="Layer selection" id="layer-tabs"></nav>
+  <section aria-live="polite">
+    <div class="layer-head">
+      <h2 id="layer-title"></h2>
+      <div class="role" id="layer-role"></div>
+    </div>
+    <div class="board-wrap">
+      <div class="board" id="board"></div>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#fff"></i>PDFで確認</span>
+      <span><i class="swatch" style="background:var(--history)"></i>PDF後の会話・スクリーンショット</span>
+      <span><i class="swatch" style="background:var(--accent-soft)"></i>レイヤー操作</span>
+      <span><i class="swatch" style="background:var(--mouse)"></i>マウス操作</span>
+      <span><i class="swatch" style="background:var(--empty)"></i>透過・未設定</span>
+    </div>
+    <div class="source-note" id="source-note"></div>
+  </section>
+</main>
+
+<script>
+  const E = { label: "▽", type: "empty" };
+  const k = (label, type = "", sub = "") => ({ label, type, sub });
+  const layers = [
+    {
+      role: "通常入力 / US配列",
+      source: "Layer 0: 2026-07-18 17:11のRemap PDFを基準。Cmd+Spaceは会話上で追加済みだが、位置を示す最終画像がないため未反映。",
+      keys: [
+        k("Esc"),k("Q"),k("W"),k("E"),k("R"),k("T"), k("Y"),k("U"),k("I"),k("O"),k("P"),k("-"),
+        k("Tab","layer","hold: L1"),k("A"),k("S"),k("D"),k("F"),k("G"), k("H"),k("J"),k("K"),k("L"),k(";"),k("'"),
+        k("Shift"),k("Z"),k("X"),k("C"),k("V"),k("B"), k("N"),k("M"),k(","),k("."),k("/"),k("\\","layer","hold: L3"),
+        k("Option"),k("Cmd"),k("英数","layer","hold: L3"),k("Space","layer","hold: Shift"),k("かな","layer","hold: L1"),
+        k("BS"),k("Enter","layer","hold: L2"),k("Ctrl")
+      ]
+    },
+    {
+      role: "カーソル / macOSウィンドウ操作 / VS Code補助",
+      source: "Layer 1: 右側は17:27、左側の黄色キーは23:44のスクリーンショットを反映。これは最終PDF未出力のため、静的化前にRemap実機読出しで確認が必要。",
+      keys: [
+        E,E,k("Opt+Cmd+←","history"),k("Ctrl+↑","history"),k("Opt+Cmd+→","history"),E, E,k("Home"),k("↑"),k("End"),k("Cmd+Shift+4"),k("F12"),
+        E,E,k("Ctrl+←","history"),k("Ctrl+↓","history"),k("Ctrl+→","history"),E, E,k("←"),k("↓"),k("→"),E,k("Ctrl+-"),
+        E,E,E,k("Ctrl+Cmd+F","history","Full Screen"),E,E, E,k("Option+←"),k("Cmd+D"),k("Option+→"),E,k("Ctrl+Shift+-"),
+        E,E,E,E,E, k("Option+BS"),k("Cmd+Enter"),E
+      ]
+    },
+    {
+      role: "数字 / 記号",
+      source: "Layer 2: 2026-07-18 17:11のRemap PDF。括弧、数字、Shift数字記号、演算子を意味の近い位置へ集約した時点。",
+      keys: [
+        k("<"),k("!"),k("@"),k("#"),k("$"),k("%"), k("^"),k("&"),k("*"),k("("),k(")"),E,
+        k(">"),k("1"),k("2"),k("3"),k("4"),k("5"), k("6"),k("7"),k("8"),k("9"),k("0"),k("~"),
+        k("|"),k("{"),k("}"),k("["),k("]"),k(":"), k("-"),k("+"),k("*"),k("? /"),k("> ."),k("~"),
+        k("("),k(")"),k("_"),k("Space"),k("+ ="), E,E,k("?")
+      ]
+    },
+    {
+      role: "VS Code / アプリ操作 / ボールスクロール",
+      source: "Layer 3: 2026-07-18 17:11のRemap PDF。Layer 3を保持している間、ファームウェア側でボール移動をスクロールへ変換。Anyキーの意味は静的化前に実機確認が必要。",
+      keys: [
+        E,k("Cmd+Q"),k("Cmd+W"),k("Ctrl+1"),k("Ctrl+PgDn"),k("Ctrl+B"), k("Ctrl+Shift+B"),k("Ctrl+←"),k("Ctrl+↑"),k("Ctrl+→"),k("Any 0x5DA8"),k("Any 0x5DA7"),
+        E,E,k("Opt+Cmd+↑"),k("Ctrl+T"),k("Opt+Cmd+↓"),k("Ctrl+Shift+S"), k("Ctrl+Shift+2"),k("Ctrl+Opt+←"),k("Ctrl+Cmd+F"),k("Ctrl+Opt+→"),k("Any 0x5DAD"),k("Any 0x5DAE"),
+        E,E,k("Cmd+-"),k("Cmd+0"),k("Cmd+="),k("Cmd+Z"), k("Ctrl+Shift+Z"),k("Cmd+["),k("Cmd+J"),k("Cmd+]"),k("Mute"),k("Any 0x5DA6"),
+        k("Cmd+Q"),k("Cmd+W"),E,E,E, k("Option+BS"),k("Cmd+Enter"),k("Any 0x5DA5")
+      ]
+    },
+    {
+      role: "未使用",
+      source: "Layer 4: PDF上は全面透過。入口・役割とも未確定で、削除候補。",
+      keys: Array(44).fill(E)
+    },
+    {
+      role: "未使用",
+      source: "Layer 5: PDF上は全面透過。過去コードには調整機能の名残があるが、現在のRemap配置には入口がなく、削除候補。",
+      keys: Array(44).fill(E)
+    },
+    {
+      role: "Auto Mouse / クリック",
+      source: "Layer 6: トラックボール移動で自動起動。PDFで確認できるUser 0/1/3/4を表示。現在のFWは通常キー押下で即解除し、100ms以内の累積移動量6で起動する。",
+      keys: [
+        E,E,E,E,E,E, E,E,E,E,E,E,
+        E,E,E,E,E,E, E,k("左クリック","mouse","User 0"),E,k("右クリック","mouse","User 1"),E,E,
+        E,E,E,E,E,E, E,k("戻る","mouse","User 3"),E,k("進む","mouse","User 4"),E,E,
+        E,E,E,E,E, E,E,E
+      ]
+    }
+  ];
+
+  const tabs = document.getElementById("layer-tabs");
+  const board = document.getElementById("board");
+  const title = document.getElementById("layer-title");
+  const role = document.getElementById("layer-role");
+  const note = document.getElementById("source-note");
+
+  function keyElement(item, rotate = "") {
+    const el = document.createElement("div");
+    el.className = `key ${item.type || ""} ${rotate}`.trim();
+    el.innerHTML = `<span>${item.label}</span>${item.sub ? `<small>${item.sub}</small>` : ""}`;
+    return el;
+  }
+
+  function renderHalf(keys, side) {
+    const half = document.createElement("div");
+    half.className = `half ${side}`;
+    for (let row = 0; row < 3; row++) {
+      const rowEl = document.createElement("div");
+      rowEl.className = "key-row";
+      const start = row * 12 + (side === "left" ? 0 : 6);
+      keys.slice(start, start + 6).forEach(item => rowEl.appendChild(keyElement(item)));
+      half.appendChild(rowEl);
+    }
+    const lower = document.createElement("div");
+    lower.className = side === "left" ? "lower-left" : "lower-right";
+    const extras = side === "left" ? keys.slice(36, 41) : keys.slice(41, 44);
+    extras.forEach((item, index) => {
+      let rotate = "";
+      if (side === "left" && index >= 3) rotate = "rot-left";
+      if (side === "right" && index < 2) rotate = "rot-right";
+      lower.appendChild(keyElement(item, rotate));
+    });
+    half.appendChild(lower);
+    return half;
+  }
+
+  function showLayer(index) {
+    const layer = layers[index];
+    title.textContent = `Layer ${index}`;
+    role.textContent = layer.role;
+    note.textContent = layer.source;
+    board.replaceChildren(renderHalf(layer.keys, "left"), renderHalf(layer.keys, "right"));
+    [...tabs.children].forEach((tab, i) => tab.setAttribute("aria-selected", i === index ? "true" : "false"));
+  }
+
+  layers.forEach((_, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "layer-tab";
+    button.textContent = index;
+    button.setAttribute("aria-label", `Layer ${index}`);
+    button.addEventListener("click", () => showLayer(index));
+    tabs.appendChild(button);
+  });
+  showLayer(0);
+</script>
+</body>
+</html>
