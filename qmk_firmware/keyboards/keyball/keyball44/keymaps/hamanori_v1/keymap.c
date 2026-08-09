@@ -63,81 +63,77 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////
 
 enum custom_keycodes {
-  // Keep the values stable while existing Remap EEPROM profiles use User 0-10.
-  KC_MY_BTN1            = KEYBALL_SAFE_RANGE + 0,  // User0
-  KC_MY_BTN2            = KEYBALL_SAFE_RANGE + 1,  // User1
-  KC_MY_BTN3            = KEYBALL_SAFE_RANGE + 2,  // User2
-  KC_MY_BTN4            = KEYBALL_SAFE_RANGE + 3,  // User3
-  KC_MY_BTN5            = KEYBALL_SAFE_RANGE + 4,  // User4
-  KC_MY_SCR             = KEYBALL_SAFE_RANGE + 5,  // User5
-  KC_TO_CLICKABLE_INC   = KEYBALL_SAFE_RANGE + 6,  // User6 (reserved)
-  KC_TO_CLICKABLE_DEC   = KEYBALL_SAFE_RANGE + 7,  // User7 (reserved)
-  KC_SCR_SPD_INC        = KEYBALL_SAFE_RANGE + 8,  // User8 スクロール閾値を下げて速度アップ
-  KC_SCR_SPD_DEC        = KEYBALL_SAFE_RANGE + 9,  // User9 スクロール閾値を上げて速度ダウン
-  KC_SCR_RST            = KEYBALL_SAFE_RANGE + 10  // User10 スクロール閾値を初期値に戻す
+  KC_MY_BTN1 = KEYBALL_SAFE_RANGE, // User0
+  KC_MY_BTN2,                      // User1
+  KC_MY_BTN3,                      // User2
+  KC_MY_BTN4,                      // User3
+  KC_MY_BTN5,                      // User4
+  KC_MY_SCR,                       // User5
+  KC_TO_CLICKABLE_INC,             // User6
+  KC_TO_CLICKABLE_DEC,             // User7
+  KC_SCR_SPD_INC,                  // User8 スクロール閾値を下げて速度アップ
+  KC_SCR_SPD_DEC,                  // User9 スクロール閾値を上げて速度ダウン
+  KC_SCR_RST                       // User10 スクロール閾値を初期値に戻す
 };
 
-enum layers {
-  L_SCROLL = 3,
-  L_MOUSE = 6,
+enum click_state {
+  NONE = 0,
+  WAITING,    // マウスレイヤーが有効になるのを待つ。 Wait for mouse layer to activate.
+  CLICKABLE,  // マウスレイヤー有効になりクリック入力が取れる。 Mouse layer is enabled to take click input.
+  CLICKING,   // クリック中。 Clicking.
+  SCROLLING   // スクロール中。 Scrolling.
 };
 
 typedef union {
   uint32_t raw;
   struct {
-    // Preserve the EEPROM layout used by the previous state machine.
-    int16_t reserved_click_movement;
+    // int16_t to_clickable_time; // // この秒数(千分の一秒)、WAITING状態ならクリックレイヤーが有効になる。  For this number of seconds (milliseconds), if in WAITING state, the click layer is activated.
+    int16_t to_clickable_movement;
     int16_t scroll_threshold;
   };
 } user_config_t;
 
 user_config_t user_config;
 
+enum click_state state; // 現在のクリック入力受付の状態 Current click input reception status
+uint16_t click_timer;   // タイマー。状態に応じて時間で判定する。 Timer. Time to determine the state of the system.
+
+// uint16_t to_clickable_time = 50;   // この秒数(千分の一秒)、WAITING状態ならクリックレイヤーが有効になる。  For this number of seconds (milliseconds), if in WAITING state, the click layer is activated.
+uint16_t to_reset_time = 5000; // この秒数(千分の一秒)、CLICKABLE状態ならクリックレイヤーが無効になる。 For this number of seconds (milliseconds), the click layer is disabled if in CLICKABLE state.
+
+const uint16_t click_layer = 6; // マウス入力が可能になった際に有効になるレイヤー。Layers enabled when mouse input is enabled
+
 int16_t scroll_v_mouse_interval_counter; // 垂直スクロールの入力をカウントする。　Counting Vertical Scroll Inputs
 int16_t scroll_h_mouse_interval_counter; // 水平スクロールの入力をカウントする。  Counts horizontal scrolling inputs.
 
-bool scroll_key_held = false;
-bool scroll_layer_active = false;
-uint8_t held_mouse_buttons = 0;
+int16_t after_click_lock_movement = 0; // クリック入力後の移動量を測定する変数。 Variable that measures the amount of movement after a click input.
+
+int16_t mouse_record_threshold = 30; // ポインターの動きを一時的に記録するフレーム数。 Number of frames in which the pointer movement is temporarily recorded.
+int16_t mouse_move_count_ratio = 5;  // ポインターの動きを再生する際の移動フレームの係数。 The coefficient of the moving frame when replaying the pointer movement.
+
+int16_t mouse_movement;
 bool invert_scroll = false; // OS判定でスクロール方向を反転する
 #if HAS_OS_DETECTION
 uint8_t cached_os = 0;      // 一度だけ判定して保持
 #endif
 
-static bool is_minizone_scroll_active(void) {
-  return scroll_key_held || scroll_layer_active;
-}
-
-static void reset_scroll_counters(void) {
-  scroll_v_mouse_interval_counter = 0;
-  scroll_h_mouse_interval_counter = 0;
-}
-
 void eeconfig_init_user(void) {
   user_config.raw = 0;
-  user_config.scroll_threshold = 30;
+  user_config.to_clickable_movement = 1; // 1動きでクリックレイヤー有効化
+  user_config.scroll_threshold = 30;     // スクロール閾値の初期値 (縦)
   eeconfig_update_user(user_config.raw);
 }
 
 void keyboard_post_init_user(void) {
   user_config.raw = eeconfig_read_user();
-  bool config_changed = false;
-
-  if (user_config.reserved_click_movement != 0) {
-    user_config.reserved_click_movement = 0;
-    config_changed = true;
-  }
-  if (user_config.scroll_threshold < 1 || user_config.scroll_threshold > 200) {
-    user_config.scroll_threshold = 30;
-    config_changed = true;
-  }
-  if (config_changed) {
+  if (user_config.to_clickable_movement < 1) {
+    user_config.to_clickable_movement = 1;
     eeconfig_update_user(user_config.raw);
   }
-
-  // The QMK auto mouse module is the sole owner of the temporary mouse layer.
-  set_auto_mouse_enable(true);
-  set_auto_mouse_timeout(AUTO_MOUSE_TIME);
+  if (user_config.scroll_threshold < 1) {
+    user_config.scroll_threshold = 30;
+    eeconfig_update_user(user_config.raw);
+  }
 
 #if HAS_OS_DETECTION
   // OS自動判定 (少し待ってから実行する必要あり)
@@ -161,6 +157,21 @@ void keyboard_post_init_user(void) {
 #endif
 }
 
+// クリック用のレイヤーを有効にする。　Enable layers for clicks
+void enable_click_layer(void)
+{
+  layer_on(click_layer);
+  click_timer = timer_read();
+  state = CLICKABLE;
+}
+
+// クリック用のレイヤーを無効にする。 Disable layers for clicks.
+void disable_click_layer(void)
+{
+  state = NONE;
+  layer_off(click_layer);
+}
+
 // 自前の絶対数を返す関数。 Functions that return absolute numbers.
 int16_t my_abs(int16_t num)
 {
@@ -172,10 +183,21 @@ int16_t my_abs(int16_t num)
   return num;
 }
 
-bool is_mouse_record_user(uint16_t keycode, keyrecord_t *record) {
-  (void)record;
+// 自前の符号を返す関数。 Function to return the sign.
+int16_t mmouse_move_y_sign(int16_t num)
+{
+  if (num < 0)
+  {
+    return -1;
+  }
 
-  return (keycode >= KC_MY_BTN1 && keycode <= KC_MY_BTN5) || keycode == KC_MY_SCR;
+  return 1;
+}
+
+// 現在クリックが可能な状態か。 Is it currently clickable?
+bool is_clickable_mode(void)
+{
+  return state == CLICKABLE || state == CLICKING || state == SCROLLING;
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record)
@@ -189,29 +211,61 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
   case KC_MY_BTN4:
   case KC_MY_BTN5:
   {
-    uint8_t button_index = keycode - KC_MY_BTN1;
-    uint8_t button_mask = 1 << button_index;
-    extern void register_mouse(uint8_t mouse_keycode, bool pressed);
+    report_mouse_t currentReport = pointing_device_get_report();
 
-    register_mouse(KC_MS_BTN1 + button_index, record->event.pressed);
-    if (record->event.pressed) {
-      held_mouse_buttons |= button_mask;
-    } else {
-      held_mouse_buttons &= ~button_mask;
+    // どこのビットを対象にするか。 Which bits are to be targeted?
+    uint8_t btn = 1 << (keycode - KC_MY_BTN1);
+
+    if (record->event.pressed)
+    {
+      // ビットORは演算子の左辺と右辺の同じ位置にあるビットを比較して、両方のビットのどちらかが「1」の場合に「1」にします。
+      // Bit OR compares bits in the same position on the left and right sides of the operator and sets them to "1" if either of both bits is "1".
+      currentReport.buttons |= btn;
+      state = CLICKING;
+      after_click_lock_movement = 30;
     }
+    else
+    {
+      // ビットANDは演算子の左辺と右辺の同じ位置にあるビットを比較して、両方のビットが共に「1」の場合だけ「1」にします。
+      // Bit AND compares the bits in the same position on the left and right sides of the operator and sets them to "1" only if both bits are "1" together.
+      currentReport.buttons &= ~btn;
+      enable_click_layer();
+    }
+
+    pointing_device_set_report(currentReport);
+    pointing_device_send();
     return false;
   }
 
   case KC_MY_SCR:
-    if (scroll_key_held != record->event.pressed) {
-      scroll_key_held = record->event.pressed;
-      reset_scroll_counters();
+    if (record->event.pressed) {
+      state = SCROLLING;
+    } else {
+      enable_click_layer(); // スクロールキーを離した時に再度クリックレイヤーを有効にする。 Enable click layer again when the scroll key is released.
     }
     return false;
 
   case KC_TO_CLICKABLE_INC:
+    if (record->event.pressed) {
+      user_config.to_clickable_movement += 5; // user_config.to_clickable_time += 10;
+      eeconfig_update_user(user_config.raw);
+    }
+    return false;
+
   case KC_TO_CLICKABLE_DEC:
-    // Reserved until the existing Remap profiles are replaced by static maps.
+    if (record->event.pressed) {
+      user_config.to_clickable_movement -= 5; // user_config.to_clickable_time -= 10;
+
+      if (user_config.to_clickable_movement < 1) {
+        user_config.to_clickable_movement = 1;
+      }
+
+      // if (user_config.to_clickable_time < 10) {
+      //     user_config.to_clickable_time = 10;
+      // }
+
+      eeconfig_update_user(user_config.raw);
+    }
     return false;
 
   case KC_SCR_SPD_INC:
@@ -242,7 +296,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
     return false;
 
   default:
-    break;
+    if (record->event.pressed)
+    {
+      disable_click_layer();
+    }
   }
 
   return true;
@@ -255,7 +312,27 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
   int16_t current_h = mouse_report.h;
   int16_t current_v = mouse_report.v;
 
-  if (is_minizone_scroll_active() && (current_x != 0 || current_y != 0)) {
+  if (current_x != 0 || current_y != 0 || current_h != 0 || current_v != 0)
+  {
+
+    switch (state)
+    {
+    case CLICKABLE:
+      click_timer = timer_read();
+      break;
+
+    case CLICKING:
+      after_click_lock_movement -= my_abs(current_x) + my_abs(current_y);
+
+      if (after_click_lock_movement > 0) {
+        current_x = 0;
+        current_y = 0;
+      }
+
+      break;
+
+    case SCROLLING:
+    {
       int8_t rep_v = 0;
       int8_t rep_h = 0;
       int16_t sv_th = user_config.scroll_threshold < 1 ? 1 : user_config.scroll_threshold; // vertical threshold
@@ -265,37 +342,91 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
       if (my_abs(current_y) * 2 > my_abs(current_x)) {
 
         scroll_v_mouse_interval_counter += current_y;
-        while (my_abs(scroll_v_mouse_interval_counter) >= sv_th) {
+        while (my_abs(scroll_v_mouse_interval_counter) > sv_th) {
           if (scroll_v_mouse_interval_counter < 0) {
             scroll_v_mouse_interval_counter += sv_th;
-            rep_v++;
+            rep_v += sv_th;
           } else {
             scroll_v_mouse_interval_counter -= sv_th;
-            rep_v--;
+            rep_v -= sv_th;
           }
+
         }
       } else {
+
         scroll_h_mouse_interval_counter += current_x;
 
-        while (my_abs(scroll_h_mouse_interval_counter) >= sh_th) {
+        while (my_abs(scroll_h_mouse_interval_counter) > sh_th) {
           if (scroll_h_mouse_interval_counter < 0) {
             scroll_h_mouse_interval_counter += sh_th;
-            rep_h++;
+            rep_h += sh_th;
           } else {
             scroll_h_mouse_interval_counter -= sh_th;
-            rep_h--;
+            rep_h -= sh_th;
           }
         }
       }
 
-      current_h = rep_h;
-      current_v = -rep_v;
+      current_h = rep_h / sh_th;
+      current_v = -rep_v / sv_th;
       if (invert_scroll) {
         current_h = -current_h;
         current_v = -current_v;
       }
       current_x = 0;
       current_y = 0;
+    }
+    break;
+
+    case WAITING:
+      /*
+      if (timer_elapsed(click_timer) > user_config.to_clickable_time) {
+          enable_click_layer();
+      }
+      */
+
+      mouse_movement += my_abs(current_x) + my_abs(current_y) + my_abs(current_h) + my_abs(current_v);
+
+      if (mouse_movement >= user_config.to_clickable_movement)
+      {
+        mouse_movement = 0;
+        enable_click_layer();
+      }
+      break;
+
+    default:
+      click_timer = timer_read();
+      state = WAITING;
+      mouse_movement = 0;
+    }
+  }
+  else
+  {
+    switch (state)
+    {
+    case CLICKING:
+    case SCROLLING:
+
+      break;
+
+    case CLICKABLE:
+      if (timer_elapsed(click_timer) > to_reset_time) {
+        disable_click_layer();
+      }
+      break;
+
+    case WAITING:
+      // ポインタ停止が続いたときに待機状態を諦めて初期化するまでの猶予
+      if (timer_elapsed(click_timer) > 5000) {
+        mouse_movement = 0;
+        state = NONE;
+      }
+      break;
+
+    default:
+      mouse_movement = 0;
+      state = NONE;
+    }
   }
 
   mouse_report.x = current_x;
@@ -305,15 +436,6 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
   keyball.last_mouse = mouse_report; // propagate post-processed values to OLED
 
   return mouse_report;
-}
-
-bool auto_mouse_activation(report_mouse_t mouse_report) {
-  if (is_minizone_scroll_active()) {
-    return false;
-  }
-
-  return mouse_report.x != 0 || mouse_report.y != 0 || mouse_report.h != 0 ||
-         mouse_report.v != 0 || mouse_report.buttons;
 }
 
 ////////////////////////////////////
@@ -378,34 +500,53 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 layer_state_t layer_state_set_user(layer_state_t ly_state)
 {
-  bool next_scroll_layer_active = (ly_state & ((layer_state_t)1 << L_SCROLL)) != 0;
+  uint8_t highest = get_highest_layer(ly_state);
+  bool on_scroll_layer = highest == 3;
 
-  // Layer 3 owns ball motion, so do not allow the auto mouse layer to overlap it.
-  if (next_scroll_layer_active) {
-    ly_state &= ~((layer_state_t)1 << L_MOUSE);
+  // レイヤー3ではクリックレイヤー(6)を強制的に無効化する。
+  // layer_off() をここで呼ぶと layer_state_set_user が再帰して暴走するので、
+  // 状態を書き換えた値を戻り値で返す形にする。
+  if (on_scroll_layer) {
+    ly_state &= ~((layer_state_t)1 << click_layer);
   }
 
-  if (scroll_layer_active != next_scroll_layer_active) {
-    scroll_layer_active = next_scroll_layer_active;
-    reset_scroll_counters();
+  // レイヤー3はminiZoneスクロールを使うため、Keyball標準スクロールを無効化し状態をSCROLLINGにセット
+  if (on_scroll_layer) {
+    keyball_set_scroll_mode(false); // x/yを保持
+    state = SCROLLING;
+    scroll_v_mouse_interval_counter = 0;
+    scroll_h_mouse_interval_counter = 0;
+    click_timer = timer_read();
+  } else {
+    // レイヤー3を抜けたらminiZoneスクロール状態を解除
+    if (state == SCROLLING) {
+      state = NONE;
+      scroll_v_mouse_interval_counter = 0;
+      scroll_h_mouse_interval_counter = 0;
+      after_click_lock_movement = 0;
+      mouse_movement = 0;
+    }
+    keyball_set_scroll_mode(false); // 他レイヤーは通常ポインタ
   }
-  keyball_set_scroll_mode(false);
 
   return ly_state;
 }
 
 // Provide a short label for the current click/scroll state to show on OLED.
 const char *keyball_get_state_label(void) {
-  if (is_minizone_scroll_active()) {
-    return "SCRL";
+  switch (state) {
+    case WAITING:
+      return "WAIT";
+    case CLICKABLE:
+      return "CLKB";
+    case CLICKING:
+      return "CLCK";
+    case SCROLLING:
+      return "SCRL";
+    case NONE:
+    default:
+      return "NONE";
   }
-  if (held_mouse_buttons != 0) {
-    return "CLCK";
-  }
-  if (layer_state_is(L_MOUSE)) {
-    return "CLKB";
-  }
-  return "NONE";
 }
 
 #ifdef OLED_ENABLE
@@ -421,7 +562,11 @@ void oledkit_render_info_user(void)
   oled_write(get_u8_str(get_highest_layer(layer_state), ' '), false);
   oled_set_cursor(12, 0);
   oled_write_P(PSTR(" "), false);
-  oled_write(keyball_get_state_label(), false);
+  oled_write_P(PSTR("MV:"), false);
+  oled_write(get_u8_str(mouse_movement, ' '), false);
+  // oled_write_char('/', false);
+  // oled_write(get_u8_str(user_config.to_clickable_movement, ' '), false);
+  // oled_write_P(PSTR("   "), false); // clear remainder if digits shrink
 
   // Show CPI only (Ball info removed)
   oled_set_cursor(0, 1);
