@@ -36,13 +36,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* タップ系の微調整（そのまま） */
 #define TAP_CODE_DELAY 5
 
-// AML
-#define POINTING_DEVICE_AUTO_MOUSE_ENABLE
-#define AUTO_MOUSE_DEFAULT_LAYER 6
-#define AUTO_MOUSE_TIME 1000
-#define AUTO_MOUSE_DELAY 0
-#define AUTO_MOUSE_ACTIVATION_DISTANCE 6
-#define AUTO_MOUSE_ACTIVATION_WINDOW 100
+// Mouse session. Layer 6 is owned by the keymap state machine instead of
+// QMK's built-in Auto Mouse lifecycle.
+#define MOUSE_SESSION_READY_TIMEOUT 10000
+#define MOUSE_SESSION_MULTI_CLICK_TERM 500
+#define MOUSE_SESSION_ACTIVATION_DISTANCE 6
+#define MOUSE_SESSION_ACTIVATION_WINDOW 100
+#define MOUSE_SESSION_DRAG_THRESHOLD 6
+#define MOUSE_SESSION_BALL_STOP_REPORTS 2
 
 // Tapping term
 #define TAPPING_TERM 200

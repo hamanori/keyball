@@ -20,7 +20,7 @@
 
 ### Layer Ownership
 
-Auto Mouse Layerの有効化、維持、解除を一つの仕組みだけが管理するという責務。QMK Auto Mouseを唯一の所有者とし、独自処理はActivation Policyを提供する。
+Auto Mouse Layerの有効化、維持、解除を一つの仕組みだけが管理するという責務。`hamanori`キーマップではMouse Session Moduleを唯一の所有者とし、QMK標準Auto Mouseは使用しない。
 
 ### Keyboard Suppression Window
 
@@ -41,3 +41,15 @@ Control、Shift、Option、Commandのいずれかを伴うクリック、ドラ�
 ### Click Stabilization
 
 クリック操作による筐体やボールの微動でポインター位置がずれることを抑える振る舞い。ドラッグ開始を妨げないことと両立する必要がある。
+
+### Shortcut Operation Name
+
+複合ショートカットを押したときに起きる操作を、短い日本語で表した名称。同じキーがアプリごとに異なる操作を持つ場合は、複数のShortcut Operation Nameを持つ。
+
+### Key Help
+
+キー表記だけでは操作結果が分かりにくいショートカットの意味を確認するための補助表示。レイヤーキーや通常キーは対象にしない。ホバーまたはフォーカスでは一時表示し、クリックまたはタップでは固定表示する。
+
+### Unverified Key
+
+配置は確認できるが、対応する操作の意味を履歴から確定できないキー。推定した操作名を付けず、未確認として表示する。

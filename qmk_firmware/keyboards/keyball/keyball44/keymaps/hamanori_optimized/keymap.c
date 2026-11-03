@@ -100,12 +100,48 @@ bool scroll_key_held = false;
 bool scroll_layer_active = false;
 uint8_t held_mouse_buttons = 0;
 uint8_t held_keyboard_keys = 0;
-uint16_t auto_mouse_movement = 0;
-uint32_t auto_mouse_movement_timer = 0;
 bool invert_scroll = false; // OS判定でスクロール方向を反転する
 #if HAS_OS_DETECTION
 uint8_t cached_os = 0;      // 一度だけ判定して保持
 #endif
+
+typedef enum {
+  MOUSE_SESSION_NORMAL,
+  MOUSE_SESSION_READY,
+  MOUSE_SESSION_HELD,
+  MOUSE_SESSION_MULTI_CLICK_GRACE,
+  MOUSE_SESSION_WAIT_FOR_BALL_STOP,
+} mouse_session_state_t;
+
+enum {
+  MOUSE_POSITION_BTN1,
+  MOUSE_POSITION_BTN2,
+  MOUSE_POSITION_BTN3,
+  MOUSE_POSITION_BTN4,
+  MOUSE_POSITION_BTN5,
+  MOUSE_POSITION_SCROLL,
+  MOUSE_POSITION_COUNT,
+};
+
+#define MOUSE_LAYER_MASK ((layer_state_t)1 << L_MOUSE)
+#define MOUSE_BLOCKING_LAYERS_MASK (MOUSE_LAYER_MASK - 2)
+
+static mouse_session_state_t mouse_session_state = MOUSE_SESSION_NORMAL;
+static uint32_t mouse_session_timer = 0;
+static uint16_t mouse_session_movement = 0;
+static uint32_t mouse_session_movement_timer = 0;
+static uint16_t mouse_session_drag_distance = 0;
+static uint8_t mouse_session_settle_reports = 0;
+static bool mouse_session_ball_settled = false;
+static bool mouse_session_used_scroll = false;
+static bool pending_dual_role = false;
+static keypos_t pending_dual_role_position;
+static keypos_t held_mouse_positions[MOUSE_POSITION_COUNT];
+static uint8_t held_mouse_position_mask = 0;
+static keypos_t forced_release_positions[MOUSE_POSITION_COUNT];
+static uint8_t forced_release_count = 0;
+
+extern void register_mouse(uint8_t mouse_keycode, bool pressed);
 
 static bool is_minizone_scroll_active(void) {
   return scroll_key_held || scroll_layer_active;
@@ -116,9 +152,144 @@ static void reset_scroll_counters(void) {
   scroll_h_mouse_interval_counter = 0;
 }
 
-static void reset_auto_mouse_movement(void) {
-  auto_mouse_movement = 0;
-  auto_mouse_movement_timer = timer_read32();
+static bool key_positions_equal(keypos_t left, keypos_t right) {
+  return left.row == right.row && left.col == right.col;
+}
+
+static void reset_mouse_session_movement(void) {
+  mouse_session_movement = 0;
+  mouse_session_movement_timer = timer_read32();
+}
+
+static void reset_mouse_session_settle(void) {
+  mouse_session_settle_reports = 0;
+  mouse_session_ball_settled = false;
+}
+
+static void remember_held_mouse_position(uint8_t index, keypos_t position) {
+  held_mouse_positions[index] = position;
+  held_mouse_position_mask |= (1U << index);
+}
+
+static void forget_held_mouse_position(uint8_t index) {
+  held_mouse_position_mask &= ~(1U << index);
+}
+
+static void remember_forced_release(keypos_t position) {
+  for (uint8_t i = 0; i < forced_release_count; i++) {
+    if (key_positions_equal(forced_release_positions[i], position)) {
+      return;
+    }
+  }
+  if (forced_release_count < MOUSE_POSITION_COUNT) {
+    forced_release_positions[forced_release_count++] = position;
+  }
+}
+
+static bool consume_forced_release(keyrecord_t *record) {
+  if (record->event.pressed) {
+    return false;
+  }
+  for (uint8_t i = 0; i < forced_release_count; i++) {
+    if (key_positions_equal(forced_release_positions[i], record->event.key)) {
+      forced_release_positions[i] = forced_release_positions[--forced_release_count];
+      return true;
+    }
+  }
+  return false;
+}
+
+static void mouse_session_reset_tracking(void) {
+  mouse_session_drag_distance = 0;
+  mouse_session_used_scroll = false;
+  reset_mouse_session_movement();
+  reset_mouse_session_settle();
+}
+
+static void mouse_session_release_held_operations(void) {
+  for (uint8_t i = 0; i < 5; i++) {
+    if (held_mouse_buttons & (1U << i)) {
+      register_mouse(KC_MS_BTN1 + i, false);
+      if (held_mouse_position_mask & (1U << i)) {
+        remember_forced_release(held_mouse_positions[i]);
+      }
+    }
+  }
+  held_mouse_buttons = 0;
+
+  if (scroll_key_held) {
+    if (held_mouse_position_mask & (1U << MOUSE_POSITION_SCROLL)) {
+      remember_forced_release(held_mouse_positions[MOUSE_POSITION_SCROLL]);
+    }
+    scroll_key_held = false;
+    reset_scroll_counters();
+  }
+  held_mouse_position_mask = 0;
+}
+
+static void mouse_session_force_normal(bool update_layer) {
+  mouse_session_release_held_operations();
+  mouse_session_state = MOUSE_SESSION_NORMAL;
+  mouse_session_reset_tracking();
+  if (update_layer && layer_state_is(L_MOUSE)) {
+    layer_off(L_MOUSE);
+  }
+}
+
+static void mouse_session_enter_ready(void) {
+  mouse_session_state = MOUSE_SESSION_READY;
+  mouse_session_timer = timer_read32();
+  reset_mouse_session_movement();
+  if (!layer_state_is(L_MOUSE)) {
+    layer_on(L_MOUSE);
+  }
+}
+
+static void mouse_session_enter_grace(void) {
+  mouse_session_state = MOUSE_SESSION_MULTI_CLICK_GRACE;
+  mouse_session_timer = timer_read32();
+  reset_mouse_session_movement();
+  reset_mouse_session_settle();
+}
+
+static void mouse_session_enter_wait(void) {
+  mouse_session_state = MOUSE_SESSION_WAIT_FOR_BALL_STOP;
+  reset_mouse_session_movement();
+  reset_mouse_session_settle();
+  if (layer_state_is(L_MOUSE)) {
+    layer_off(L_MOUSE);
+  }
+}
+
+static void mouse_session_finish_operation(void) {
+  if (held_mouse_buttons != 0 || scroll_key_held) {
+    return;
+  }
+  if (mouse_session_used_scroll || mouse_session_drag_distance >= MOUSE_SESSION_DRAG_THRESHOLD) {
+    mouse_session_enter_wait();
+  } else {
+    mouse_session_enter_grace();
+  }
+}
+
+static bool mouse_session_meaningful_movement(uint16_t movement) {
+  if (movement == 0) {
+    return false;
+  }
+  if (timer_elapsed32(mouse_session_movement_timer) > MOUSE_SESSION_ACTIVATION_WINDOW) {
+    mouse_session_movement = 0;
+  }
+  mouse_session_movement_timer = timer_read32();
+  if (UINT16_MAX - mouse_session_movement < movement) {
+    mouse_session_movement = UINT16_MAX;
+  } else {
+    mouse_session_movement += movement;
+  }
+  if (mouse_session_movement < MOUSE_SESSION_ACTIVATION_DISTANCE) {
+    return false;
+  }
+  mouse_session_movement = 0;
+  return true;
 }
 
 void eeconfig_init_user(void) {
@@ -143,9 +314,7 @@ void keyboard_post_init_user(void) {
     eeconfig_update_user(user_config.raw);
   }
 
-  // The QMK auto mouse module is the sole owner of the temporary mouse layer.
-  set_auto_mouse_enable(true);
-  set_auto_mouse_timeout(AUTO_MOUSE_TIME);
+  mouse_session_force_normal(false);
 
 #if HAS_OS_DETECTION
   // OS自動判定 (少し待ってから実行する必要あり)
@@ -180,14 +349,62 @@ int16_t my_abs(int16_t num)
   return num;
 }
 
-bool is_mouse_record_user(uint16_t keycode, keyrecord_t *record) {
-  (void)record;
-
-  return (keycode >= KC_MY_BTN1 && keycode <= KC_MY_BTN5) || keycode == KC_MY_SCR;
+bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
+  if (IS_QK_LAYER_TAP(keycode)) {
+    // Both the tap and hold meanings leave the mouse session, so exit before
+    // QMK resolves a following key against Layer 6.
+    if (record->event.pressed && mouse_session_state != MOUSE_SESSION_NORMAL) {
+      mouse_session_force_normal(true);
+    }
+  } else if (IS_QK_MOD_TAP(keycode)) {
+    if (record->event.pressed) {
+      pending_dual_role = true;
+      pending_dual_role_position = record->event.key;
+    } else if (pending_dual_role && key_positions_equal(pending_dual_role_position, record->event.key)) {
+      pending_dual_role = false;
+    }
+  }
+  return true;
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record)
 {
+  if (consume_forced_release(record)) {
+    return false;
+  }
+
+  bool is_mod_tap = IS_QK_MOD_TAP(keycode);
+  bool is_layer_tap = IS_QK_LAYER_TAP(keycode);
+  if ((is_mod_tap || is_layer_tap) && pending_dual_role &&
+      key_positions_equal(pending_dual_role_position, record->event.key)) {
+    pending_dual_role = false;
+  }
+
+  if (is_mod_tap && record->tap.count == 0) {
+    if (record->event.pressed) {
+      if (mouse_session_state == MOUSE_SESSION_READY ||
+          mouse_session_state == MOUSE_SESSION_MULTI_CLICK_GRACE) {
+        mouse_session_timer = timer_read32();
+      }
+    }
+    return true;
+  }
+
+  if (is_layer_tap && record->tap.count == 0) {
+    if (record->event.pressed && mouse_session_state != MOUSE_SESSION_NORMAL) {
+      mouse_session_force_normal(true);
+    }
+    return true;
+  }
+
+  if (IS_MODIFIER_KEYCODE(keycode)) {
+    if (record->event.pressed &&
+        (mouse_session_state == MOUSE_SESSION_READY ||
+         mouse_session_state == MOUSE_SESSION_MULTI_CLICK_GRACE)) {
+      mouse_session_timer = timer_read32();
+    }
+    return true;
+  }
 
   switch (keycode)
   {
@@ -199,13 +416,25 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
   {
     uint8_t button_index = keycode - KC_MY_BTN1;
     uint8_t button_mask = 1 << button_index;
-    extern void register_mouse(uint8_t mouse_keycode, bool pressed);
 
     register_mouse(KC_MS_BTN1 + button_index, record->event.pressed);
     if (record->event.pressed) {
+      if (mouse_session_state != MOUSE_SESSION_HELD) {
+        mouse_session_drag_distance = 0;
+        mouse_session_used_scroll = false;
+      }
       held_mouse_buttons |= button_mask;
+      remember_held_mouse_position(button_index, record->event.key);
+      mouse_session_state = MOUSE_SESSION_HELD;
+      if (!layer_state_is(L_MOUSE)) {
+        layer_on(L_MOUSE);
+      }
     } else {
       held_mouse_buttons &= ~button_mask;
+      forget_held_mouse_position(button_index);
+      if (mouse_session_state == MOUSE_SESSION_HELD) {
+        mouse_session_finish_operation();
+      }
     }
     return false;
   }
@@ -214,12 +443,31 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
     if (scroll_key_held != record->event.pressed) {
       scroll_key_held = record->event.pressed;
       reset_scroll_counters();
+      if (record->event.pressed) {
+        if (mouse_session_state != MOUSE_SESSION_HELD) {
+          mouse_session_drag_distance = 0;
+          mouse_session_used_scroll = false;
+        }
+        remember_held_mouse_position(MOUSE_POSITION_SCROLL, record->event.key);
+        mouse_session_state = MOUSE_SESSION_HELD;
+        if (!layer_state_is(L_MOUSE)) {
+          layer_on(L_MOUSE);
+        }
+      } else {
+        forget_held_mouse_position(MOUSE_POSITION_SCROLL);
+        if (mouse_session_state == MOUSE_SESSION_HELD) {
+          mouse_session_finish_operation();
+        }
+      }
     }
     return false;
 
   case KC_TO_CLICKABLE_INC:
   case KC_TO_CLICKABLE_DEC:
     // Reserved until the existing Remap profiles are replaced by static maps.
+    if (record->event.pressed && mouse_session_state != MOUSE_SESSION_NORMAL) {
+      mouse_session_force_normal(true);
+    }
     return false;
 
   case KC_SCR_SPD_INC:
@@ -229,6 +477,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
         user_config.scroll_threshold = 1;
       }
       eeconfig_update_user(user_config.raw);
+      if (mouse_session_state != MOUSE_SESSION_NORMAL) {
+        mouse_session_force_normal(true);
+      }
     }
     return false;
 
@@ -239,6 +490,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
         user_config.scroll_threshold = 200;
       }
       eeconfig_update_user(user_config.raw);
+      if (mouse_session_state != MOUSE_SESSION_NORMAL) {
+        mouse_session_force_normal(true);
+      }
     }
     return false;
 
@@ -246,6 +500,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
     if (record->event.pressed) {
       user_config.scroll_threshold = 30;
       eeconfig_update_user(user_config.raw);
+      if (mouse_session_state != MOUSE_SESSION_NORMAL) {
+        mouse_session_force_normal(true);
+      }
     }
     return false;
 
@@ -257,16 +514,72 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
     if (held_keyboard_keys < UINT8_MAX) {
       held_keyboard_keys++;
     }
+    if (mouse_session_state != MOUSE_SESSION_NORMAL) {
+      mouse_session_force_normal(true);
+    }
   } else if (held_keyboard_keys > 0) {
     held_keyboard_keys--;
   }
 
-  // Keyboard input always wins over the temporary mouse layer. Reset on both
-  // edges so activation starts from fresh movement after the final release.
-  auto_mouse_reset_trigger(record->event.pressed);
-  reset_auto_mouse_movement();
+  reset_mouse_session_movement();
 
   return true;
+}
+
+static void mouse_session_process_pointing(uint16_t movement) {
+  switch (mouse_session_state) {
+    case MOUSE_SESSION_NORMAL:
+      if (held_keyboard_keys > 0 || (layer_state & MOUSE_BLOCKING_LAYERS_MASK)) {
+        reset_mouse_session_movement();
+      } else if (mouse_session_meaningful_movement(movement)) {
+        mouse_session_enter_ready();
+      }
+      break;
+
+    case MOUSE_SESSION_READY:
+      if (mouse_session_meaningful_movement(movement)) {
+        mouse_session_timer = timer_read32();
+      }
+      break;
+
+    case MOUSE_SESSION_HELD:
+      if (movement > 0) {
+        if (UINT16_MAX - mouse_session_drag_distance < movement) {
+          mouse_session_drag_distance = UINT16_MAX;
+        } else {
+          mouse_session_drag_distance += movement;
+        }
+        if (scroll_key_held) {
+          mouse_session_used_scroll = true;
+        }
+      }
+      break;
+
+    case MOUSE_SESSION_MULTI_CLICK_GRACE:
+      if (movement == 0) {
+        if (!mouse_session_ball_settled &&
+            ++mouse_session_settle_reports >= MOUSE_SESSION_BALL_STOP_REPORTS) {
+          mouse_session_ball_settled = true;
+          reset_mouse_session_movement();
+        }
+      } else if (!mouse_session_ball_settled) {
+        mouse_session_settle_reports = 0;
+        reset_mouse_session_movement();
+      } else if (mouse_session_meaningful_movement(movement)) {
+        mouse_session_enter_ready();
+      }
+      break;
+
+    case MOUSE_SESSION_WAIT_FOR_BALL_STOP:
+      if (movement == 0) {
+        if (++mouse_session_settle_reports >= MOUSE_SESSION_BALL_STOP_REPORTS) {
+          mouse_session_force_normal(false);
+        }
+      } else {
+        mouse_session_settle_reports = 0;
+      }
+      break;
+  }
 }
 
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
@@ -275,6 +588,9 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
   int16_t current_y = mouse_report.y;
   int16_t current_h = mouse_report.h;
   int16_t current_v = mouse_report.v;
+  uint16_t raw_movement = my_abs(current_x) + my_abs(current_y);
+
+  mouse_session_process_pointing(raw_movement);
 
   if (is_minizone_scroll_active() && (current_x != 0 || current_y != 0)) {
       int8_t rep_v = 0;
@@ -328,38 +644,22 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
   return mouse_report;
 }
 
-bool auto_mouse_activation(report_mouse_t mouse_report) {
-  if (is_minizone_scroll_active()) {
-    reset_auto_mouse_movement();
-    return false;
+void housekeeping_task_user(void) {
+  if (pending_dual_role) {
+    return;
   }
 
-  if (mouse_report.buttons) {
-    return true;
+  if (mouse_session_state == MOUSE_SESSION_READY &&
+      timer_elapsed32(mouse_session_timer) >= MOUSE_SESSION_READY_TIMEOUT) {
+    mouse_session_force_normal(true);
+  } else if (mouse_session_state == MOUSE_SESSION_MULTI_CLICK_GRACE &&
+             timer_elapsed32(mouse_session_timer) >= MOUSE_SESSION_MULTI_CLICK_TERM) {
+    if (mouse_session_ball_settled) {
+      mouse_session_force_normal(true);
+    } else {
+      mouse_session_enter_wait();
+    }
   }
-
-  if (held_keyboard_keys > 0) {
-    reset_auto_mouse_movement();
-    return false;
-  }
-
-  uint16_t movement = my_abs(mouse_report.x) + my_abs(mouse_report.y);
-  if (movement == 0) {
-    return false;
-  }
-
-  if (timer_elapsed32(auto_mouse_movement_timer) > AUTO_MOUSE_ACTIVATION_WINDOW) {
-    auto_mouse_movement = 0;
-  }
-
-  auto_mouse_movement_timer = timer_read32();
-  auto_mouse_movement += movement;
-  if (auto_mouse_movement < AUTO_MOUSE_ACTIVATION_DISTANCE) {
-    return false;
-  }
-
-  auto_mouse_movement = 0;
-  return true;
 }
 
 ////////////////////////////////////
@@ -425,10 +725,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 layer_state_t layer_state_set_user(layer_state_t ly_state)
 {
   bool next_scroll_layer_active = (ly_state & ((layer_state_t)1 << L_SCROLL)) != 0;
+  bool blocking_layer_active = (ly_state & MOUSE_BLOCKING_LAYERS_MASK) != 0;
+  bool mouse_layer_active = (ly_state & MOUSE_LAYER_MASK) != 0;
+  bool session_requires_mouse_layer =
+      mouse_session_state == MOUSE_SESSION_READY ||
+      mouse_session_state == MOUSE_SESSION_HELD ||
+      mouse_session_state == MOUSE_SESSION_MULTI_CLICK_GRACE;
 
-  // Layer 3 owns ball motion, so do not allow the auto mouse layer to overlap it.
-  if (next_scroll_layer_active) {
-    ly_state &= ~((layer_state_t)1 << L_MOUSE);
+  // Normal layers always win over the temporary mouse layer.
+  if (blocking_layer_active) {
+    if (mouse_session_state != MOUSE_SESSION_NORMAL) {
+      mouse_session_force_normal(false);
+    }
+    ly_state &= ~MOUSE_LAYER_MASK;
+  } else if (!mouse_layer_active && session_requires_mouse_layer) {
+    // Also recover safely if Layer 6 is disabled outside the session module.
+    mouse_session_force_normal(false);
   }
 
   if (scroll_layer_active != next_scroll_layer_active) {

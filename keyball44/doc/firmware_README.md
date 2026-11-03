@@ -34,6 +34,14 @@ The recommended usage of these firmwares is:
     RGB LEDの動作確認が容易になるように構成してあります。
 2.  動作確認が取れたあとは `via` に書き換えて利用してください。
 
+## Personal keymap / 個人キーマップ
+
+* `hamanori` - 個人利用中の Keyball44 ファームウェアです。
+  現状仕様、初回利用手順、操作方法、調整可能な変数、削除候補は
+  [hamanori_firmware_prd.md](hamanori_firmware_prd.md) を参照してください。
+  現在のWindows/JapaneseおよびmacOS/English (US)のRemap設定原本も
+  `reference/` に保存しています。OS別のQMK形式keymap JSONも同じ場所にあります。
+
 ## Fixed keymap for `test`
 
 This keymap does not use any layers or QMK function keys to make it easier to test.
