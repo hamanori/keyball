@@ -1,0 +1,1720 @@
+{
+ "layerIds": {
+  "base": 7,
+  "edit": 8,
+  "mouse": 9,
+  "window": 10,
+  "num": 11
+ },
+ "layerInfo": {
+  "base": [
+   "通常",
+   "文字入力と、下に書いたコンボ"
+  ],
+  "edit": [
+   "編集・移動",
+   "Tab を長押し"
+  ],
+  "mouse": [
+   "マウス",
+   "ボールを動かすと自動で入る／かなを長押し"
+  ],
+  "window": [
+   "ウィンドウ",
+   "英数・\\ を長押し／マウス中に K を長押し。押している間はボールがスクロールになる"
+  ],
+  "num": [
+   "数字・記号",
+   "Enter を長押し"
+  ]
+ },
+ "used": [
+  "0,0",
+  "0,1",
+  "0,2",
+  "0,3",
+  "0,4",
+  "0,5",
+  "1,0",
+  "1,1",
+  "1,2",
+  "1,3",
+  "1,4",
+  "1,5",
+  "2,0",
+  "2,1",
+  "2,2",
+  "2,3",
+  "2,4",
+  "2,5",
+  "3,3",
+  "3,4",
+  "3,5",
+  "4,0",
+  "4,1",
+  "4,2",
+  "4,3",
+  "4,4",
+  "4,5",
+  "5,0",
+  "5,1",
+  "5,2",
+  "5,3",
+  "5,4",
+  "5,5",
+  "6,0",
+  "6,1",
+  "6,2",
+  "6,3",
+  "6,4",
+  "6,5",
+  "7,4",
+  "7,5",
+  "3,1",
+  "3,2",
+  "7,1"
+ ],
+ "layers": {
+  "base": {
+   "0,0": {
+    "code": 41,
+    "label": "Esc",
+    "detail": "Esc",
+    "kind": "key"
+   },
+   "1,0": {
+    "code": 18475,
+    "label": "Tab",
+    "detail": "短押し：Tab ／ 長押し：編集・移動レイヤー",
+    "kind": "dual"
+   },
+   "2,0": {
+    "code": 225,
+    "label": "Shift",
+    "detail": "Shift（⇧ Shift）",
+    "kind": "key"
+   },
+   "0,1": {
+    "code": 20,
+    "label": "Q",
+    "detail": "Q",
+    "kind": "key"
+   },
+   "1,1": {
+    "code": 4,
+    "label": "A",
+    "detail": "A",
+    "kind": "key"
+   },
+   "2,1": {
+    "code": 29,
+    "label": "Z",
+    "detail": "Z",
+    "kind": "key"
+   },
+   "0,2": {
+    "code": 26,
+    "label": "W",
+    "detail": "W",
+    "kind": "key"
+   },
+   "1,2": {
+    "code": 22,
+    "label": "S",
+    "detail": "S",
+    "kind": "key"
+   },
+   "2,2": {
+    "code": 27,
+    "label": "X",
+    "detail": "X",
+    "kind": "key"
+   },
+   "0,3": {
+    "code": 8,
+    "label": "E",
+    "detail": "E",
+    "kind": "key"
+   },
+   "1,3": {
+    "code": 7,
+    "label": "D",
+    "detail": "D",
+    "kind": "key"
+   },
+   "2,3": {
+    "code": 6,
+    "label": "C",
+    "detail": "C",
+    "kind": "key"
+   },
+   "0,4": {
+    "code": 21,
+    "label": "R",
+    "detail": "R",
+    "kind": "key"
+   },
+   "1,4": {
+    "code": 9,
+    "label": "F",
+    "detail": "F",
+    "kind": "key"
+   },
+   "2,4": {
+    "code": 25,
+    "label": "V",
+    "detail": "V",
+    "kind": "key"
+   },
+   "0,5": {
+    "code": 23,
+    "label": "T",
+    "detail": "T",
+    "kind": "key"
+   },
+   "1,5": {
+    "code": 10,
+    "label": "G",
+    "detail": "G",
+    "kind": "key"
+   },
+   "2,5": {
+    "code": 5,
+    "label": "B",
+    "detail": "B",
+    "kind": "key"
+   },
+   "4,0": {
+    "code": 45,
+    "label": "-",
+    "detail": "-",
+    "kind": "key"
+   },
+   "4,1": {
+    "code": 19,
+    "label": "P",
+    "detail": "P",
+    "kind": "key"
+   },
+   "4,2": {
+    "code": 18,
+    "label": "O",
+    "detail": "O",
+    "kind": "key"
+   },
+   "4,3": {
+    "code": 12,
+    "label": "I",
+    "detail": "I",
+    "kind": "key"
+   },
+   "4,4": {
+    "code": 24,
+    "label": "U",
+    "detail": "U",
+    "kind": "key"
+   },
+   "4,5": {
+    "code": 28,
+    "label": "Y",
+    "detail": "Y",
+    "kind": "key"
+   },
+   "5,0": {
+    "code": 10292,
+    "label": "'",
+    "detail": "短押し：' ／ 長押し：⌘ Command",
+    "kind": "dual"
+   },
+   "5,1": {
+    "code": 51,
+    "label": ";",
+    "detail": ";",
+    "kind": "key"
+   },
+   "5,2": {
+    "code": 15,
+    "label": "L",
+    "detail": "L",
+    "kind": "key"
+   },
+   "5,3": {
+    "code": 14,
+    "label": "K",
+    "detail": "K",
+    "kind": "key"
+   },
+   "5,4": {
+    "code": 13,
+    "label": "J",
+    "detail": "J",
+    "kind": "key"
+   },
+   "5,5": {
+    "code": 11,
+    "label": "H",
+    "detail": "H",
+    "kind": "key"
+   },
+   "6,0": {
+    "code": 18993,
+    "label": "\\",
+    "detail": "短押し：\\ ／ 長押し：ウィンドウレイヤー",
+    "kind": "dual"
+   },
+   "6,1": {
+    "code": 56,
+    "label": "/",
+    "detail": "/",
+    "kind": "key"
+   },
+   "6,2": {
+    "code": 55,
+    "label": ".",
+    "detail": ".",
+    "kind": "key"
+   },
+   "6,3": {
+    "code": 54,
+    "label": ",",
+    "detail": ",",
+    "kind": "key"
+   },
+   "6,4": {
+    "code": 16,
+    "label": "M",
+    "detail": "M",
+    "kind": "key"
+   },
+   "6,5": {
+    "code": 17,
+    "label": "N",
+    "detail": "N",
+    "kind": "key"
+   },
+   "3,3": {
+    "code": 19089,
+    "label": "英数",
+    "detail": "短押し：英数 ／ 長押し：ウィンドウレイヤー（判定 250ms）",
+    "kind": "dual"
+   },
+   "3,4": {
+    "code": 8748,
+    "label": "Space",
+    "detail": "短押し：Space ／ 長押し：⇧ Shift",
+    "kind": "dual"
+   },
+   "3,5": {
+    "code": 18832,
+    "label": "かな",
+    "detail": "短押し：かな ／ 長押し：マウスレイヤー",
+    "kind": "dual"
+   },
+   "7,5": {
+    "code": 42,
+    "label": "左を削除",
+    "detail": "左を削除（⌫）",
+    "kind": "key"
+   },
+   "7,4": {
+    "code": 19240,
+    "label": "Enter",
+    "detail": "短押し：Enter ／ 長押し：数字・記号レイヤー",
+    "kind": "dual"
+   },
+   "3,1": {
+    "code": 226,
+    "label": "⌥ Opt",
+    "detail": "⌥ Option",
+    "kind": "key"
+   },
+   "3,2": {
+    "code": 227,
+    "label": "⌘ Cmd",
+    "detail": "⌘ Command",
+    "kind": "key"
+   },
+   "7,1": {
+    "code": 224,
+    "label": "⌃ Ctrl",
+    "detail": "⌃ Control（CoreX の Spotlight の位置。Spotlight は ⌘＋Space）",
+    "kind": "key"
+   }
+  },
+  "edit": {
+   "0,0": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "1,0": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "2,0": {
+    "code": 225,
+    "label": "Shift",
+    "detail": "Shift（⇧ Shift）",
+    "kind": "key"
+   },
+   "0,1": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "1,1": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "2,1": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "0,2": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "1,2": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "2,2": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "0,3": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "1,3": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "2,3": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "0,4": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "1,4": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "2,4": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "0,5": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "1,5": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "2,5": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "4,0": {
+    "code": 0,
+    "label": "",
+    "detail": "割り当てなし",
+    "kind": "none"
+   },
+   "4,1": {
+    "code": 2593,
+    "label": "範囲スクショ",
+    "detail": "⇧⌘4",
+    "kind": "key"
+   },
+   "4,2": {
+    "code": 2127,
+    "label": "行末へ",
+    "detail": "⌘→",
+    "kind": "key"
+   },
+   "4,3": {
+    "code": 82,
+    "label": "↑ 上へ",
+    "detail": "↑ 上へ（↑）",
+    "kind": "key"
+   },
+   "4,4": {
+    "code": 2128,
+    "label": "行頭へ",
+    "detail": "⌘←",
+    "kind": "key"
+   },
+   "4,5": {
+    "code": 2075,
+    "label": "切り取り",
+    "detail": "⌘X",
+    "kind": "key"
+   },
+   "5,0": {
+    "code": 0,
+    "label": "",
+    "detail": "割り当てなし",
+    "kind": "none"
+   },
+   "5,1": {
+    "code": 3081,
+    "label": "置換",
+    "detail": "⌥⌘F",
+    "kind": "key"
+   },
+   "5,2": {
+    "code": 79,
+    "label": "右へ →",
+    "detail": "右へ →（→）",
+    "kind": "key"
+   },
+   "5,3": {
+    "code": 81,
+    "label": "↓ 下へ",
+    "detail": "↓ 下へ（↓）",
+    "kind": "key"
+   },
+   "5,4": {
+    "code": 80,
+    "label": "← 左へ",
+    "detail": "← 左へ（←）",
+    "kind": "key"
+   },
+   "5,5": {
+    "code": 2054,
+    "label": "コピー",
+    "detail": "⌘C",
+    "kind": "key"
+   },
+   "6,0": {
+    "code": 0,
+    "label": "",
+    "detail": "割り当てなし",
+    "kind": "none"
+   },
+   "6,1": {
+    "code": 2057,
+    "label": "検索",
+    "detail": "⌘F",
+    "kind": "key"
+   },
+   "6,2": {
+    "code": 2589,
+    "label": "やり直し",
+    "detail": "⇧⌘Z",
+    "kind": "key"
+   },
+   "6,3": {
+    "code": 2052,
+    "label": "すべて選択",
+    "detail": "⌘A",
+    "kind": "key"
+   },
+   "6,4": {
+    "code": 2077,
+    "label": "取り消し",
+    "detail": "⌘Z",
+    "kind": "key"
+   },
+   "6,5": {
+    "code": 2073,
+    "label": "貼り付け",
+    "detail": "⌘V",
+    "kind": "key"
+   },
+   "3,3": {
+    "code": 226,
+    "label": "Option",
+    "detail": "Option（⌥ Option）",
+    "kind": "key"
+   },
+   "3,4": {
+    "code": 225,
+    "label": "Shift",
+    "detail": "Shift（⇧ Shift）",
+    "kind": "key"
+   },
+   "3,5": {
+    "code": 1249,
+    "label": "Option＋Shift",
+    "detail": "⌥⇧ Shift",
+    "kind": "key"
+   },
+   "7,5": {
+    "code": 42,
+    "label": "左を削除",
+    "detail": "左を削除（⌫）",
+    "kind": "key"
+   },
+   "7,4": {
+    "code": 76,
+    "label": "Delete",
+    "detail": "Delete",
+    "kind": "key"
+   },
+   "3,1": {
+    "code": 226,
+    "label": "⌥ Opt",
+    "detail": "⌥ Option",
+    "kind": "key"
+   },
+   "3,2": {
+    "code": 227,
+    "label": "⌘ Cmd",
+    "detail": "⌘ Command",
+    "kind": "key"
+   },
+   "7,1": {
+    "code": 224,
+    "label": "⌃ Ctrl",
+    "detail": "⌃ Control",
+    "kind": "key"
+   }
+  },
+  "mouse": {
+   "0,0": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "1,0": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "2,0": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "0,1": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "1,1": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "2,1": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "0,2": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "1,2": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "2,2": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "0,3": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "1,3": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "2,3": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "0,4": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "1,4": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "2,4": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "0,5": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "1,5": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "2,5": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "4,0": {
+    "code": 3590,
+    "label": "リンクコピー",
+    "detail": "⌥⇧⌘C",
+    "kind": "key"
+   },
+   "4,1": {
+    "code": 2566,
+    "label": "URLコピー",
+    "detail": "⇧⌘C",
+    "kind": "key"
+   },
+   "4,2": {
+    "code": 299,
+    "label": "タブ切替",
+    "detail": "⌃Tab",
+    "kind": "key"
+   },
+   "4,3": {
+    "code": 32325,
+    "label": "スクロール",
+    "detail": "押している間、ボールでスクロール（CoreX のジェスチャーキーの位置）",
+    "kind": "key"
+   },
+   "4,4": {
+    "code": 811,
+    "label": "逆順タブ切替",
+    "detail": "⌃⇧Tab",
+    "kind": "key"
+   },
+   "4,5": {
+    "code": 2606,
+    "label": "拡大",
+    "detail": "⇧⌘=",
+    "kind": "key"
+   },
+   "5,0": {
+    "code": 2074,
+    "label": "閉じる",
+    "detail": "⌘W",
+    "kind": "key"
+   },
+   "5,1": {
+    "code": 2071,
+    "label": "新規タブ",
+    "detail": "⌘T",
+    "kind": "key"
+   },
+   "5,2": {
+    "code": 32321,
+    "label": "右クリック",
+    "detail": "右クリック",
+    "kind": "key"
+   },
+   "5,3": {
+    "code": 19155,
+    "label": "中クリック",
+    "detail": "短押し：中クリック ／ 長押し：ウィンドウレイヤー",
+    "kind": "dual"
+   },
+   "5,4": {
+    "code": 32320,
+    "label": "左クリック",
+    "detail": "左クリック（押したままでドラッグ）",
+    "kind": "key"
+   },
+   "5,5": {
+    "code": 2087,
+    "label": "等倍",
+    "detail": "⌘0",
+    "kind": "key"
+   },
+   "6,0": {
+    "code": 2564,
+    "label": "タブ検索",
+    "detail": "⇧⌘A",
+    "kind": "key"
+   },
+   "6,1": {
+    "code": 2583,
+    "label": "タブ復元",
+    "detail": "⇧⌘T",
+    "kind": "key"
+   },
+   "6,2": {
+    "code": 32324,
+    "label": "進む",
+    "detail": "マウスの進むボタン",
+    "kind": "key"
+   },
+   "6,3": {
+    "code": 2069,
+    "label": "再読込",
+    "detail": "⌘R",
+    "kind": "key"
+   },
+   "6,4": {
+    "code": 32323,
+    "label": "戻る",
+    "detail": "マウスの戻るボタン",
+    "kind": "key"
+   },
+   "6,5": {
+    "code": 2093,
+    "label": "縮小",
+    "detail": "⌘-",
+    "kind": "key"
+   },
+   "3,3": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "3,4": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "3,5": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "7,5": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "7,4": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "3,1": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "3,2": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "7,1": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   }
+  },
+  "window": {
+   "0,0": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "1,0": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "2,0": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "0,1": {
+    "code": 2068,
+    "label": "アプリ終了",
+    "detail": "⌘Q",
+    "kind": "key"
+   },
+   "1,1": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "2,1": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "0,2": {
+    "code": 1099,
+    "label": "横移動←",
+    "detail": "⌥Page Up",
+    "kind": "key"
+   },
+   "1,2": {
+    "code": 811,
+    "label": "タブ切替逆順",
+    "detail": "⌃⇧Tab",
+    "kind": "key"
+   },
+   "2,2": {
+    "code": 2093,
+    "label": "縮小",
+    "detail": "⌘-",
+    "kind": "key"
+   },
+   "0,3": {
+    "code": 338,
+    "label": "全窓一覧",
+    "detail": "⌃↑",
+    "kind": "key"
+   },
+   "1,3": {
+    "code": 337,
+    "label": "アプリ窓",
+    "detail": "⌃↓",
+    "kind": "key"
+   },
+   "2,3": {
+    "code": 2087,
+    "label": "等倍",
+    "detail": "⌘0",
+    "kind": "key"
+   },
+   "0,4": {
+    "code": 1102,
+    "label": "横移動→",
+    "detail": "⌥Page Down",
+    "kind": "key"
+   },
+   "1,4": {
+    "code": 299,
+    "label": "タブ切替",
+    "detail": "⌃Tab",
+    "kind": "key"
+   },
+   "2,4": {
+    "code": 2606,
+    "label": "拡大",
+    "detail": "⇧⌘=",
+    "kind": "key"
+   },
+   "0,5": {
+    "code": 2053,
+    "label": "左サイドバー",
+    "detail": "⌘B",
+    "kind": "key"
+   },
+   "1,5": {
+    "code": 75,
+    "label": "1画面上へ",
+    "detail": "1画面上へ（Page Up）",
+    "kind": "key"
+   },
+   "2,5": {
+    "code": 2077,
+    "label": "取り消し",
+    "detail": "⌘Z",
+    "kind": "key"
+   },
+   "4,0": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "4,1": {
+    "code": 69,
+    "label": "定義へ移動",
+    "detail": "定義へ移動（F12）",
+    "kind": "key"
+   },
+   "4,2": {
+    "code": 335,
+    "label": "デスクトップ→",
+    "detail": "⌃→",
+    "kind": "key"
+   },
+   "4,3": {
+    "code": 338,
+    "label": "画面一覧",
+    "detail": "⌃↑",
+    "kind": "key"
+   },
+   "4,4": {
+    "code": 336,
+    "label": "デスクトップ←",
+    "detail": "⌃←",
+    "kind": "key"
+   },
+   "4,5": {
+    "code": 3077,
+    "label": "右サイドバー",
+    "detail": "⌥⌘B",
+    "kind": "key"
+   },
+   "5,0": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "5,1": {
+    "code": 301,
+    "label": "履歴を戻る",
+    "detail": "⌃-",
+    "kind": "key"
+   },
+   "5,2": {
+    "code": 110,
+    "label": "右に配置",
+    "detail": "右に配置（F19）",
+    "kind": "key"
+   },
+   "5,3": {
+    "code": 109,
+    "label": "画面いっぱい",
+    "detail": "画面いっぱい（F18）",
+    "kind": "key"
+   },
+   "5,4": {
+    "code": 104,
+    "label": "左に配置",
+    "detail": "左に配置（F13）",
+    "kind": "key"
+   },
+   "5,5": {
+    "code": 78,
+    "label": "1画面下へ",
+    "detail": "1画面下へ（Page Down）",
+    "kind": "key"
+   },
+   "6,0": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "6,1": {
+    "code": 813,
+    "label": "履歴を進む",
+    "detail": "⌃⇧-",
+    "kind": "key"
+   },
+   "6,2": {
+    "code": 213,
+    "label": "進む",
+    "detail": "進む",
+    "kind": "key"
+   },
+   "6,3": {
+    "code": 2313,
+    "label": "フルスクリーン",
+    "detail": "⌃⌘F",
+    "kind": "key"
+   },
+   "6,4": {
+    "code": 212,
+    "label": "戻る",
+    "detail": "戻る",
+    "kind": "key"
+   },
+   "6,5": {
+    "code": 2589,
+    "label": "やり直し",
+    "detail": "⇧⌘Z",
+    "kind": "key"
+   },
+   "3,3": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "3,4": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "3,5": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "7,5": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "7,4": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "3,1": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "3,2": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   },
+   "7,1": {
+    "code": 1,
+    "label": "",
+    "detail": "下のレイヤーと同じ",
+    "kind": "trns"
+   }
+  },
+  "num": {
+   "0,0": {
+    "code": 169,
+    "label": "音量 ＋",
+    "detail": "音量を上げる（CoreX の左ダイヤル）",
+    "kind": "key"
+   },
+   "1,0": {
+    "code": 170,
+    "label": "音量 −",
+    "detail": "音量を下げる（CoreX の左ダイヤル）",
+    "kind": "key"
+   },
+   "2,0": {
+    "code": 168,
+    "label": "消音",
+    "detail": "消音（CoreX の左ダイヤル押し込み）",
+    "kind": "key"
+   },
+   "0,1": {
+    "code": 58,
+    "label": "F1",
+    "detail": "F1",
+    "kind": "key"
+   },
+   "1,1": {
+    "code": 30,
+    "label": "1",
+    "detail": "1",
+    "kind": "key"
+   },
+   "2,1": {
+    "code": 542,
+    "label": "!",
+    "detail": "! を入力（⇧1）",
+    "kind": "key"
+   },
+   "0,2": {
+    "code": 59,
+    "label": "F2",
+    "detail": "F2",
+    "kind": "key"
+   },
+   "1,2": {
+    "code": 31,
+    "label": "2",
+    "detail": "2",
+    "kind": "key"
+   },
+   "2,2": {
+    "code": 543,
+    "label": "@",
+    "detail": "@ を入力（⇧2）",
+    "kind": "key"
+   },
+   "0,3": {
+    "code": 60,
+    "label": "F3",
+    "detail": "F3",
+    "kind": "key"
+   },
+   "1,3": {
+    "code": 32,
+    "label": "3",
+    "detail": "3",
+    "kind": "key"
+   },
+   "2,3": {
+    "code": 544,
+    "label": "#",
+    "detail": "# を入力（⇧3）",
+    "kind": "key"
+   },
+   "0,4": {
+    "code": 61,
+    "label": "F4",
+    "detail": "F4",
+    "kind": "key"
+   },
+   "1,4": {
+    "code": 33,
+    "label": "4",
+    "detail": "4",
+    "kind": "key"
+   },
+   "2,4": {
+    "code": 545,
+    "label": "$",
+    "detail": "$ を入力（⇧4）",
+    "kind": "key"
+   },
+   "0,5": {
+    "code": 62,
+    "label": "F5",
+    "detail": "F5",
+    "kind": "key"
+   },
+   "1,5": {
+    "code": 34,
+    "label": "5",
+    "detail": "5",
+    "kind": "key"
+   },
+   "2,5": {
+    "code": 546,
+    "label": "%",
+    "detail": "% を入力（⇧5）",
+    "kind": "key"
+   },
+   "4,0": {
+    "code": 68,
+    "label": "F11",
+    "detail": "F11",
+    "kind": "key"
+   },
+   "4,1": {
+    "code": 67,
+    "label": "F10",
+    "detail": "F10",
+    "kind": "key"
+   },
+   "4,2": {
+    "code": 66,
+    "label": "F9",
+    "detail": "F9",
+    "kind": "key"
+   },
+   "4,3": {
+    "code": 65,
+    "label": "F8",
+    "detail": "F8",
+    "kind": "key"
+   },
+   "4,4": {
+    "code": 64,
+    "label": "F7",
+    "detail": "F7",
+    "kind": "key"
+   },
+   "4,5": {
+    "code": 63,
+    "label": "F6",
+    "detail": "F6",
+    "kind": "key"
+   },
+   "5,0": {
+    "code": 69,
+    "label": "F12",
+    "detail": "F12",
+    "kind": "key"
+   },
+   "5,1": {
+    "code": 39,
+    "label": "0",
+    "detail": "0",
+    "kind": "key"
+   },
+   "5,2": {
+    "code": 38,
+    "label": "9",
+    "detail": "9",
+    "kind": "key"
+   },
+   "5,3": {
+    "code": 37,
+    "label": "8",
+    "detail": "8",
+    "kind": "key"
+   },
+   "5,4": {
+    "code": 36,
+    "label": "7",
+    "detail": "7",
+    "kind": "key"
+   },
+   "5,5": {
+    "code": 35,
+    "label": "6",
+    "detail": "6",
+    "kind": "key"
+   },
+   "6,0": {
+    "code": 53,
+    "label": "`",
+    "detail": "`",
+    "kind": "key"
+   },
+   "6,1": {
+    "code": 551,
+    "label": ")",
+    "detail": ") を入力（⇧0）",
+    "kind": "key"
+   },
+   "6,2": {
+    "code": 550,
+    "label": "(",
+    "detail": "( を入力（⇧9）",
+    "kind": "key"
+   },
+   "6,3": {
+    "code": 549,
+    "label": "*",
+    "detail": "* を入力（⇧8）",
+    "kind": "key"
+   },
+   "6,4": {
+    "code": 548,
+    "label": "&",
+    "detail": "& を入力（⇧7）",
+    "kind": "key"
+   },
+   "6,5": {
+    "code": 547,
+    "label": "^",
+    "detail": "^ を入力（⇧6）",
+    "kind": "key"
+   },
+   "3,3": {
+    "code": 3364,
+    "label": "Dia",
+    "detail": "⌃⌥⌘7",
+    "kind": "key"
+   },
+   "3,4": {
+    "code": 3365,
+    "label": "Codex",
+    "detail": "⌃⌥⌘8",
+    "kind": "key"
+   },
+   "3,5": {
+    "code": 3366,
+    "label": "Claude",
+    "detail": "⌃⌥⌘9",
+    "kind": "key"
+   },
+   "7,5": {
+    "code": 0,
+    "label": "",
+    "detail": "割り当てなし",
+    "kind": "none"
+   },
+   "7,4": {
+    "code": 0,
+    "label": "",
+    "detail": "割り当てなし",
+    "kind": "none"
+   },
+   "3,1": {
+    "code": 0,
+    "label": "",
+    "detail": "割り当てなし",
+    "kind": "none"
+   },
+   "3,2": {
+    "code": 0,
+    "label": "",
+    "detail": "割り当てなし",
+    "kind": "none"
+   },
+   "7,1": {
+    "code": 0,
+    "label": "",
+    "detail": "割り当てなし",
+    "kind": "none"
+   }
+  }
+ },
+ "combos": [
+  {
+   "keys": [
+    8,
+    21
+   ],
+   "pos": [
+    "0,3",
+    "0,4"
+   ],
+   "output": 559,
+   "symbol": "{",
+   "ported": true
+  },
+  {
+   "keys": [
+    24,
+    12
+   ],
+   "pos": [
+    "4,4",
+    "4,3"
+   ],
+   "output": 560,
+   "symbol": "}",
+   "ported": true
+  },
+  {
+   "keys": [
+    7,
+    9
+   ],
+   "pos": [
+    "1,3",
+    "1,4"
+   ],
+   "output": 550,
+   "symbol": "(",
+   "ported": true
+  },
+  {
+   "keys": [
+    13,
+    14
+   ],
+   "pos": [
+    "5,4",
+    "5,3"
+   ],
+   "output": 551,
+   "symbol": ")",
+   "ported": true
+  },
+  {
+   "keys": [
+    6,
+    25
+   ],
+   "pos": [
+    "2,3",
+    "2,4"
+   ],
+   "output": 47,
+   "symbol": "[",
+   "ported": true
+  },
+  {
+   "keys": [
+    16,
+    54
+   ],
+   "pos": [
+    "6,4",
+    "6,3"
+   ],
+   "output": 48,
+   "symbol": "]",
+   "ported": true
+  },
+  {
+   "keys": [
+    54,
+    55
+   ],
+   "pos": [
+    "6,3",
+    "6,2"
+   ],
+   "output": 46,
+   "symbol": "=",
+   "ported": true
+  },
+  {
+   "keys": [
+    26,
+    8
+   ],
+   "pos": [
+    "0,2",
+    "0,3"
+   ],
+   "output": 56,
+   "symbol": "/",
+   "ported": true
+  },
+  {
+   "keys": [
+    22,
+    7
+   ],
+   "pos": [
+    "1,2",
+    "1,3"
+   ],
+   "output": 45,
+   "symbol": "-",
+   "ported": true
+  },
+  {
+   "keys": [
+    14,
+    15
+   ],
+   "pos": [
+    "5,3",
+    "5,2"
+   ],
+   "output": 558,
+   "symbol": "+",
+   "ported": true
+  },
+  {
+   "keys": [
+    9,
+    13
+   ],
+   "pos": [
+    "1,4",
+    "5,4"
+   ],
+   "output": 542,
+   "symbol": "!",
+   "ported": true
+  },
+  {
+   "keys": [
+    7,
+    14
+   ],
+   "pos": [
+    "1,3",
+    "5,3"
+   ],
+   "output": 543,
+   "symbol": "@",
+   "ported": true
+  },
+  {
+   "keys": [
+    22,
+    15
+   ],
+   "pos": [
+    "1,2",
+    "5,2"
+   ],
+   "output": 544,
+   "symbol": "#",
+   "ported": true
+  },
+  {
+   "keys": [
+    4,
+    51
+   ],
+   "pos": [
+    "1,1",
+    "5,1"
+   ],
+   "output": 545,
+   "symbol": "$",
+   "ported": true
+  },
+  {
+   "keys": [
+    21,
+    24
+   ],
+   "pos": [
+    "0,4",
+    "4,4"
+   ],
+   "output": 546,
+   "symbol": "%",
+   "ported": true
+  },
+  {
+   "keys": [
+    26,
+    18
+   ],
+   "pos": [
+    "0,2",
+    "4,2"
+   ],
+   "output": 548,
+   "symbol": "&",
+   "ported": true
+  },
+  {
+   "keys": [
+    25,
+    16
+   ],
+   "pos": [
+    "2,4",
+    "6,4"
+   ],
+   "output": 53,
+   "symbol": "`",
+   "ported": true
+  },
+  {
+   "keys": [
+    6,
+    54
+   ],
+   "pos": [
+    "2,3",
+    "6,3"
+   ],
+   "output": 565,
+   "symbol": "~",
+   "ported": true
+  },
+  {
+   "keys": [
+    27,
+    55
+   ],
+   "pos": [
+    "2,2",
+    "6,2"
+   ],
+   "output": 549,
+   "symbol": "*",
+   "ported": true
+  },
+  {
+   "keys": [
+    27,
+    6
+   ],
+   "pos": [
+    "2,2",
+    "2,3"
+   ],
+   "output": 557,
+   "symbol": "_",
+   "ported": true
+  },
+  {
+   "keys": [
+    12,
+    18
+   ],
+   "pos": [
+    "4,3",
+    "4,2"
+   ],
+   "output": 549,
+   "symbol": "*",
+   "ported": true
+  },
+  {
+   "keys": [
+    8,
+    12
+   ],
+   "pos": [
+    "0,3",
+    "4,3"
+   ],
+   "output": 547,
+   "symbol": "^",
+   "ported": true
+  },
+  {
+   "keys": [
+    20,
+    19
+   ],
+   "pos": [
+    "0,1",
+    "4,1"
+   ],
+   "output": 549,
+   "symbol": "*",
+   "ported": true
+  },
+  {
+   "keys": [
+    225,
+    17201
+   ],
+   "output": 21126,
+   "ported": false
+  }
+ ],
+ "comboTermMs": 30,
+ "tappingTermMs": 200
+}
