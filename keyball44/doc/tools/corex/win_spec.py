@@ -18,7 +18,7 @@ C, S, A, G = 0x01, 0x02, 0x04, 0x08
 KC_INT2, KC_LNG1 = 0x88, 0x90
 MACRO_URL_COPY = 0x7E4B  # KEYBALL_SAFE_RANGE + 11 (firmware custom keycode)
 NAMES = {0x2B: 'Tab', 0x4A: 'Home', 0x4D: 'End', 0x44: 'F11', 0x3D: 'F4', 0x50: '←', 0x4F: '→', 0x52: '↑',
-         0x51: '↓', 0x16: 'S', 0x0B: 'H', 0x1C: 'Y', 0x33: ';', 0x1E: '1', 0x1F: '2', 0x20: '3', 0x0F: 'L', 0x06: 'C', 0x27: '0', 0x2D: '-'}
+         0x51: '↓', 0x16: 'S', 0x0B: 'H', 0x1C: 'Y', 0x33: ';', 0x1E: '1', 0x1F: '2', 0x20: '3', 0x0F: 'L', 0x06: 'C', 0x27: '0', 0x2D: '-', 0x4B: 'PageUp', 0x4E: 'PageDown'}
 
 
 def mk(mods, kc):
@@ -42,6 +42,8 @@ SHORTCUTS = {
     mk(S | G, 0x06): (MACRO_URL_COPY, 'URLコピー', '自動', 'Dia の URL コピー → Ctrl+L、Ctrl+C、Esc を順に送るマクロ'),
     mk(S | A | G, 0x06): (0x0000, '', '不可', 'Markdown リンクのコピーは Chrome/Edge にない → 割り当てなし'),
     mk(S | G, 0x2E): (mk(C, 0x33), None, '自動', '拡大 → Ctrl+;（JIS の「+」キー）'),
+    mk(C, 0x2B): (mk(C, 0x4E), None, '自動', '次のタブ → Ctrl+PageDown（以前の Windows 配置と同じ。VS Code や Excel でも隣へ移る）'),
+    mk(C | S, 0x2B): (mk(C, 0x4B), None, '自動', '前のタブ → Ctrl+PageUp（以前の Windows 配置と同じ）'),
     mk(C, 0x52): (mk(G, 0x2B), 'タスクビュー', '自動', 'Mission Control → Win+Tab'),
     mk(C, 0x51): (mk(G, 0x2B), 'タスクビュー', '不可', 'アプリのウィンドウだけの一覧はない → Win+Tab で代用（了承済み）'),
     mk(C, 0x50): (mk(C | G, 0x50), None, '自動', '左のデスクトップ → Ctrl+Win+←'),

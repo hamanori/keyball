@@ -729,9 +729,9 @@
     "kind": "key"
    },
    "4,2": {
-    "code": 299,
+    "code": 334,
     "label": "タブ切替",
-    "detail": "タブ切替（Ctrl+Tab）",
+    "detail": "タブ切替（Ctrl+PageDown）",
     "kind": "key"
    },
    "4,3": {
@@ -741,9 +741,9 @@
     "kind": "key"
    },
    "4,4": {
-    "code": 811,
+    "code": 331,
     "label": "逆順タブ切替",
-    "detail": "逆順タブ切替（Ctrl+Shift+Tab）",
+    "detail": "逆順タブ切替（Ctrl+PageUp）",
     "kind": "key"
    },
    "4,5": {
@@ -913,13 +913,13 @@
    "0,2": {
     "code": 1099,
     "label": "横移動←",
-    "detail": "横移動←（Alt+0x4B）",
+    "detail": "横移動←（Alt+PageUp）",
     "kind": "key"
    },
    "1,2": {
-    "code": 811,
+    "code": 331,
     "label": "タブ切替逆順",
-    "detail": "タブ切替逆順（Ctrl+Shift+Tab）",
+    "detail": "タブ切替逆順（Ctrl+PageUp）",
     "kind": "key"
    },
    "2,2": {
@@ -949,13 +949,13 @@
    "0,4": {
     "code": 1102,
     "label": "横移動→",
-    "detail": "横移動→（Alt+0x4E）",
+    "detail": "横移動→（Alt+PageDown）",
     "kind": "key"
    },
    "1,4": {
-    "code": 299,
+    "code": 334,
     "label": "タブ切替",
-    "detail": "タブ切替（Ctrl+Tab）",
+    "detail": "タブ切替（Ctrl+PageDown）",
     "kind": "key"
    },
    "2,4": {
@@ -1888,6 +1888,22 @@
   },
   {
    "layer": "mouse",
+   "pos": "4,2",
+   "mac": "タブ切替",
+   "windows": "タブ切替",
+   "category": "自動",
+   "why": "次のタブ → Ctrl+PageDown（以前の Windows 配置と同じ。VS Code や Excel でも隣へ移る）"
+  },
+  {
+   "layer": "mouse",
+   "pos": "4,4",
+   "mac": "逆順タブ切替",
+   "windows": "逆順タブ切替",
+   "category": "自動",
+   "why": "前のタブ → Ctrl+PageUp（以前の Windows 配置と同じ）"
+  },
+  {
+   "layer": "mouse",
    "pos": "4,5",
    "mac": "拡大",
    "windows": "拡大",
@@ -1960,6 +1976,14 @@
   },
   {
    "layer": "window",
+   "pos": "1,2",
+   "mac": "タブ切替逆順",
+   "windows": "タブ切替逆順",
+   "category": "自動",
+   "why": "前のタブ → Ctrl+PageUp（以前の Windows 配置と同じ）"
+  },
+  {
+   "layer": "window",
    "pos": "2,2",
    "mac": "縮小",
    "windows": "縮小",
@@ -1989,6 +2013,14 @@
    "windows": "等倍",
    "category": "自動",
    "why": "⌘ → Ctrl"
+  },
+  {
+   "layer": "window",
+   "pos": "1,4",
+   "mac": "タブ切替",
+   "windows": "タブ切替",
+   "category": "自動",
+   "why": "次のタブ → Ctrl+PageDown（以前の Windows 配置と同じ。VS Code や Excel でも隣へ移る）"
   },
   {
    "layer": "window",
