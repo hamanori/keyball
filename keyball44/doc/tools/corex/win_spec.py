@@ -17,8 +17,9 @@ LAYER_INFO['window'] = ('ウィンドウ', '英数・\\ を長押し／マウス
 C, S, A, G = 0x01, 0x02, 0x04, 0x08
 KC_INT2, KC_LNG1 = 0x88, 0x90
 MACRO_URL_COPY = 0x7E4B  # KEYBALL_SAFE_RANGE + 11 (firmware custom keycode)
+WIN_MAXIMIZE = 0x7E4C  # KEYBALL_SAFE_RANGE + 12: Win+Up twice
 NAMES = {0x2B: 'Tab', 0x4A: 'Home', 0x4D: 'End', 0x44: 'F11', 0x3D: 'F4', 0x50: '←', 0x4F: '→', 0x52: '↑',
-         0x51: '↓', 0x16: 'S', 0x0B: 'H', 0x1C: 'Y', 0x33: ';', 0x1E: '1', 0x1F: '2', 0x20: '3', 0x0F: 'L', 0x06: 'C', 0x27: '0', 0x2D: '-', 0x4B: 'PageUp', 0x4E: 'PageDown'}
+         0x51: '↓', 0x16: 'S', 0x0B: 'H', 0x1C: 'Y', 0x33: ';', 0x1E: '1', 0x1F: '2', 0x20: '3', 0x0F: 'L', 0x06: 'C', 0x27: '0', 0x2D: '-', 0x4B: 'PageUp', 0x4E: 'PageDown', 0xE1: 'Shift', 0x07: 'D'}
 
 
 def mk(mods, kc):
@@ -45,7 +46,7 @@ SHORTCUTS = {
     mk(C, 0x2B): (mk(C, 0x4E), None, '自動', '次のタブ → Ctrl+PageDown（以前の Windows 配置と同じ。VS Code や Excel でも隣へ移る）'),
     mk(C | S, 0x2B): (mk(C, 0x4B), None, '自動', '前のタブ → Ctrl+PageUp（以前の Windows 配置と同じ）'),
     mk(C, 0x52): (mk(G, 0x2B), 'タスクビュー', '自動', 'Mission Control → Win+Tab'),
-    mk(C, 0x51): (mk(G, 0x2B), 'タスクビュー', '不可', 'アプリのウィンドウだけの一覧はない → Win+Tab で代用（了承済み）'),
+    mk(C, 0x51): (mk(G, 0x07), 'デスクトップ', '不可', 'アプリのウィンドウだけの一覧はない → デスクトップを表示（Win+D）。ジェスチャーの下と同じ'),
     mk(C, 0x50): (mk(C | G, 0x50), None, '自動', '左のデスクトップ → Ctrl+Win+←'),
     mk(C, 0x4F): (mk(C | G, 0x4F), None, '自動', '右のデスクトップ → Ctrl+Win+→'),
     mk(C, 0x2D): (mk(A, 0x50), None, '自動', 'VS Code の移動履歴を戻る → Alt+←'),
@@ -53,7 +54,7 @@ SHORTCUTS = {
     mk(C | G, 0x09): (0x44, None, '自動', 'フルスクリーン → F11'),
     mk(G, 0x14): (mk(A, 0x3D), None, '自動', 'アプリ終了 → Alt+F4'),
     0x68: (mk(G, 0x50), None, '自動', '左に配置（Mac では F13）→ Win+←'),
-    0x6D: (mk(G, 0x52), None, '自動', '画面いっぱい（Mac では F18）→ Win+↑'),
+    0x6D: (WIN_MAXIMIZE, None, '自動', '画面いっぱい（Mac では F18）→ Win+↑ を2回。左右に寄せた窓は1回目で上 1/4 になるため'),
     0x6E: (mk(G, 0x4F), None, '自動', '右に配置（Mac では F19）→ Win+→'),
     mk(C | A | G, 0x24): (mk(G, 0x1E), 'Dia', '自動', 'Dia を開く → Win+1（タスクバー1番目）'),
     mk(C | A | G, 0x25): (mk(G, 0x1F), 'Codex', '自動', 'Codex を開く → Win+2'),
@@ -96,6 +97,8 @@ def translate(name, pos, k):
             return dict(k, code=0, label='', detail='割り当てなし', kind='none')
         if new == MACRO_URL_COPY:
             d = 'Ctrl+L → Ctrl+C → Esc（アドレス欄の URL をコピー）'
+        elif new == WIN_MAXIMIZE:
+            d = 'Win+↑ を2回'
         elif new < 0x100:
             d = winshort(new) if new not in NAMES else NAMES[new]
         else:
@@ -130,6 +133,11 @@ for name, keys in mac['layers'].items():
         layers[name][pos] = nk
 
 layers['mouse']['4,3'] = dict(layers['mouse']['4,3'], detail='押しながらボールを動かす。左右：デスクトップ移動（Ctrl+Win+←・→）、上：タスクビュー（Win+Tab）、下：デスクトップを表示（Win+D）。動かすたびに1回')
+
+# Edit layer: Mac ⌥ moves and deletes by word with the arrows and ⌫; Windows does that with Ctrl
+# (Alt+← would be browser back).
+layers['edit']['3,3'] = dict(layers['edit']['3,3'], code=0xE0, label='Ctrl', detail='Ctrl（矢印・⌫ と合わせて単語単位。Mac の ⌥ に当たる）')
+changes.append(('edit', '3,3', 'Option', 'Ctrl', '自動', '⌥（単語単位の移動・削除）→ Ctrl。Alt＋← はブラウザの戻るになる'))
 
 # Windows macros keep their earlier positions: Tab hold + right pinky column.
 layers['edit']['5,0'] = {'code': 0x770B, 'label': 'マクロ11', 'detail': '文字列を入力（中身は secrets.h）', 'kind': 'key'}

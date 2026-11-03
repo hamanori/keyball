@@ -82,7 +82,8 @@ enum custom_keycodes {
   KC_SCR_SPD_INC        = KEYBALL_SAFE_RANGE + 8,  // User8 スクロール閾値を下げて速度アップ
   KC_SCR_SPD_DEC        = KEYBALL_SAFE_RANGE + 9,  // User9 スクロール閾値を上げて速度ダウン
   KC_SCR_RST            = KEYBALL_SAFE_RANGE + 10, // User10 スクロール閾値を初期値に戻す
-  KC_URL_COPY           = KEYBALL_SAFE_RANGE + 11  // Windows: アドレス欄の URL をコピー
+  KC_URL_COPY           = KEYBALL_SAFE_RANGE + 11, // Windows: アドレス欄の URL をコピー
+  KC_WIN_MAXIMIZE       = KEYBALL_SAFE_RANGE + 12  // Windows: 左右に寄せた窓も最大化する
 };
 
 // Both profiles carry the CoreX layers: Windows 0-4, macOS 5-9.
@@ -709,6 +710,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
       tap_code16(C(KC_L));
       tap_code16(C(KC_C));
       tap_code(KC_ESC);
+    }
+    return false;
+
+  case KC_WIN_MAXIMIZE:
+    if (record->event.pressed) {
+      // A window snapped to one side moves to a quarter on the first Win+Up.
+      tap_code16(G(KC_UP));
+      tap_code16(G(KC_UP));
     }
     return false;
 
