@@ -220,13 +220,16 @@ static bool gesture_decided(int16_t ax, int16_t ay) {
   return (ax >= GESTURE_THRESHOLD && ax * 2 > ay * 3) || (ay >= GESTURE_THRESHOLD && ay * 2 > ax * 3);
 }
 
-// Up, left, right; moving down does nothing, as on CoreX.
+// Left/right: desktops. Up: overview. Down: Mac app windows, Windows desktop.
 static uint16_t gesture_action(int16_t ax, int16_t ay) {
   bool mac = is_mac_profile();
   if (ax > ay) {
     return gesture_x < 0 ? (mac ? C(KC_LEFT) : C(G(KC_LEFT))) : (mac ? C(KC_RGHT) : C(G(KC_RGHT)));
   }
-  return gesture_y < 0 ? (mac ? C(KC_UP) : G(KC_TAB)) : KC_NO;
+  if (gesture_y < 0) {
+    return mac ? C(KC_UP) : G(KC_TAB);
+  }
+  return mac ? C(KC_DOWN) : G(KC_D);
 }
 
 static void gesture_motion(int16_t dx, int16_t dy) {
@@ -251,12 +254,10 @@ static void gesture_motion(int16_t dx, int16_t dy) {
   }
   uint16_t action = gesture_action(ax, ay);
   reset_gesture();
-  if (action != KC_NO) {
-    // Pause after a gesture so the end of the flick does not fire again.
-    gesture_paused = true;
-    gesture_timer = timer_read();
-    tap_code16(action);
-  }
+  // Pause after a gesture so the end of the flick does not fire again.
+  gesture_paused = true;
+  gesture_timer = timer_read();
+  tap_code16(action);
 }
 
 static void reset_scroll_counters(void) {
