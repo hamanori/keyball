@@ -1,14 +1,11 @@
-"""Render the Mac spec as a self-contained ortholinear cheat sheet.
+"""Render the Mac and Windows specs as one self-contained ortholinear cheat sheet.
 
-usage: gen_html.py SPEC.json OUT.html [proposal]
+usage: gen_html.py MAC_SPEC.json WIN_SPEC.json OUT.html
 """
 import html, json, sys
 
-spec = json.load(open(sys.argv[1]))
-OUT = sys.argv[2]
-MODE = sys.argv[3] if len(sys.argv) > 3 else 'mac'  # mac | proposal | win | win-proposal
-PROPOSAL = MODE.endswith('proposal')
-WINDOWS = MODE.startswith('win')
+SPECS = {'mac': json.load(open(sys.argv[1])), 'win': json.load(open(sys.argv[2]))}
+OUT = sys.argv[3]
 
 
 def grid_pos(p):
@@ -37,7 +34,7 @@ def key_html(layer, p, k, badges=()):
             '<span class="lbl%s">%s</span>%s</div>') % (' '.join(cls), row + 1, col + 1, p, detail, small, label, b)
 
 
-def layer_html(name):
+def layer_html(spec, os_, name):
     title, how = spec['layerInfo'][name]
     keys = spec['layers'][name]
     items, legend = [], []
@@ -51,10 +48,15 @@ def layer_html(name):
             if ra == rb and cb_ - ca == 1:
                 adjacent[i] = (ra, ca)
         # Pairs sharing a key alternate their tab above/below so both stay readable.
+        # Each hand counts from its outer edge, so mirrored combos ({ and }) look the same.
+        def outer(rc):
+            r, c = rc
+            return r, c >= 7, c if c < 7 else 12 - c
         side = {}
-        for i, (r, c) in sorted(adjacent.items(), key=lambda kv: kv[1]):
-            left = [j for j, (r2, c2) in adjacent.items() if r2 == r and c2 == c - 1]
-            side[i] = 'down' if left and side.get(left[0]) == 'up' else 'up'
+        for i, rc in sorted(adjacent.items(), key=lambda kv: outer(kv[1])):
+            r, right, c = outer(rc)
+            prev = [j for j, rc2 in adjacent.items() if outer(rc2) == (r, right, c - 1)]
+            side[i] = 'down' if prev and side.get(prev[0]) == 'up' else 'up'
         for i, cb in enumerate(ported):
             a, b = sorted(cb['pos'], key=lambda p: grid_pos(p)[1])
             names = [keys[a]['label'], keys[b]['label']]
@@ -74,69 +76,12 @@ def layer_html(name):
                 i, ' style="color:%s"' % color if color else '', html.escape(cb['symbol']), html.escape(names[0]), html.escape(names[1]), html.escape(what)))
     for p, k in keys.items():
         items.append(key_html(name, p, k, badges.get(p, ())))
-    out = ['<section class="layer" id="layer-%s"><h2>%s<small>%s</small></h2>' % (name, title, html.escape(how)),
+    out = ['<section class="layer" id="%s-%s"><h2>%s<small>%s</small></h2>' % (os_, name, title, html.escape(how)),
            '<div class="board-wrap"><div class="board">%s</div></div>' % ''.join(items)]
     if legend:
         out.append('<div class="legend"><h3>コンボ（2つのキーを同時に押す・%dms 以内）</h3><p>同じ手の組は枠、左右をまたぐ組は同じ色の記号で示しています。</p><ul>%s</ul></div>' % (spec['comboTermMs'], ''.join(legend)))
     out.append('</section>')
     return ''.join(out)
-
-
-PROPOSAL_HTML = '''
-<section class="note">
-<h2>配置案のポイント</h2>
-<ul>
-<li>指の位置は CoreX と同じです。3段×左右6列は全レイヤーで同じキーを同じ場所に置きます。</li>
-<li>コンボ 23 個のうち 23 個を移します（受付 30ms）。CoreX の「左Shift＋\\ で接続設定」は Keyball に接続設定がないので移しません。</li>
-<li>英数の長押しは CoreX と同じ 250ms 判定、ほかの長押しは 200ms です。</li>
-<li>マウスレイヤーは今の Keyball の仕組み（ボールを動かすと入り、文字キーで抜ける）を使います。CoreX のジェスチャーキーの位置は「押している間スクロール」にします。</li>
-<li>Windows 用は今の設定をそのままファームに固定し、接続先の OS で自動的に切り替えます。Windows への CoreX 移植は後日です。</li>
-</ul>
-<h2>CoreX と違うところ</h2>
-<table>
-<tr><th>CoreX</th><th>Keyball</th></tr>
-<tr><td>左下 Ctrl・Option・⌘（3キー）</td><td>親指上の2キーに ⌥ Option・⌘ Command。Ctrl は右下へ</td></tr>
-<tr><td>右下 Spotlight（/ の下）</td><td>⌃ Control。Spotlight は ⌘＋Space で開く <em>要判断</em></td></tr>
-<tr><td>右下 右Option、右Shift（長押しウィンドウ）</td><td>キーが足りないので置かない。Shift は Space 長押し、ウィンドウは \\ か英数の長押し</td></tr>
-<tr><td>左ダイヤル（音量・押して消音）</td><td>数字・記号レイヤーの左端列に 音量＋・音量−・消音</td></tr>
-<tr><td>右ダイヤル（スクロール）</td><td>ウィンドウレイヤーを押している間、またはマウス中に「スクロール」キーを押している間、ボールでスクロール</td></tr>
-<tr><td>ダイヤル押し（中クリック）</td><td>マウスレイヤーの K 短押し</td></tr>
-<tr><td>ジェスチャーキー</td><td>同じ位置を「押している間スクロール」に</td></tr>
-<tr><td>BLE 接続（L5）、接続設定（L6）</td><td>有線なので移さない</td></tr>
-<tr><td>長押し判定「balanced」</td><td>QMK の Permissive Hold（同じ考え方）を Mac 用にだけ使う <em>要判断</em></td></tr>
-</table>
-<h2>OS 側の設定</h2>
-<ul>
-<li>F13・F18・F19（ウィンドウ配置）と ⌃⌥⌘＋7/8/9（Dia・Codex・Claude を開く）は、Mac 側のショートカット設定がそのまま効きます。追加の設定はいりません。</li>
-<li>macOS で Keyball の配列が US として認識されていることを、システム設定 → キーボード で確認してください。</li>
-<li>Karabiner-Elements は今のまま Keyball を無視する設定にしておきます。</li>
-</ul>
-<h2>実機で確かめること</h2>
-<ul>
-<li>OLED の OS 表示が Mac につないだとき MAC、Windows につないだとき WIN になること</li>
-<li>コンボで記号が出ること、通常の速い打鍵でコンボが誤って出ないこと</li>
-<li>マウス中の K：短押しで中クリック、長押しでウィンドウレイヤー</li>
-</ul>
-</section>'''
-
-def win_notes():
-    rows = ''.join('<tr><td>%s</td><td>%s</td><td><em>%s</em></td></tr>' % (
-        html.escape(spec['layerInfo'][c['layer']][0] + '：' + (c['mac'] or '—')), html.escape(c['why']), c['category'])
-        for c in spec['changes'] if c['category'] != '自動')
-    return '''
-<section class="note">
-<h2>配置案のポイント</h2>
-<ul>
-<li>指の位置と操作は Mac 用（CoreX）と同じです。⌘ のショートカットは、同じ操作になる Windows のショートカットに置き換えています。</li>
-<li>Windows は JIS 配列として認識したままです。記号は US の意味で配置し、送る直前にファームが JIS の打ち方へ置き換えます。Space 長押しは本物の Shift で、Shift＋- は _、Shift＋; は :、Shift＋' は " になります。</li>
-<li>コンボは Mac と同じ組み合わせで、同じ記号が出ます。左 Shift＋\\ を押し続けると Mac 用と切り替わります。</li>
-<li>親指の上の2キーは Alt・Ctrl、右下は Win です（以前の Windows 配置と同じ）。英数・かなは以前の Windows 配置と同じキーを送ります。</li>
-<li>Windows 用のマクロ 11・12 は、以前と同じく Tab 長押し＋右端の中段・下段です。</li>
-</ul>
-<h2>決めてほしいこと・代わりの操作</h2>
-<table><tr><th>キー</th><th>Windows での動き</th><th>区分</th></tr>%s</table>
-<p>そのほかの %d キーは、同じ操作の Windows 標準ショートカットに置き換えています（キーにカーソルを合わせると確認できます）。VS Code は公式の Windows 版ショートカット一覧で確認しました。</p>
-</section>''' % (rows, sum(c['category'] == '自動' for c in spec['changes']))
 
 
 CSS = '''
@@ -169,8 +114,8 @@ nav{display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0}nav a{color:var(--accent
 .note{background:var(--card);border:1px solid var(--keyb);border-radius:12px;padding:4px 18px 14px;margin:1rem 0}
 .note table{border-collapse:collapse;width:100%;font-size:.9rem}.note td,.note th{border-top:1px solid var(--keyb);padding:.35rem .5rem;text-align:left;vertical-align:top}
 .note em{font-style:normal;color:var(--combo);font-weight:700;white-space:nowrap}
-.foot{color:var(--muted);font-size:.8rem;margin-top:2rem}
-@media print{nav,.note{display:none}.layer{break-inside:avoid}}
+.foot{color:var(--muted);font-size:.8rem;margin-top:2rem}\n.switch{display:inline-flex;border:1px solid var(--keyb);border-radius:999px;padding:3px;gap:3px;background:var(--card)}.switch button{border:0;background:none;color:var(--fg);font:inherit;font-weight:700;padding:.3rem 1.1rem;border-radius:999px;cursor:pointer}.switch button[aria-selected=true]{background:var(--accent);color:var(--bg)}\n.os{display:none}.os.on{display:block}.notes{color:var(--muted);font-size:.9rem;padding-left:1.2rem;margin:.8rem 0}
+@media print{nav,.switch{display:none}.layer{break-inside:avoid}}
 '''
 
 JS = '''
@@ -183,33 +128,41 @@ document.querySelectorAll('.key').forEach(k=>{
  k.addEventListener('focus',()=>{const r=k.getBoundingClientRect();show(k,r.left+r.width/2,r.top)});
  k.addEventListener('blur',hide);
 });
-function hl(id,on){document.querySelectorAll('[data-combo="'+id+'"]').forEach(e=>{e.classList.toggle('hl',on);const k=e.closest('.key');if(k)k.classList.toggle('hl',on)})}
 const combos=%s;
+function hl(root,id,on){root.querySelectorAll('[data-combo="'+id+'"]').forEach(e=>{e.classList.toggle('hl',on);const k=e.closest('.key');if(k)k.classList.toggle('hl',on)})}
 document.querySelectorAll('.legend li,.badge').forEach(li=>{
- const id=li.dataset.combo;
- const keys=()=>combos[id].map(p=>document.querySelector('#layer-base .key[data-pos="'+p+'"]'));
- li.addEventListener('mouseenter',()=>{hl(id,true);keys().forEach(k=>k&&k.classList.add('hl'))});
- li.addEventListener('mouseleave',()=>{hl(id,false);keys().forEach(k=>k&&k.classList.remove('hl'))});
+ const id=li.dataset.combo,root=li.closest('.os'),os=root.dataset.os;
+ const keys=()=>combos[os][id].map(p=>root.querySelector('.layer[id$="-base"] .key[data-pos="'+p+'"]'));
+ li.addEventListener('mouseenter',()=>{hl(root,id,true);keys().forEach(k=>k&&k.classList.add('hl'))});
+ li.addEventListener('mouseleave',()=>{hl(root,id,false);keys().forEach(k=>k&&k.classList.remove('hl'))});
  li.addEventListener('focus',()=>li.dispatchEvent(new Event('mouseenter')));li.addEventListener('blur',()=>li.dispatchEvent(new Event('mouseleave')));
 });
+function pick(os){document.querySelectorAll('.os').forEach(d=>d.classList.toggle('on',d.dataset.os===os));document.querySelectorAll('.switch button').forEach(b=>b.setAttribute('aria-selected',b.dataset.os===os));try{localStorage.setItem('keyball-os',os)}catch(e){}}
+document.querySelectorAll('.switch button').forEach(b=>b.addEventListener('click',()=>pick(b.dataset.os)));
+let first=(location.hash.match(/^#(mac|win)/)||[])[1];try{first=first||localStorage.getItem('keyball-os')}catch(e){}
+pick(['mac','win'].includes(first)?first:(/Windows/.test(navigator.userAgent)?'win':'mac'));
 '''
 
-ported = [c['pos'] for c in spec['combos'] if c['ported']] + [spec['toggle']['pos']]
-order = ['base', 'edit', 'mouse', 'window', 'num']
-title = {'mac': 'Keyball キー操作早見表', 'proposal': 'Keyball 配置案（Mac）', 'win': 'Keyball キー操作早見表（Windows）',
-         'win-proposal': 'Keyball 配置案（Windows）'}[MODE]
-body = ['<main><h1>%s</h1>' % title,
-        '<p class="lead">%s</p>' % ('CoreX の Mac 用の操作を Keyball44（Windows・JIS 配列）へ移す配置案です。まだ本体には書き込んでいません。キーにカーソルを合わせると、送るショートカットや短押し／長押しの説明が出ます。' if MODE == 'win-proposal' else
-                                     'Windows（JIS 配列）で使う Keyball44 の現行設定です。操作の位置は Mac 用と同じです。キーにカーソルを合わせると、送るショートカットや短押し／長押しの説明が出ます。' if MODE == 'win' else 'CoreX の現行設定を Keyball44（Mac・US 配列）へ移す配置案です。まだ本体には書き込んでいません。キーにカーソルを合わせると、送るショートカットや短押し／長押しの説明が出ます。' if PROPOSAL else
-                                     'Mac・US 配列で使う Keyball44 の現行設定です。Windows につないでも同じコンボで同じ記号が出ます（左 Shift＋\\ で Mac／Windows を手動で切り替え）。キーにカーソルを合わせると、送るショートカットや短押し／長押しの説明が出ます。'),
-        '<nav>%s</nav>' % ''.join('<a href="#layer-%s">%s</a>' % (n, spec['layerInfo'][n][0]) for n in order)]
-if MODE == 'proposal':
-    body.append(PROPOSAL_HTML)
-elif MODE == 'win-proposal':
-    body.append(win_notes())
-body += [layer_html(n) for n in order]
+NOTES = {
+    'mac': ['Mac・US 配列として使います。',
+            'ジェスチャーキー（マウス中の K の上）を押しながらボールを動かすと、左右でデスクトップ移動、上で Mission Control、下でアプリのウィンドウ一覧です。'],
+    'win': ['Windows は JIS 配列のまま使います。記号は US の位置に並べ、ファームが JIS のキーに置き換えて送ります。置き換えた記号は押しっぱなしでも連続入力されません。',
+            '⌘ の操作は Ctrl、⌃ の位置は Win、⌥ は Alt です。Dia・Codex・Claude を開くキーは Win+1・2・3 を送ります。',
+            'ジェスチャーキー（マウス中の K の上）を押しながらボールを動かすと、左右でデスクトップ移動、上でタスクビュー、下でデスクトップ表示です。'],
+}
+ORDER = ['base', 'edit', 'mouse', 'window', 'num']
+combos = {os_: [c['pos'] for c in sp['combos'] if c['ported']] + [sp['toggle']['pos']] for os_, sp in SPECS.items()}
+body = ['<main><h1>Keyball キー操作早見表</h1>',
+        '<p class="lead">Mac でも Windows でも、同じ位置で同じ操作ができる Keyball44 の現行設定です。つないだ OS は自動で判定され、左 Shift＋\\ を押し続けると手動で切り替わります。キーにカーソルを合わせると、送るショートカットや短押し／長押しの説明が出ます。</p>',
+        '<div class="switch" role="tablist"><button role="tab" data-os="mac">Mac</button><button role="tab" data-os="win">Windows</button></div>']
+for os_, sp in SPECS.items():
+    body.append('<div class="os" data-os="%s">' % os_)
+    body.append('<ul class="notes">%s</ul>' % ''.join('<li>%s</li>' % html.escape(n) for n in NOTES[os_]))
+    body.append('<nav>%s</nav>' % ''.join('<a href="#%s-%s">%s</a>' % (os_, n, sp['layerInfo'][n][0]) for n in ORDER))
+    body += [layer_html(sp, os_, n) for n in ORDER]
+    body.append('</div>')
 body.append('<p class="foot">薄い青緑＝親指キー、淡い黄色＝短押しと長押しで別の操作、点線＝下のレイヤーと同じか割り当てなし。</p></main><div id="tip"></div>')
-doc = '<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>%s</title><style>%s</style></head><body>%s<script>%s</script></body></html>' % (
-    {'mac': 'Keyball 早見表', 'proposal': 'Keyball 配置案', 'win': 'Keyball 早見表 Windows', 'win-proposal': 'Keyball 配置案 Windows'}[MODE], CSS, ''.join(body), JS % json.dumps(ported))
+doc = '<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Keyball 早見表</title><style>%s</style></head><body>%s<script>%s</script></body></html>' % (
+    CSS, ''.join(body), JS % json.dumps(combos))
 open(OUT, 'w').write(doc)
 print('wrote', OUT, len(doc))
