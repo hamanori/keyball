@@ -127,6 +127,8 @@ for name, keys in mac['layers'].items():
         nk['label'] = LABEL_FIX.get(nk['label'], nk['label'])
         layers[name][pos] = nk
 
+layers['mouse']['4,3'] = dict(layers['mouse']['4,3'], detail='押しながらボールを動かす。左右：デスクトップ移動（Ctrl+Win+←・→）、上：タスクビュー（Win+Tab）。動かすたびに1回')
+
 # Windows macros keep their earlier positions: Tab hold + right pinky column.
 layers['edit']['5,0'] = {'code': 0x770B, 'label': 'マクロ11', 'detail': '文字列を入力（中身は secrets.h）', 'kind': 'key'}
 layers['edit']['6,0'] = {'code': 0x770C, 'label': 'マクロ12', 'detail': '文字列を入力（中身は secrets.h）', 'kind': 'key'}

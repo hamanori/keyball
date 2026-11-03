@@ -26,6 +26,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Mouse session. The mouse layers (2 and 7) are owned by the keymap state machine instead of
 // QMK's built-in Auto Mouse lifecycle.
 #define MOUSE_SESSION_READY_TIMEOUT 10000
+// CoreX gesture: ball travel that triggers a direction, and the pause after it.
+#define GESTURE_THRESHOLD 80
+#define GESTURE_REPEAT_INTERVAL 300
 #define MOUSE_SESSION_MULTI_CLICK_TERM 500
 #define MOUSE_SESSION_ACTIVATION_DISTANCE 6
 #define MOUSE_SESSION_ACTIVATION_WINDOW 100

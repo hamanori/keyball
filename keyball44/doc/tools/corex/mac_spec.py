@@ -35,7 +35,7 @@ USED = sorted(POS) + EXTRA
 
 NO, TRNS = 0x0000, 0x0001
 LT = lambda layer, kc: 0x4000 | (layer & 0xF) << 8 | kc
-MY_BTN1, MY_BTN2, MY_BTN3, MY_BTN4, MY_BTN5, MY_SCR = range(0x7E40, 0x7E46)
+MY_BTN1, MY_BTN2, MY_BTN3, MY_BTN4, MY_BTN5, GESTURE = range(0x7E40, 0x7E46)
 
 BASIC = {0x28: 'Enter', 0x29: 'Esc', 0x2A: '⌫', 0x2B: 'Tab', 0x2C: 'Space', 0x2D: '-', 0x2E: '=', 0x2F: '[',
          0x30: ']', 0x31: '\\', 0x33: ';', 0x34: "'", 0x35: '`', 0x36: ',', 0x37: '.', 0x38: '/', 0x4C: 'Delete',
@@ -144,13 +144,13 @@ for L in (m, w):
         L[p] = key(TRNS, '', '下のレイヤーと同じ', 'trns')
 for p in ('3,1', '3,2', '7,1'):
     n[p] = key(NO, '', '割り当てなし', 'none')
-# Mouse layer: session-aware buttons; the gesture key becomes hold-to-scroll.
+# Mouse layer: session-aware buttons and the CoreX gesture key.
 m['5,4'] = key(MY_BTN1, '左クリック', '左クリック（押したままでドラッグ）')
 m['5,2'] = key(MY_BTN2, '右クリック', '右クリック')
 m['6,4'] = key(MY_BTN4, '戻る', 'マウスの戻るボタン')
 m['6,2'] = key(MY_BTN5, '進む', 'マウスの進むボタン')
 m['5,3'] = key(LT(MAC['window'], 0xD3), '中クリック', '短押し：中クリック ／ 長押し：ウィンドウレイヤー', 'dual')
-m['4,3'] = key(MY_SCR, 'スクロール', '押している間、ボールでスクロール（CoreX のジェスチャーキーの位置）')
+m['4,3'] = key(GESTURE, 'ジェスチャー', '押しながらボールを動かす。左右：デスクトップ移動（⌃←・⌃→）、上：Mission Control（⌃↑）。動かすたびに1回')
 # Volume dial -> empty left pinky column of the number layer.
 n['0,0'] = key(0xA9, '音量 ＋', '音量を上げる（CoreX の左ダイヤル）')
 n['1,0'] = key(0xAA, '音量 −', '音量を下げる（CoreX の左ダイヤル）')

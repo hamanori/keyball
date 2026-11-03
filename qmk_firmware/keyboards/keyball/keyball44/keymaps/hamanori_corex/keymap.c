@@ -76,7 +76,7 @@ enum custom_keycodes {
   KC_MY_BTN3            = KEYBALL_SAFE_RANGE + 2,  // User2
   KC_MY_BTN4            = KEYBALL_SAFE_RANGE + 3,  // User3
   KC_MY_BTN5            = KEYBALL_SAFE_RANGE + 4,  // User4
-  KC_MY_SCR             = KEYBALL_SAFE_RANGE + 5,  // User5
+  KC_GESTURE            = KEYBALL_SAFE_RANGE + 5,  // User5 押しながらボールを動かした方向の操作
   KC_TO_CLICKABLE_INC   = KEYBALL_SAFE_RANGE + 6,  // User6 (reserved)
   KC_TO_CLICKABLE_DEC   = KEYBALL_SAFE_RANGE + 7,  // User7 (reserved)
   KC_SCR_SPD_INC        = KEYBALL_SAFE_RANGE + 8,  // User8 スクロール閾値を下げて速度アップ
@@ -137,7 +137,7 @@ user_config_t user_config;
 int16_t scroll_v_mouse_interval_counter; // 垂直スクロールの入力をカウントする。　Counting Vertical Scroll Inputs
 int16_t scroll_h_mouse_interval_counter; // 水平スクロールの入力をカウントする。  Counts horizontal scrolling inputs.
 
-bool scroll_key_held = false;
+bool gesture_key_held = false;
 bool scroll_layer_active = false;
 uint8_t held_mouse_buttons = 0;
 uint8_t held_keyboard_keys = 0;
@@ -160,7 +160,7 @@ enum {
   MOUSE_POSITION_BTN3,
   MOUSE_POSITION_BTN4,
   MOUSE_POSITION_BTN5,
-  MOUSE_POSITION_SCROLL,
+  MOUSE_POSITION_GESTURE,
   MOUSE_POSITION_COUNT,
 };
 
@@ -197,7 +197,64 @@ static void mouse_layer_off(void) {
 }
 
 static bool is_minizone_scroll_active(void) {
-  return scroll_key_held || scroll_layer_active;
+  return scroll_layer_active;
+}
+
+int16_t my_abs(int16_t num);
+
+// CoreX gesture: while the gesture key is held, each ball move past the
+// threshold runs its direction once, then motion is ignored for a short pause.
+static int16_t gesture_x = 0;
+static int16_t gesture_y = 0;
+static uint16_t gesture_timer = 0;
+static bool gesture_paused = false;
+
+static void reset_gesture(void) {
+  gesture_x = 0;
+  gesture_y = 0;
+  gesture_paused = false;
+}
+
+// Up, left, right; moving down does nothing, as on CoreX.
+static uint16_t gesture_action(int16_t ax, int16_t ay) {
+  bool mac = is_mac_profile();
+  if (ax >= GESTURE_THRESHOLD && ax * 2 > ay * 3) {
+    if (gesture_x < 0) {
+      return mac ? C(KC_LEFT) : C(G(KC_LEFT));
+    }
+    return mac ? C(KC_RGHT) : C(G(KC_RGHT));
+  }
+  if (ay >= GESTURE_THRESHOLD && ay * 2 > ax * 3 && gesture_y < 0) {
+    return mac ? C(KC_UP) : G(KC_TAB);
+  }
+  return KC_NO;
+}
+
+static void gesture_motion(int16_t dx, int16_t dy) {
+  if (gesture_paused) {
+    if (timer_elapsed(gesture_timer) < GESTURE_REPEAT_INTERVAL) {
+      return;
+    }
+    gesture_paused = false;
+  }
+  gesture_x += dx;
+  gesture_y += dy;
+  int16_t ax = my_abs(gesture_x);
+  int16_t ay = my_abs(gesture_y);
+  if (ax < GESTURE_THRESHOLD && ay < GESTURE_THRESHOLD) {
+    return;
+  }
+  uint16_t action = gesture_action(ax, ay);
+  if (action == KC_NO && ax < GESTURE_THRESHOLD * 4 && ay < GESTURE_THRESHOLD * 4) {
+    return;  // diagonal so far: keep collecting
+  }
+  gesture_x = 0;
+  gesture_y = 0;
+  gesture_paused = true;
+  gesture_timer = timer_read();
+  if (action != KC_NO) {
+    tap_code16(action);
+  }
 }
 
 static void reset_scroll_counters(void) {
@@ -270,12 +327,12 @@ static void mouse_session_release_held_operations(void) {
   }
   held_mouse_buttons = 0;
 
-  if (scroll_key_held) {
-    if (held_mouse_position_mask & (1U << MOUSE_POSITION_SCROLL)) {
-      remember_forced_release(held_mouse_positions[MOUSE_POSITION_SCROLL]);
+  if (gesture_key_held) {
+    if (held_mouse_position_mask & (1U << MOUSE_POSITION_GESTURE)) {
+      remember_forced_release(held_mouse_positions[MOUSE_POSITION_GESTURE]);
     }
-    scroll_key_held = false;
-    reset_scroll_counters();
+    gesture_key_held = false;
+    reset_gesture();
   }
   held_mouse_position_mask = 0;
 }
@@ -311,7 +368,7 @@ static void mouse_session_enter_wait(void) {
 }
 
 static void mouse_session_finish_operation(void) {
-  if (held_mouse_buttons != 0 || scroll_key_held) {
+  if (held_mouse_buttons != 0 || gesture_key_held) {
     return;
   }
   if (mouse_session_used_scroll || mouse_session_drag_distance >= MOUSE_SESSION_DRAG_THRESHOLD) {
@@ -578,20 +635,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
     return false;
   }
 
-  case KC_MY_SCR:
-    if (scroll_key_held != record->event.pressed) {
-      scroll_key_held = record->event.pressed;
-      reset_scroll_counters();
+  case KC_GESTURE:
+    if (gesture_key_held != record->event.pressed) {
+      gesture_key_held = record->event.pressed;
+      reset_gesture();
       if (record->event.pressed) {
         if (mouse_session_state != MOUSE_SESSION_HELD) {
           mouse_session_drag_distance = 0;
           mouse_session_used_scroll = false;
         }
-        remember_held_mouse_position(MOUSE_POSITION_SCROLL, record->event.key);
+        remember_held_mouse_position(MOUSE_POSITION_GESTURE, record->event.key);
         mouse_session_state = MOUSE_SESSION_HELD;
         mouse_layer_on();
       } else {
-        forget_held_mouse_position(MOUSE_POSITION_SCROLL);
+        forget_held_mouse_position(MOUSE_POSITION_GESTURE);
         if (mouse_session_state == MOUSE_SESSION_HELD) {
           mouse_session_finish_operation();
         }
@@ -709,7 +766,7 @@ static void mouse_session_process_pointing(uint16_t movement) {
         } else {
           mouse_session_drag_distance += movement;
         }
-        if (scroll_key_held) {
+        if (gesture_key_held) {
           mouse_session_used_scroll = true;
         }
       }
@@ -752,7 +809,11 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
 
   mouse_session_process_pointing(raw_movement);
 
-  if (is_minizone_scroll_active() && (current_x != 0 || current_y != 0)) {
+  if (gesture_key_held) {
+    gesture_motion(current_x, current_y);
+    current_x = 0;
+    current_y = 0;
+  } else if (is_minizone_scroll_active() && (current_x != 0 || current_y != 0)) {
       int8_t rep_v = 0;
       int8_t rep_h = 0;
       int16_t sv_th = user_config.scroll_threshold < 1 ? 1 : user_config.scroll_threshold; // vertical threshold
