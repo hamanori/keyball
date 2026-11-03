@@ -1130,11 +1130,16 @@ static void oled_state_receive(uint8_t in_len, const void *in_data, uint8_t out_
 
 extern const unsigned char font[] PROGMEM;
 
-// Both halves turn the OLED 180 degrees. The lit area sits off-centre on the
-// glass, and three rows drawn upside down land in the middle of the window,
-// the same trick the Keyball logo uses.
+// The lit area sits off-centre on the glass, so three rows land in the middle
+// of the window only when the empty fourth row is on the narrow-margin side.
+// The right hand turns 180 degrees and uses rows 0-2 (the Keyball logo's
+// trick); the left hand keeps its text facing the user and uses rows 1-3.
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-  return OLED_ROTATION_180;
+  return is_keyboard_left() ? OLED_ROTATION_0 : OLED_ROTATION_180;
+}
+
+static uint8_t top_row(void) {
+  return is_keyboard_left() ? 1 : 0;
 }
 
 static const char *layer_name(uint8_t layer) {
@@ -1163,8 +1168,9 @@ static uint8_t write_big_glyph(char c, uint8_t x) {
   for (uint8_t i = 0; i < OLED_FONT_WIDTH; i++) {
     uint8_t col = pgm_read_byte(&font[(c - OLED_FONT_START) * OLED_FONT_WIDTH + i]);
     for (uint8_t twice = 0; twice < 2; twice++, x++) {
-      oled_write_raw_byte(double_bits(col & 0x0F), x);
-      oled_write_raw_byte(double_bits(col >> 4), OLED_DISPLAY_WIDTH + x);
+      uint16_t at = top_row() * OLED_DISPLAY_WIDTH + x;
+      oled_write_raw_byte(double_bits(col & 0x0F), at);
+      oled_write_raw_byte(double_bits(col >> 4), OLED_DISPLAY_WIDTH + at);
     }
   }
   return x;
@@ -1182,13 +1188,13 @@ static void write_big_P(const char *text) {
 static void render_state(void) {
   bool mac = shown.flags & FLAG_MAC;
   write_big_P(layer_name(shown.layer));
-  oled_set_cursor(17, 0);
+  oled_set_cursor(17, 1);
   oled_write_P(mac ? PSTR("MAC") : PSTR("WIN"), false);
   if (shown.flags & FLAG_FIXED) {
-    oled_set_cursor(16, 1);
+    oled_set_cursor(16, 2);
     oled_write_P(PSTR(" FIX "), true);
   }
-  oled_set_cursor(0, 2);
+  oled_set_cursor(0, 3);
   oled_write_P(PSTR(" SFT "), shown.mods & MOD_MASK_SHIFT);
   oled_write_P(PSTR(" CTL "), shown.mods & MOD_MASK_CTRL);
   oled_write_P(mac ? PSTR(" OPT ") : PSTR(" ALT "), shown.mods & MOD_MASK_ALT);
