@@ -1024,16 +1024,13 @@ void oledkit_render_info_user(void) {
   bool mac = is_mac_profile();
   uint8_t layer = get_highest_layer(layer_state | default_layer_state);
   const char *name = layer_name(layer);
-  bool base = layer == L_WIN_BASE || layer == L_MAC_BASE;
   uint8_t mods = get_mods();
 
-  // Row 0: profile, layer (inverted off the base layer), AUTO/FIXED
+  // Row 0: profile, layer, AUTO/FIXED
   oled_set_cursor(0, 0);
   oled_write_P(mac ? PSTR("MAC  ") : PSTR("WIN  "), false);
-  oled_write_char(' ', !base);
-  oled_write_P(name, !base);
-  oled_write_char(' ', !base);
-  write_spaces(9 - strlen_P(name));
+  oled_write_P(name, false);
+  write_spaces(11 - strlen_P(name));
   oled_write_P(profile_fixed ? PSTR("FIXED") : PSTR(" AUTO"), false);
 
   // Row 1: held modifiers (blank when not held), then the last combo's symbol
@@ -1044,10 +1041,8 @@ void oledkit_render_info_user(void) {
   oled_write_P(mods & MOD_MASK_ALT ? (mac ? PSTR("OPT ") : PSTR("ALT ")) : PSTR("    "), false);
   oled_write_P(mods & MOD_MASK_GUI ? (mac ? PSTR("CMD ") : PSTR("WIN ")) : PSTR("    "), false);
   if (last_combo_symbol && timer_elapsed(last_combo_timer) < 1000) {
-    write_spaces(2);
-    oled_write_char(' ', true);
-    oled_write_char(last_combo_symbol, true);
-    oled_write_char(' ', true);
+    write_spaces(4);
+    oled_write_char(last_combo_symbol, false);
   } else {
     last_combo_symbol = 0;  // stop the 16-bit timer from showing it again after wrap-around
     if (gesture_key_held) {
