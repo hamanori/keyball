@@ -2,7 +2,7 @@ RGBLIGHT_ENABLE = no
 
 OLED_ENABLE = yes
 
-# Static keymaps: Windows (Remap-era) and macOS (CoreX port) switch by OS detection.
+# Static CoreX keymaps for Windows (JIS host) and macOS; OS detection picks one.
 VIA_ENABLE = no
 
 COMBO_ENABLE = yes

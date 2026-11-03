@@ -1,10 +1,10 @@
 {
  "layerIds": {
-  "base": 7,
-  "edit": 8,
-  "mouse": 9,
-  "window": 10,
-  "num": 11
+  "base": 5,
+  "edit": 6,
+  "mouse": 7,
+  "window": 8,
+  "num": 9
  },
  "layerInfo": {
   "base": [
@@ -83,7 +83,7 @@
     "kind": "key"
    },
    "1,0": {
-    "code": 18475,
+    "code": 17963,
     "label": "Tab",
     "detail": "短押し：Tab ／ 長押し：編集・移動レイヤー",
     "kind": "dual"
@@ -257,7 +257,7 @@
     "kind": "key"
    },
    "6,0": {
-    "code": 18993,
+    "code": 18481,
     "label": "\\",
     "detail": "短押し：\\ ／ 長押し：ウィンドウレイヤー",
     "kind": "dual"
@@ -293,7 +293,7 @@
     "kind": "key"
    },
    "3,3": {
-    "code": 19089,
+    "code": 18577,
     "label": "英数",
     "detail": "短押し：英数 ／ 長押し：ウィンドウレイヤー（判定 250ms）",
     "kind": "dual"
@@ -305,7 +305,7 @@
     "kind": "dual"
    },
    "3,5": {
-    "code": 18832,
+    "code": 18320,
     "label": "かな",
     "detail": "短押し：かな ／ 長押し：マウスレイヤー",
     "kind": "dual"
@@ -317,7 +317,7 @@
     "kind": "key"
    },
    "7,4": {
-    "code": 19240,
+    "code": 18728,
     "label": "Enter",
     "detail": "短押し：Enter ／ 長押し：数字・記号レイヤー",
     "kind": "dual"
@@ -771,7 +771,7 @@
     "kind": "key"
    },
    "5,3": {
-    "code": 19155,
+    "code": 18643,
     "label": "中クリック",
     "detail": "短押し：中クリック ／ 長押し：ウィンドウレイヤー",
     "kind": "dual"

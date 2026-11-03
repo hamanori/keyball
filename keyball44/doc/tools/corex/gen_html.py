@@ -6,7 +6,9 @@ import html, json, sys
 
 spec = json.load(open(sys.argv[1]))
 OUT = sys.argv[2]
-PROPOSAL = len(sys.argv) > 3 and sys.argv[3] == 'proposal'
+MODE = sys.argv[3] if len(sys.argv) > 3 else 'mac'  # mac | proposal | win | win-proposal
+PROPOSAL = MODE.endswith('proposal')
+WINDOWS = MODE.startswith('win')
 
 
 def grid_pos(p):
@@ -117,6 +119,26 @@ PROPOSAL_HTML = '''
 </ul>
 </section>'''
 
+def win_notes():
+    rows = ''.join('<tr><td>%s</td><td>%s</td><td><em>%s</em></td></tr>' % (
+        html.escape(spec['layerInfo'][c['layer']][0] + '：' + (c['mac'] or '—')), html.escape(c['why']), c['category'])
+        for c in spec['changes'] if c['category'] != '自動')
+    return '''
+<section class="note">
+<h2>配置案のポイント</h2>
+<ul>
+<li>指の位置と操作は Mac 用（CoreX）と同じです。⌘ のショートカットは、同じ操作になる Windows のショートカットに置き換えています。</li>
+<li>Windows は JIS 配列として認識したままです。記号は US の意味で配置し、送る直前にファームが JIS の打ち方へ置き換えます。Space 長押しは本物の Shift で、Shift＋- は _、Shift＋; は :、Shift＋' は " になります。</li>
+<li>コンボは Mac と同じ組み合わせで、同じ記号が出ます。左 Shift＋\\ を押し続けると Mac 用と切り替わります。</li>
+<li>親指の上の2キーは Alt・Ctrl、右下は Win です（以前の Windows 配置と同じ）。英数・かなは以前の Windows 配置と同じキーを送ります。</li>
+<li>Windows 用のマクロ 11・12 は、以前と同じく Tab 長押し＋右端の中段・下段です。</li>
+</ul>
+<h2>決めてほしいこと・代わりの操作</h2>
+<table><tr><th>キー</th><th>Windows での動き</th><th>区分</th></tr>%s</table>
+<p>そのほかの %d キーは、同じ操作の Windows 標準ショートカットに置き換えています（キーにカーソルを合わせると確認できます）。VS Code は公式の Windows 版ショートカット一覧で確認しました。</p>
+</section>''' % (rows, sum(c['category'] == '自動' for c in spec['changes']))
+
+
 CSS = '''
 :root{--bg:#f7f7f5;--fg:#1a1a1a;--muted:#666;--key:#fff;--keyb:#d4d4d0;--thumb:#eef6f5;--dual:#fff8eb;--trns:#f1f1ef;--accent:#0f766e;--combo:#c2410c;--card:#fff}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161616;--fg:#eee;--muted:#aaa;--key:#262626;--keyb:#3a3a3a;--thumb:#1f2e2c;--dual:#2e2717;--trns:#1d1d1d;--accent:#5eead4;--combo:#fb923c;--card:#1e1e1e}}
@@ -174,16 +196,20 @@ document.querySelectorAll('.legend li,.badge').forEach(li=>{
 
 ported = [c['pos'] for c in spec['combos'] if c['ported']] + [spec['toggle']['pos']]
 order = ['base', 'edit', 'mouse', 'window', 'num']
-title = 'Keyball 配置案（Mac）' if PROPOSAL else 'Keyball キー操作早見表'
+title = {'mac': 'Keyball キー操作早見表', 'proposal': 'Keyball 配置案（Mac）', 'win': 'Keyball キー操作早見表（Windows）',
+         'win-proposal': 'Keyball 配置案（Windows）'}[MODE]
 body = ['<main><h1>%s</h1>' % title,
-        '<p class="lead">%s</p>' % ('CoreX の現行設定を Keyball44（Mac・US 配列）へ移す配置案です。まだ本体には書き込んでいません。キーにカーソルを合わせると、送るショートカットや短押し／長押しの説明が出ます。' if PROPOSAL else
+        '<p class="lead">%s</p>' % ('CoreX の Mac 用の操作を Keyball44（Windows・JIS 配列）へ移す配置案です。まだ本体には書き込んでいません。キーにカーソルを合わせると、送るショートカットや短押し／長押しの説明が出ます。' if MODE == 'win-proposal' else
+                                     'Windows（JIS 配列）で使う Keyball44 の現行設定です。操作の位置は Mac 用と同じです。キーにカーソルを合わせると、送るショートカットや短押し／長押しの説明が出ます。' if MODE == 'win' else 'CoreX の現行設定を Keyball44（Mac・US 配列）へ移す配置案です。まだ本体には書き込んでいません。キーにカーソルを合わせると、送るショートカットや短押し／長押しの説明が出ます。' if PROPOSAL else
                                      'Mac・US 配列で使う Keyball44 の現行設定です。Windows につないでも同じコンボで同じ記号が出ます（左 Shift＋\\ で Mac／Windows を手動で切り替え）。キーにカーソルを合わせると、送るショートカットや短押し／長押しの説明が出ます。'),
         '<nav>%s</nav>' % ''.join('<a href="#layer-%s">%s</a>' % (n, spec['layerInfo'][n][0]) for n in order)]
-if PROPOSAL:
+if MODE == 'proposal':
     body.append(PROPOSAL_HTML)
+elif MODE == 'win-proposal':
+    body.append(win_notes())
 body += [layer_html(n) for n in order]
 body.append('<p class="foot">薄い青緑＝親指キー、淡い黄色＝短押しと長押しで別の操作、点線＝下のレイヤーと同じか割り当てなし。</p></main><div id="tip"></div>')
 doc = '<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>%s</title><style>%s</style></head><body>%s<script>%s</script></body></html>' % (
-    'Keyball 配置案' if PROPOSAL else 'Keyball 早見表', CSS, ''.join(body), JS % json.dumps(ported))
+    {'mac': 'Keyball 早見表', 'proposal': 'Keyball 配置案', 'win': 'Keyball 早見表 Windows', 'win-proposal': 'Keyball 配置案 Windows'}[MODE], CSS, ''.join(body), JS % json.dumps(ported))
 open(OUT, 'w').write(doc)
 print('wrote', OUT, len(doc))

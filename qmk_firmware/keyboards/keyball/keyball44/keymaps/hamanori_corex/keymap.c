@@ -70,7 +70,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////
 
 enum custom_keycodes {
-  // Keep the values stable while existing Remap EEPROM profiles use User 0-10.
+  // corex_keymaps.inc refers to these by value (User 0-11), so keep them stable.
   KC_MY_BTN1            = KEYBALL_SAFE_RANGE + 0,  // User0
   KC_MY_BTN2            = KEYBALL_SAFE_RANGE + 1,  // User1
   KC_MY_BTN3            = KEYBALL_SAFE_RANGE + 2,  // User2
@@ -81,25 +81,25 @@ enum custom_keycodes {
   KC_TO_CLICKABLE_DEC   = KEYBALL_SAFE_RANGE + 7,  // User7 (reserved)
   KC_SCR_SPD_INC        = KEYBALL_SAFE_RANGE + 8,  // User8 スクロール閾値を下げて速度アップ
   KC_SCR_SPD_DEC        = KEYBALL_SAFE_RANGE + 9,  // User9 スクロール閾値を上げて速度ダウン
-  KC_SCR_RST            = KEYBALL_SAFE_RANGE + 10  // User10 スクロール閾値を初期値に戻す
+  KC_SCR_RST            = KEYBALL_SAFE_RANGE + 10, // User10 スクロール閾値を初期値に戻す
+  KC_URL_COPY           = KEYBALL_SAFE_RANGE + 11  // Windows: アドレス欄の URL をコピー
 };
 
-// Windows keeps the Remap-era layers 0-6. macOS uses layers 7-11 ported from CoreX.
-// The connected OS picks the default layer at boot.
+// Both profiles carry the CoreX layers: Windows 0-4, macOS 5-9.
+// The connected OS picks the default layer at boot; Shift + \ (held) switches by hand.
 enum layers {
   L_WIN_BASE = 0,
-  L_WIN_SCROLL = 3,
-  L_WIN_MOUSE = 6,
-  L_MAC_BASE = 7,
-  L_MAC_EDIT = 8,
-  L_MAC_MOUSE = 9,
-  L_MAC_WINDOW = 10,
-  L_MAC_NUM = 11,
+  L_WIN_EDIT,
+  L_WIN_MOUSE,
+  L_WIN_WINDOW,
+  L_WIN_NUM,
+  L_MAC_BASE,
+  L_MAC_EDIT,
+  L_MAC_MOUSE,
+  L_MAC_WINDOW,
+  L_MAC_NUM,
 };
-
-// Mouse-layer K: tap = middle click, hold = window layer (ball scrolls there).
-#define MAC_MOUSE_MIDDLE LT(L_MAC_WINDOW, KC_BTN3)
-#define MAC_EISU LT(L_MAC_WINDOW, KC_LNG2)
+#define PROFILE_LAYERS (L_MAC_BASE - L_WIN_BASE)
 
 static bool is_mac_profile(void) {
   return default_layer_state & ((layer_state_t)1 << L_MAC_BASE);
@@ -109,7 +109,16 @@ static uint8_t mouse_layer(void) {
   return is_mac_profile() ? L_MAC_MOUSE : L_WIN_MOUSE;
 }
 
-#define SCROLL_LAYERS_MASK (((layer_state_t)1 << L_WIN_SCROLL) | ((layer_state_t)1 << L_MAC_WINDOW))
+// Mouse-layer K: tap = middle click, hold = window layer (ball scrolls there).
+static bool is_mouse_middle(uint16_t keycode) {
+  return keycode == LT(L_MAC_WINDOW, KC_BTN3) || keycode == LT(L_WIN_WINDOW, KC_BTN3);
+}
+
+static bool is_mouse_layer(uint8_t layer) {
+  return layer == L_MAC_MOUSE || layer == L_WIN_MOUSE;
+}
+
+#define SCROLL_LAYERS_MASK (((layer_state_t)1 << L_WIN_WINDOW) | ((layer_state_t)1 << L_MAC_WINDOW))
 #define MOUSE_LAYERS_MASK (((layer_state_t)1 << L_WIN_MOUSE) | ((layer_state_t)1 << L_MAC_MOUSE))
 // Every momentary layer except the mouse layers takes priority over a mouse session.
 #define MOUSE_BLOCKING_LAYERS_MASK (~(MOUSE_LAYERS_MASK | ((layer_state_t)1 << L_WIN_BASE) | ((layer_state_t)1 << L_MAC_BASE)))
@@ -391,13 +400,78 @@ static void leave_mouse_session(void) {
   mouse_layer_exit_pending = true;
 }
 
-void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
+// QMK skips post_process_record_user when process_record_user returns false,
+// so keys that send their own output call this directly.
+static void finish_mouse_layer_exit(void) {
   if (mouse_layer_exit_pending) {
     mouse_layer_exit_pending = false;
     if (mouse_session_state == MOUSE_SESSION_NORMAL) {
       mouse_layer_off();
     }
   }
+}
+
+void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
+  finish_mouse_layer_exit();
+}
+
+// Windows keeps the JIS layout, while the keymap is written with US symbols.
+// Returns the JIS key that types the US symbol, or 0 when the key is the same.
+static uint16_t jis_key(uint8_t kc, bool shift) {
+  if (!shift) {
+    switch (kc) {
+      case KC_EQL:  return S(KC_MINS);
+      case KC_LBRC: return KC_RBRC;
+      case KC_RBRC: return KC_BSLS;
+      case KC_BSLS: return KC_INT3;
+      case KC_QUOT: return S(KC_7);
+      case KC_GRV:  return S(KC_LBRC);
+      default:      return 0;
+    }
+  }
+  switch (kc) {
+    case KC_2:    return KC_LBRC;
+    case KC_6:    return KC_EQL;
+    case KC_7:    return S(KC_6);
+    case KC_8:    return S(KC_QUOT);
+    case KC_9:    return S(KC_8);
+    case KC_0:    return S(KC_9);
+    case KC_MINS: return S(KC_INT1);
+    case KC_EQL:  return S(KC_SCLN);
+    case KC_LBRC: return S(KC_RBRC);
+    case KC_RBRC: return S(KC_BSLS);
+    case KC_BSLS: return S(KC_INT3);
+    case KC_SCLN: return KC_QUOT;
+    case KC_QUOT: return S(KC_2);
+    case KC_GRV:  return S(KC_EQL);
+    default:      return 0;
+  }
+}
+
+// Types a US symbol on the Windows profile as its JIS key. Shortcuts with
+// Ctrl, Alt or Win pass through untouched. Returns true when it typed the key.
+static bool send_as_jis(uint16_t keycode, keyrecord_t *record) {
+  if (is_mac_profile() || !record->event.pressed) {
+    return false;
+  }
+  if (IS_QK_MOD_TAP(keycode)) {
+    keycode = QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
+  } else if (IS_QK_LAYER_TAP(keycode)) {
+    keycode = QK_LAYER_TAP_GET_TAP_KEYCODE(keycode);
+  }
+  uint8_t mods = get_mods();
+  if ((mods & ~MOD_MASK_SHIFT) || keycode > QK_MODS_MAX || (QK_MODS_GET_MODS(keycode) & ~(MOD_LSFT | MOD_RSFT))) {
+    return false;
+  }
+  uint16_t target = jis_key(QK_MODS_GET_BASIC_KEYCODE(keycode), (mods & MOD_MASK_SHIFT) || QK_MODS_GET_MODS(keycode));
+  if (!target) {
+    return false;
+  }
+  del_mods(MOD_MASK_SHIFT);
+  tap_code16(target);
+  set_mods(mods);
+  send_keyboard_report();
+  return true;
 }
 
 static void tap_key_sequence(const uint16_t *keys, uint8_t count) {
@@ -411,7 +485,7 @@ bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
     // Both the tap and hold meanings leave the mouse session, so exit before
     // QMK resolves a following key against the mouse layer. The mouse-layer K
     // is a mouse operation when tapped, so it keeps the session.
-    if (keycode != MAC_MOUSE_MIDDLE && record->event.pressed && mouse_session_state != MOUSE_SESSION_NORMAL) {
+    if (!is_mouse_middle(keycode) && record->event.pressed && mouse_session_state != MOUSE_SESSION_NORMAL) {
       mouse_session_force_normal(true);
     }
   } else if (IS_QK_MOD_TAP(keycode)) {
@@ -449,7 +523,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
   }
 
   if (is_layer_tap && record->tap.count == 0) {
-    if (QK_LAYER_TAP_GET_LAYER(keycode) == L_MAC_MOUSE) {
+    if (is_mouse_layer(QK_LAYER_TAP_GET_LAYER(keycode))) {
       // Holding かな opens the mouse layer by hand, like CoreX.
       mouse_layer_held = record->event.pressed;
       return true;
@@ -469,7 +543,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
     return true;
   }
 
-  if (keycode == MAC_MOUSE_MIDDLE) {
+  if (is_mouse_middle(keycode)) {
     keycode = KC_MY_BTN3;  // tap: middle click as a session-aware button
   }
 
@@ -568,6 +642,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
     }
     return false;
 
+  case KC_URL_COPY:
+    if (record->event.pressed) {
+      // The press returns false, so the mouse layer can go off right away.
+      mouse_session_force_normal(true);
+      tap_code16(C(KC_L));
+      tap_code16(C(KC_C));
+      tap_code(KC_ESC);
+    }
+    return false;
+
   case KC_SCR_RST:
     if (record->event.pressed) {
       user_config.scroll_threshold = 30;
@@ -595,6 +679,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
 
   reset_mouse_session_movement();
 
+  if (send_as_jis(keycode, record)) {
+    finish_mouse_layer_exit();
+    return false;
+  }
   return true;
 }
 
@@ -744,17 +832,7 @@ void housekeeping_task_user(void) {
 
 // CoreX TD(0): 英数 tap / window layer hold, judged at 250 ms.
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-  return keycode == MAC_EISU ? 250 : TAPPING_TERM;
-}
-
-// macOS follows the CoreX "balanced" hold decision (permissive hold).
-// Windows keeps the previous hold-on-other-key-press behavior.
-bool get_permissive_hold(uint16_t keycode, keyrecord_t *record) {
-  return is_mac_profile();
-}
-
-bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
-  return !is_mac_profile();
+  return IS_QK_LAYER_TAP(keycode) && QK_LAYER_TAP_GET_TAP_KEYCODE(keycode) == KC_LNG2 ? 250 : TAPPING_TERM;
 }
 
 // Each profile has its own Shift + \\ toggle combo; the symbol combos run on both.
@@ -822,7 +900,7 @@ layer_state_t layer_state_set_user(layer_state_t ly_state)
     // かな is still held after a momentary layer (e.g. K hold) ends.
     ly_state |= (layer_state_t)1 << mouse_layer();
   } else if (!mouse_layer_active && session_requires_mouse_layer) {
-    // Also recover safely if Layer 6 is disabled outside the session module.
+    // Also recover safely if a mouse layer is disabled outside the session module.
     mouse_session_force_normal(false);
   }
 
@@ -840,27 +918,17 @@ layer_state_t layer_state_set_user(layer_state_t ly_state)
 #include "lib/oledkit/oledkit.h"
 
 static const char *layer_name(uint8_t layer) {
-  switch (layer) {
-    case L_WIN_BASE:
-    case L_MAC_BASE:
-      return PSTR("BASE");
-    case 1:
-    case L_MAC_EDIT:
+  switch (layer % PROFILE_LAYERS) {
+    case L_WIN_EDIT:
       return PSTR("EDIT");
-    case 2:
-    case L_MAC_NUM:
-      return PSTR("NUM");
-    case L_WIN_SCROLL:
-      return PSTR("APP");
-    case 4:
-      return PSTR("SHIFT");
     case L_WIN_MOUSE:
-    case L_MAC_MOUSE:
       return PSTR("MOUSE");
-    case L_MAC_WINDOW:
+    case L_WIN_WINDOW:
       return PSTR("WINDOW");
+    case L_WIN_NUM:
+      return PSTR("NUM");
     default:
-      return PSTR("L5");
+      return PSTR("BASE");
   }
 }
 

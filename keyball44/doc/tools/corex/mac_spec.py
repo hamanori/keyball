@@ -8,8 +8,8 @@ COREX = json.load(open(sys.argv[1]))['configuration']
 NOTES = json.load(open(sys.argv[2]))['layerNotes']
 OUT = sys.argv[3]
 
-# Firmware layer ids for the Mac profile (Windows keeps 0-6).
-MAC = {'base': 7, 'edit': 8, 'mouse': 9, 'window': 10, 'num': 11}
+# Firmware layer ids for the Mac profile (Windows uses 0-4, derived by win_spec.py).
+MAC = {'base': 5, 'edit': 6, 'mouse': 7, 'window': 8, 'num': 9}
 COREX_TO_MAC = {0: 'base', 1: 'edit', 2: 'mouse', 3: 'window', 4: 'num'}
 LAYER_INFO = {
     'base': ('通常', '文字入力と、下に書いたコンボ'),

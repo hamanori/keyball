@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* タップ系の微調整（そのまま） */
 #define TAP_CODE_DELAY 5
 
-// Mouse session. Layer 6 is owned by the keymap state machine instead of
+// Mouse session. The mouse layers (2 and 7) are owned by the keymap state machine instead of
 // QMK's built-in Auto Mouse lifecycle.
 #define MOUSE_SESSION_READY_TIMEOUT 10000
 #define MOUSE_SESSION_MULTI_CLICK_TERM 500
@@ -34,8 +34,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Tapping term
 #define TAPPING_TERM 200
-#define HOLD_ON_OTHER_KEY_PRESS_PER_KEY
-#define PERMISSIVE_HOLD_PER_KEY
+// CoreX "balanced" hold decision on both profiles.
+#define PERMISSIVE_HOLD
 #define TAPPING_TERM_PER_KEY
 
 //  quick tap term
@@ -47,7 +47,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define KEYBALL_CPI_DEFAULT 700      // 光学センサーPMW3360DM の解像度 (CPI) の規定値
 #define KEYBALL_SCROLL_DIV_DEFAULT 4 // スクロール速度の規定値
 
-// Layers 0-11 (Windows 0-6, macOS 7-11).
+// Layers 0-9 (Windows 0-4, macOS 5-9).
 #undef LAYER_STATE_8BIT
 #define LAYER_STATE_16BIT
 
