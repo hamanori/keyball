@@ -168,7 +168,9 @@ for a, bb, _, _, out in COREX['combos']:
     sym = symbol_of(out) or keyname(out)
     combos.append({'keys': [a, bb], 'pos': [base_by_code[a], base_by_code[bb]], 'output': out, 'symbol': sym, 'ported': True})
 
+# Shift + \\ switches between the macOS and Windows profiles (firmware toggle combo).
+toggle = {'pos': ['2,0', '6,0'], 'symbol': '⇄', 'label': 'Mac と Windows を切り替え'}
 json.dump({'layerIds': MAC, 'layerInfo': LAYER_INFO, 'used': ['%d,%d' % p for p in USED],
-           'layers': layers, 'combos': combos, 'comboTermMs': 30, 'tappingTermMs': 200},
+           'layers': layers, 'combos': combos, 'toggle': toggle, 'comboTermMs': 30, 'tappingTermMs': 200},
           open(OUT, 'w'), ensure_ascii=False, indent=1)
 print('combos ported', sum(c['ported'] for c in combos), 'skipped', [c for c in combos if not c['ported']])

@@ -42,7 +42,7 @@ def layer_html(name):
     badges = {}
     if name == 'base':
         cross = 0
-        ported = [c for c in spec['combos'] if c['ported']]
+        ported = [c for c in spec['combos'] if c['ported']] + [dict(spec['toggle'], ported=True)]
         adjacent = {}
         for i, cb in enumerate(ported):
             (ra, ca), (rb, cb_) = sorted(map(grid_pos, cb['pos']), key=lambda g: g[1])
@@ -67,8 +67,9 @@ def layer_html(name):
                 cross += 1
                 for p in (a, b):
                     badges.setdefault(p, []).append((i, cb['symbol'], color))
-            legend.append('<li data-combo="%d" tabindex="0"><b%s>%s</b> %s ＋ %s</li>' % (
-                i, ' style="color:%s"' % color if color else '', html.escape(cb['symbol']), html.escape(names[0]), html.escape(names[1])))
+            what = '：' + cb['label'] if 'label' in cb else ''
+            legend.append('<li data-combo="%d" tabindex="0"><b%s>%s</b> %s ＋ %s%s</li>' % (
+                i, ' style="color:%s"' % color if color else '', html.escape(cb['symbol']), html.escape(names[0]), html.escape(names[1]), html.escape(what)))
     for p, k in keys.items():
         items.append(key_html(name, p, k, badges.get(p, ())))
     out = ['<section class="layer" id="layer-%s"><h2>%s<small>%s</small></h2>' % (name, title, html.escape(how)),
@@ -171,12 +172,12 @@ document.querySelectorAll('.legend li,.badge').forEach(li=>{
 });
 '''
 
-ported = [c['pos'] for c in spec['combos'] if c['ported']]
+ported = [c['pos'] for c in spec['combos'] if c['ported']] + [spec['toggle']['pos']]
 order = ['base', 'edit', 'mouse', 'window', 'num']
 title = 'Keyball 配置案（Mac）' if PROPOSAL else 'Keyball キー操作早見表'
 body = ['<main><h1>%s</h1>' % title,
         '<p class="lead">%s</p>' % ('CoreX の現行設定を Keyball44（Mac・US 配列）へ移す配置案です。まだ本体には書き込んでいません。キーにカーソルを合わせると、送るショートカットや短押し／長押しの説明が出ます。' if PROPOSAL else
-                                     'Mac・US 配列で使う Keyball44 の現行設定です。キーにカーソルを合わせると、送るショートカットや短押し／長押しの説明が出ます。'),
+                                     'Mac・US 配列で使う Keyball44 の現行設定です。Windows につないでも同じコンボで同じ記号が出ます（左 Shift＋\\ で Mac／Windows を手動で切り替え）。キーにカーソルを合わせると、送るショートカットや短押し／長押しの説明が出ます。'),
         '<nav>%s</nav>' % ''.join('<a href="#layer-%s">%s</a>' % (n, spec['layerInfo'][n][0]) for n in order)]
 if PROPOSAL:
     body.append(PROPOSAL_HTML)

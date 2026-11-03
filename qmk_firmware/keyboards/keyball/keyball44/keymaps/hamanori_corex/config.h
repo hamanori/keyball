@@ -57,3 +57,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // No one-shot keys in either profile.
 #define NO_ACTION_ONESHOT
+#define COMBO_MUST_HOLD_PER_COMBO

@@ -154,28 +154,38 @@ const uint16_t PROGMEM corex_combo_19[] = {0x001B, 0x0006, COMBO_END};  // _
 const uint16_t PROGMEM corex_combo_20[] = {0x000C, 0x0012, COMBO_END};  // *
 const uint16_t PROGMEM corex_combo_21[] = {0x0008, 0x000C, COMBO_END};  // ^
 const uint16_t PROGMEM corex_combo_22[] = {0x0014, 0x0013, COMBO_END};  // *
+const uint16_t PROGMEM toggle_combo_mac[] = {0x00E1, 0x4A31, COMBO_END};
+const uint16_t PROGMEM toggle_combo_win[] = {0x00E1, 0x4389, COMBO_END};
+
+#define SYMBOL_COMBO_COUNT 23
+enum { COMBO_TOGGLE_MAC = SYMBOL_COMBO_COUNT, COMBO_TOGGLE_WIN };
+static const uint16_t PROGMEM combo_mac_output[] = {0x022F, 0x0230, 0x0226, 0x0227, 0x002F, 0x0030, 0x002E, 0x0038, 0x002D, 0x022E, 0x021E, 0x021F, 0x0220, 0x0221, 0x0222, 0x0224, 0x0035, 0x0235, 0x0225, 0x022D, 0x0225, 0x0223, 0x0225};
+static const uint16_t PROGMEM combo_win_output[] = {0x0230, 0x0231, 0x0225, 0x0226, 0x0030, 0x0031, 0x022D, 0x0038, 0x002D, 0x0233, 0x021E, 0x002F, 0x0220, 0x0221, 0x0222, 0x0223, 0x022F, 0x022E, 0x0234, 0x0287, 0x0234, 0x002E, 0x0234};
+static const char PROGMEM combo_symbol[] = "{}()[]=/-+!@#$%&`~*_*^*";
 combo_t key_combos[] = {
-  COMBO(corex_combo_0, 0x022F),
-  COMBO(corex_combo_1, 0x0230),
-  COMBO(corex_combo_2, 0x0226),
-  COMBO(corex_combo_3, 0x0227),
-  COMBO(corex_combo_4, 0x002F),
-  COMBO(corex_combo_5, 0x0030),
-  COMBO(corex_combo_6, 0x002E),
-  COMBO(corex_combo_7, 0x0038),
-  COMBO(corex_combo_8, 0x002D),
-  COMBO(corex_combo_9, 0x022E),
-  COMBO(corex_combo_10, 0x021E),
-  COMBO(corex_combo_11, 0x021F),
-  COMBO(corex_combo_12, 0x0220),
-  COMBO(corex_combo_13, 0x0221),
-  COMBO(corex_combo_14, 0x0222),
-  COMBO(corex_combo_15, 0x0224),
-  COMBO(corex_combo_16, 0x0035),
-  COMBO(corex_combo_17, 0x0235),
-  COMBO(corex_combo_18, 0x0225),
-  COMBO(corex_combo_19, 0x022D),
-  COMBO(corex_combo_20, 0x0225),
-  COMBO(corex_combo_21, 0x0223),
-  COMBO(corex_combo_22, 0x0225),
+  COMBO_ACTION(corex_combo_0),
+  COMBO_ACTION(corex_combo_1),
+  COMBO_ACTION(corex_combo_2),
+  COMBO_ACTION(corex_combo_3),
+  COMBO_ACTION(corex_combo_4),
+  COMBO_ACTION(corex_combo_5),
+  COMBO_ACTION(corex_combo_6),
+  COMBO_ACTION(corex_combo_7),
+  COMBO_ACTION(corex_combo_8),
+  COMBO_ACTION(corex_combo_9),
+  COMBO_ACTION(corex_combo_10),
+  COMBO_ACTION(corex_combo_11),
+  COMBO_ACTION(corex_combo_12),
+  COMBO_ACTION(corex_combo_13),
+  COMBO_ACTION(corex_combo_14),
+  COMBO_ACTION(corex_combo_15),
+  COMBO_ACTION(corex_combo_16),
+  COMBO_ACTION(corex_combo_17),
+  COMBO_ACTION(corex_combo_18),
+  COMBO_ACTION(corex_combo_19),
+  COMBO_ACTION(corex_combo_20),
+  COMBO_ACTION(corex_combo_21),
+  COMBO_ACTION(corex_combo_22),
+  [COMBO_TOGGLE_MAC] = COMBO_ACTION(toggle_combo_mac),
+  [COMBO_TOGGLE_WIN] = COMBO_ACTION(toggle_combo_win),
 };

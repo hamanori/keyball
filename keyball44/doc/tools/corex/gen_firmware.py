@@ -42,13 +42,32 @@ for name, lid in sorted(spec['layerIds'].items(), key=lambda kv: kv[1]):
     emit(lid, grid, labels)
 lines += ['};', '// clang-format on', '']
 
+# Combos: the same CoreX key pairs on both profiles. macOS sends the US keycode;
+# Windows (JIS layout) sends the keycode that types the same symbol on JIS.
+S = lambda kc: 0x0200 | kc
+JIS = {'{': S(0x30), '}': S(0x31), '(': S(0x25), ')': S(0x26), '[': 0x30, ']': 0x31, '=': S(0x2D), '/': 0x38,
+       '-': 0x2D, '+': S(0x33), '!': S(0x1E), '@': 0x2F, '#': S(0x20), '$': S(0x21), '%': S(0x22), '&': S(0x23),
+       '`': S(0x2F), '~': S(0x2E), '*': S(0x34), '_': S(0x87), '^': 0x2E}
 ported = [c for c in spec['combos'] if c['ported']]
 for i, cb in enumerate(ported):
     a, b = cb['keys']
     lines.append('const uint16_t PROGMEM corex_combo_%d[] = {0x%04X, 0x%04X, COMBO_END};  // %s' % (i, a, b, cb['symbol']))
+# Profile switch: left Shift + the \ key (CoreX used this pair for its connection settings).
+mac_bslash = spec['layers']['base']['6,0']['code']
+win_bslash = win['keymap'][0][6][0]
+lines.append('const uint16_t PROGMEM toggle_combo_mac[] = {0x00E1, 0x%04X, COMBO_END};' % mac_bslash)
+lines.append('const uint16_t PROGMEM toggle_combo_win[] = {0x00E1, 0x%04X, COMBO_END};' % win_bslash)
+lines.append('')
+lines.append('#define SYMBOL_COMBO_COUNT %d' % len(ported))
+lines.append('enum { COMBO_TOGGLE_MAC = SYMBOL_COMBO_COUNT, COMBO_TOGGLE_WIN };')
+lines.append('static const uint16_t PROGMEM combo_mac_output[] = {%s};' % ', '.join('0x%04X' % c['output'] for c in ported))
+lines.append('static const uint16_t PROGMEM combo_win_output[] = {%s};' % ', '.join('0x%04X' % JIS[c['symbol']] for c in ported))
+lines.append('static const char PROGMEM combo_symbol[] = "%s";' % ''.join(c['symbol'] for c in ported).replace('\\', '\\\\'))
 lines.append('combo_t key_combos[] = {')
 for i, cb in enumerate(ported):
-    lines.append('  COMBO(corex_combo_%d, 0x%04X),' % (i, cb['output']))
+    lines.append('  COMBO_ACTION(corex_combo_%d),' % i)
+lines.append('  [COMBO_TOGGLE_MAC] = COMBO_ACTION(toggle_combo_mac),')
+lines.append('  [COMBO_TOGGLE_WIN] = COMBO_ACTION(toggle_combo_win),')
 lines.append('};')
 open(OUT, 'w').write('\n'.join(lines) + '\n')
 print('wrote', OUT, 'combos', len(ported))

@@ -1715,6 +1715,14 @@
    "ported": false
   }
  ],
+ "toggle": {
+  "pos": [
+   "2,0",
+   "6,0"
+  ],
+  "symbol": "⇄",
+  "label": "Mac と Windows を切り替え"
+ },
  "comboTermMs": 30,
  "tappingTermMs": 200
 }

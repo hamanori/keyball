@@ -332,6 +332,12 @@ static bool mouse_session_meaningful_movement(uint16_t movement) {
   return true;
 }
 
+static void set_profile(bool mac) {
+  mouse_session_force_normal(true);
+  default_layer_set((layer_state_t)1 << (mac ? L_MAC_BASE : L_WIN_BASE));
+  invert_scroll = !mac;  // Windows scrolls inverted, as with OS detection
+}
+
 void eeconfig_init_user(void) {
   user_config.raw = 0;
   user_config.scroll_threshold = 30;
@@ -360,24 +366,7 @@ void keyboard_post_init_user(void) {
   // OS自動判定 (少し待ってから実行する必要あり)
   wait_ms(400);
   cached_os = detected_host_os();
-  switch (cached_os) {
-    case OS_WINDOWS:
-    case OS_LINUX:
-      invert_scroll = true;  // Windows/Linux用にスクロール方向を反転
-      break;
-    case OS_MACOS:
-      invert_scroll = false; // macOS/iOSはそのまま
-      break;
-    case OS_IOS:
-      invert_scroll = false; // macOS/iOSはそのまま
-      break;
-    default:
-      invert_scroll = false;
-      break;
-  }
-  if (cached_os == OS_MACOS || cached_os == OS_IOS) {
-    default_layer_set((layer_state_t)1 << L_MAC_BASE);
-  }
+  set_profile(cached_os == OS_MACOS || cached_os == OS_IOS);
 #endif
 }
 
@@ -768,9 +757,49 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
   return !is_mac_profile();
 }
 
-// CoreX combos assume a US layout, so they run only on the macOS profile.
+// Each profile has its own Shift + \\ toggle combo; the symbol combos run on both.
 bool combo_should_trigger(uint16_t combo_index, combo_t *combo, uint16_t keycode, keyrecord_t *record) {
-  return is_mac_profile();
+  if (combo_index == COMBO_TOGGLE_MAC) {
+    return is_mac_profile();
+  }
+  if (combo_index == COMBO_TOGGLE_WIN) {
+    return !is_mac_profile();
+  }
+  return true;
+}
+
+// True after the profile was switched by hand; replugging returns to OS detection.
+static bool profile_fixed = false;
+static char last_combo_symbol = 0;
+static uint16_t last_combo_timer = 0;
+
+
+// The profile toggle shares its keys with "|" (Shift + \\), so it fires only when held.
+bool get_combo_must_hold(uint16_t combo_index, combo_t *combo) {
+  return combo_index >= SYMBOL_COMBO_COUNT;
+}
+
+void process_combo_event(uint16_t combo_index, bool pressed) {
+  static uint16_t held_symbol = KC_NO;
+  if (combo_index >= SYMBOL_COMBO_COUNT) {
+    if (pressed) {
+      set_profile(!is_mac_profile());
+      profile_fixed = true;
+    }
+    return;
+  }
+  if (!pressed) {
+    unregister_code16(held_symbol);
+    held_symbol = KC_NO;
+    return;
+  }
+  // A combo is keyboard input, so it ends a mouse session like any other key.
+  mouse_session_force_normal(true);
+  // Held like a normal key so the symbol auto-repeats, as on CoreX.
+  held_symbol = pgm_read_word(is_mac_profile() ? &combo_mac_output[combo_index] : &combo_win_output[combo_index]);
+  register_code16(held_symbol);
+  last_combo_symbol = pgm_read_byte(&combo_symbol[combo_index]);
+  last_combo_timer = timer_read();
 }
 
 layer_state_t layer_state_set_user(layer_state_t ly_state)
@@ -806,68 +835,97 @@ layer_state_t layer_state_set_user(layer_state_t ly_state)
   return ly_state;
 }
 
-// Provide a short label for the current click/scroll state to show on OLED.
-const char *keyball_get_state_label(void) {
-  if (is_minizone_scroll_active()) {
-    return "SCRL";
-  }
-  if (held_mouse_buttons != 0) {
-    return "CLCK";
-  }
-  if (layer_state_is(mouse_layer())) {
-    return "CLKB";
-  }
-  return "NONE";
-}
-
 #ifdef OLED_ENABLE
 
 #include "lib/oledkit/oledkit.h"
 
-void oledkit_render_info_user(void)
-{
-  // Ensure we start rendering from the top-left.
-  oled_set_cursor(0, 0);
-  oled_write_P(PSTR("Info\xB1"), false);
-  oled_write_P(PSTR("LY:"), false);
-  oled_write(get_u8_str(get_highest_layer(layer_state | default_layer_state), ' '), false);
-  oled_set_cursor(12, 0);
-  oled_write_P(PSTR(" "), false);
-  oled_write(keyball_get_state_label(), false);
-
-  // Show CPI only (Ball info removed)
-  oled_set_cursor(0, 1);
-  oled_write_P(PSTR("\xBC\xBD\xB1"), false); // CPI label with custom font
-  oled_write(get_u8_str(keyball_get_cpi(), ' '), false);
-  oled_write_P(PSTR("00 "), false);
-
-  oled_set_cursor(0, 2);
-  oled_write_P(PSTR("    \xB1"), false);
-  oled_write_P(PSTR("ST:"), false);
-  oled_write(get_u8_str(user_config.scroll_threshold, ' '), false);
-  oled_set_cursor(12, 2);
-  oled_write_P(PSTR(" "), false);
-  oled_write_P(PSTR("OS:"), false);
-#if HAS_OS_DETECTION
-  switch (cached_os) {
-    case OS_WINDOWS:
-      oled_write_P(PSTR("WIN"), false);
-      break;
-    case OS_MACOS:
-      oled_write_P(PSTR("MAC"), false);
-      break;
-    case OS_LINUX:
-      oled_write_P(PSTR("LNX"), false);
-      break;
-    case OS_IOS:
-      oled_write_P(PSTR("IOS"), false);
-      break;
+static const char *layer_name(uint8_t layer) {
+  switch (layer) {
+    case L_WIN_BASE:
+    case L_MAC_BASE:
+      return PSTR("BASE");
+    case 1:
+    case L_MAC_EDIT:
+      return PSTR("EDIT");
+    case 2:
+    case L_MAC_NUM:
+      return PSTR("NUM");
+    case L_WIN_SCROLL:
+      return PSTR("APP");
+    case 4:
+      return PSTR("SHIFT");
+    case L_WIN_MOUSE:
+    case L_MAC_MOUSE:
+      return PSTR("MOUSE");
+    case L_MAC_WINDOW:
+      return PSTR("WINDOW");
     default:
-      oled_write_P(PSTR("UNK"), false);
-      break;
+      return PSTR("L5");
   }
-#else
-  oled_write_P(PSTR("NA"), false);
-#endif
+}
+
+static void write_spaces(uint8_t n) {
+  while (n--) {
+    oled_write_char(' ', false);
+  }
+}
+
+// Master OLED, 21 x 4 characters. Every row is written at full width so stale
+// characters never remain; the driver only redraws bytes that changed.
+void oledkit_render_info_user(void) {
+  bool mac = is_mac_profile();
+  uint8_t layer = get_highest_layer(layer_state | default_layer_state);
+  const char *name = layer_name(layer);
+  uint8_t mods = get_mods();
+
+  // Row 0: profile, layer, AUTO/FIXED
+  oled_set_cursor(0, 0);
+  oled_write_P(mac ? PSTR(" MAC ") : PSTR(" WIN "), true);
+  oled_write_char(' ', false);
+  oled_write_P(name, layer != L_WIN_BASE && layer != L_MAC_BASE);
+  write_spaces(10 - strlen_P(name));
+  oled_write_P(profile_fixed ? PSTR("FIXED") : PSTR(" AUTO"), false);
+
+  // Row 1: held modifiers
+  oled_set_cursor(0, 1);
+  oled_write_char(' ', false);
+  oled_write_P(PSTR("SFT"), mods & MOD_MASK_SHIFT);
+  oled_write_char(' ', false);
+  oled_write_P(PSTR("CTL"), mods & MOD_MASK_CTRL);
+  oled_write_char(' ', false);
+  oled_write_P(mac ? PSTR("OPT") : PSTR("ALT"), mods & MOD_MASK_ALT);
+  oled_write_char(' ', false);
+  oled_write_P(mac ? PSTR("CMD") : PSTR("WIN"), mods & MOD_MASK_GUI);
+  write_spaces(5);
+
+  // Row 2: mouse state and the symbol of the last combo (shown for 1 s)
+  oled_set_cursor(0, 2);
+  oled_write_P(PSTR("\xB2 "), false);
+  if (is_minizone_scroll_active()) {
+    oled_write_P(PSTR("SCROLL"), false);
+  } else if (held_mouse_buttons != 0) {
+    oled_write_P(PSTR("CLICK "), false);
+  } else if (layer_state_is(mouse_layer())) {
+    oled_write_P(PSTR("MOUSE "), false);
+  } else {
+    oled_write_P(PSTR("-     "), false);
+  }
+  write_spaces(10);
+  if (last_combo_symbol && timer_elapsed(last_combo_timer) < 1000) {
+    oled_write_char(' ', true);
+    oled_write_char(last_combo_symbol, true);
+    oled_write_char(' ', true);
+  } else {
+    last_combo_symbol = 0;  // stop the 16-bit timer from showing it again after wrap-around
+    write_spaces(3);
+  }
+
+  // Row 3: ball speed and scroll threshold
+  oled_set_cursor(0, 3);
+  oled_write_P(PSTR("\xBC\xBD\xB1"), false);
+  oled_write(get_u8_str(keyball_get_cpi(), ' '), false);
+  oled_write_P(PSTR("00   \xBE\xBF\xB1"), false);
+  oled_write(get_u8_str(user_config.scroll_threshold, ' '), false);
+  write_spaces(4);
 }
 #endif
