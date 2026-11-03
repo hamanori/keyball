@@ -1011,62 +1011,61 @@ static void write_spaces(uint8_t n) {
   }
 }
 
-// Master OLED, 21 x 4 characters. Every row is written at full width so stale
+// Both halves turn the OLED 180 degrees. The lit area sits off-centre on the
+// glass, and three rows drawn upside down land in the middle of the window,
+// the same trick the Keyball logo uses. It also makes both halves read the same way.
+oled_rotation_t oled_init_user(oled_rotation_t rotation) {
+  return OLED_ROTATION_180;
+}
+
+// Master OLED, 21 x 3 characters. Every row is written at full width so stale
 // characters never remain; the driver only redraws bytes that changed.
 void oledkit_render_info_user(void) {
   bool mac = is_mac_profile();
   uint8_t layer = get_highest_layer(layer_state | default_layer_state);
   const char *name = layer_name(layer);
+  bool base = layer == L_WIN_BASE || layer == L_MAC_BASE;
   uint8_t mods = get_mods();
 
-  // Row 0: profile, layer, AUTO/FIXED
+  // Row 0: profile, layer (inverted off the base layer), AUTO/FIXED
   oled_set_cursor(0, 0);
-  oled_write_P(mac ? PSTR(" MAC ") : PSTR(" WIN "), true);
-  oled_write_char(' ', false);
-  oled_write_P(name, layer != L_WIN_BASE && layer != L_MAC_BASE);
-  write_spaces(10 - strlen_P(name));
+  oled_write_P(mac ? PSTR("MAC  ") : PSTR("WIN  "), false);
+  oled_write_char(' ', !base);
+  oled_write_P(name, !base);
+  oled_write_char(' ', !base);
+  write_spaces(9 - strlen_P(name));
   oled_write_P(profile_fixed ? PSTR("FIXED") : PSTR(" AUTO"), false);
 
-  // Row 1: held modifiers
+  // Row 1: held modifiers (blank when not held), then the last combo's symbol
+  // for 1 s, otherwise what the ball is doing.
   oled_set_cursor(0, 1);
-  oled_write_char(' ', false);
-  oled_write_P(PSTR("SFT"), mods & MOD_MASK_SHIFT);
-  oled_write_char(' ', false);
-  oled_write_P(PSTR("CTL"), mods & MOD_MASK_CTRL);
-  oled_write_char(' ', false);
-  oled_write_P(mac ? PSTR("OPT") : PSTR("ALT"), mods & MOD_MASK_ALT);
-  oled_write_char(' ', false);
-  oled_write_P(mac ? PSTR("CMD") : PSTR("WIN"), mods & MOD_MASK_GUI);
-  write_spaces(5);
-
-  // Row 2: mouse state and the symbol of the last combo (shown for 1 s)
-  oled_set_cursor(0, 2);
-  oled_write_P(PSTR("\xB2 "), false);
-  if (is_minizone_scroll_active()) {
-    oled_write_P(PSTR("SCROLL"), false);
-  } else if (held_mouse_buttons != 0) {
-    oled_write_P(PSTR("CLICK "), false);
-  } else if (layer_state_is(mouse_layer())) {
-    oled_write_P(PSTR("MOUSE "), false);
-  } else {
-    oled_write_P(PSTR("-     "), false);
-  }
-  write_spaces(10);
+  oled_write_P(mods & MOD_MASK_SHIFT ? PSTR("SFT ") : PSTR("    "), false);
+  oled_write_P(mods & MOD_MASK_CTRL ? PSTR("CTL ") : PSTR("    "), false);
+  oled_write_P(mods & MOD_MASK_ALT ? (mac ? PSTR("OPT ") : PSTR("ALT ")) : PSTR("    "), false);
+  oled_write_P(mods & MOD_MASK_GUI ? (mac ? PSTR("CMD ") : PSTR("WIN ")) : PSTR("    "), false);
   if (last_combo_symbol && timer_elapsed(last_combo_timer) < 1000) {
+    write_spaces(2);
     oled_write_char(' ', true);
     oled_write_char(last_combo_symbol, true);
     oled_write_char(' ', true);
   } else {
     last_combo_symbol = 0;  // stop the 16-bit timer from showing it again after wrap-around
-    write_spaces(3);
+    if (gesture_key_held) {
+      oled_write_P(PSTR(" GEST"), false);
+    } else if (is_minizone_scroll_active()) {
+      oled_write_P(PSTR(" SCRL"), false);
+    } else if (held_mouse_buttons != 0) {
+      oled_write_P(PSTR("CLICK"), false);
+    } else {
+      write_spaces(5);
+    }
   }
 
-  // Row 3: ball speed and scroll threshold
-  oled_set_cursor(0, 3);
+  // Row 2: ball speed and scroll threshold
+  oled_set_cursor(0, 2);
   oled_write_P(PSTR("\xBC\xBD\xB1"), false);
   oled_write(get_u8_str(keyball_get_cpi(), ' '), false);
-  oled_write_P(PSTR("00   \xBE\xBF\xB1"), false);
+  oled_write_P(PSTR("00       \xBE\xBF\xB1"), false);
   oled_write(get_u8_str(user_config.scroll_threshold, ' '), false);
-  write_spaces(4);
 }
 #endif
