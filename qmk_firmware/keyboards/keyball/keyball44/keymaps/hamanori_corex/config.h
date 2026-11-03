@@ -49,6 +49,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define KEYBALL_CPI_DEFAULT 700      // 光学センサーPMW3360DM の解像度 (CPI) の規定値
 #define KEYBALL_SCROLL_DIV_DEFAULT 4 // スクロール速度の規定値
+// Scrolling is done by this keymap, never by Keyball's scroll mode, so its snapping is unused.
+#define KEYBALL_SCROLLSNAP_ENABLE 0
 
 // Layers 0-9 (Windows 0-4, macOS 5-9).
 #undef LAYER_STATE_8BIT
@@ -61,3 +63,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // No one-shot keys in either profile.
 #define NO_ACTION_ONESHOT
 #define COMBO_MUST_HOLD_PER_COMBO
+
+// Lets the USB side send the OLED state to the other half.
+#define SPLIT_TRANSACTION_IDS_USER USER_OLED_SYNC

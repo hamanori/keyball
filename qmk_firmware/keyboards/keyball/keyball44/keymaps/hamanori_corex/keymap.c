@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include QMK_KEYBOARD_H
 #include "quantum.h"
 #include "lib/keyball/keyball.h"
+#include "transactions.h"
+#include <string.h>
 
 // OS detection is only available on newer QMK. Guard it so this keymap still
 // builds on environments that don't ship the feature.
@@ -105,6 +107,26 @@ enum layers {
 static bool is_mac_profile(void) {
   return default_layer_state & ((layer_state_t)1 << L_MAC_BASE);
 }
+
+enum oled_event {
+  EV_NONE,
+  EV_DESK_LEFT,
+  EV_DESK_RIGHT,
+  EV_OVERVIEW,
+  EV_DOWN,
+  EV_SNAP_LEFT,
+  EV_SNAP_RIGHT,
+  EV_MAXIMIZE,
+  EV_URL_COPY,
+  EV_COMBO,
+};
+
+enum oled_event_source { SRC_KEY, SRC_GESTURE, SRC_COMBO };
+
+static void note_event(uint8_t event, uint8_t source, char symbol);
+static uint8_t event_for_keycode(uint16_t kc);
+static void oled_state_sync(void);
+static void oled_state_receive(uint8_t in_len, const void *in_data, uint8_t out_len, void *out_data);
 
 static uint8_t mouse_layer(void) {
   return is_mac_profile() ? L_MAC_MOUSE : L_WIN_MOUSE;
@@ -259,6 +281,7 @@ static void gesture_motion(int16_t dx, int16_t dy) {
   gesture_paused = true;
   gesture_timer = timer_read();
   tap_code16(action);
+  note_event(event_for_keycode(action), SRC_GESTURE, 0);
 }
 
 static void reset_scroll_counters(void) {
@@ -414,6 +437,11 @@ void eeconfig_init_user(void) {
   eeconfig_update_user(user_config.raw);
 }
 
+// Registered before the split link starts, so the first state sent is not dropped.
+void keyboard_pre_init_user(void) {
+  transaction_register_rpc(USER_OLED_SYNC, oled_state_receive);
+}
+
 void keyboard_post_init_user(void) {
   user_config.raw = eeconfig_read_user();
   bool config_changed = false;
@@ -564,6 +592,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
 {
   if (consume_forced_release(record)) {
     return false;
+  }
+  if (record->event.pressed) {
+    note_event(event_for_keycode(keycode), SRC_KEY, 0);
   }
 
   bool is_mod_tap = IS_QK_MOD_TAP(keycode);
@@ -878,6 +909,7 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
 }
 
 void housekeeping_task_user(void) {
+  oled_state_sync();
   if (pending_dual_role) {
     return;
   }
@@ -921,8 +953,6 @@ bool combo_should_trigger(uint16_t combo_index, combo_t *combo, uint16_t keycode
 
 // True after the profile was switched by hand; replugging returns to OS detection.
 static bool profile_fixed = false;
-static char last_combo_symbol = 0;
-static uint16_t last_combo_timer = 0;
 
 
 // The profile toggle shares its keys with "|" (Shift + \\), so it fires only when held.
@@ -949,8 +979,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
   // Held like a normal key so the symbol auto-repeats, as on CoreX.
   held_symbol = pgm_read_word(is_mac_profile() ? &combo_mac_output[combo_index] : &combo_win_output[combo_index]);
   register_code16(held_symbol);
-  last_combo_symbol = pgm_read_byte(&combo_symbol[combo_index]);
-  last_combo_timer = timer_read();
+  note_event(EV_COMBO, SRC_COMBO, pgm_read_byte(&combo_symbol[combo_index]));
 }
 
 layer_state_t layer_state_set_user(layer_state_t ly_state)
@@ -986,81 +1015,269 @@ layer_state_t layer_state_set_user(layer_state_t ly_state)
   return ly_state;
 }
 
+////////////////////////////////////
+///
+/// OLED: the left-hand screen shows the current state, the right-hand screen
+/// what just happened. The USB side sends what both screens need to the other
+/// side, so each hand shows the same thing whichever side is plugged in.
+///
+////////////////////////////////////
+
+#define EVENT_SHOW_MS 1500
+
+enum oled_flag {
+  FLAG_MAC = 1 << 0,
+  FLAG_FIXED = 1 << 1,
+  FLAG_SCROLL = 1 << 2,
+  FLAG_CLICK = 1 << 3,
+  FLAG_GESTURE = 1 << 4,
+};
+
+typedef struct {
+  uint8_t layer;   // 0-4, the same on both profiles
+  uint8_t mods;
+  uint8_t flags;
+  uint8_t event;
+  uint8_t source;
+  char symbol;     // combo symbol for EV_COMBO
+  uint8_t seq;     // changes with every event, so the other side restarts its timer
+  uint8_t cpi;
+  uint8_t scroll;
+} oled_state_t;
+
+static oled_state_t shown;        // what this side's screen shows
+static uint16_t event_timer = 0;
+
+static uint8_t event_for_keycode(uint16_t kc) {
+  if (is_mac_profile()) {
+    switch (kc) {
+      case C(KC_LEFT): return EV_DESK_LEFT;
+      case C(KC_RGHT): return EV_DESK_RIGHT;
+      case C(KC_UP): return EV_OVERVIEW;
+      case C(KC_DOWN): return EV_DOWN;
+      case KC_F13: return EV_SNAP_LEFT;
+      case KC_F19: return EV_SNAP_RIGHT;
+      case KC_F18: return EV_MAXIMIZE;
+      case S(G(KC_C)): return EV_URL_COPY;
+    }
+  } else {
+    switch (kc) {
+      case C(G(KC_LEFT)): return EV_DESK_LEFT;
+      case C(G(KC_RGHT)): return EV_DESK_RIGHT;
+      case G(KC_TAB): return EV_OVERVIEW;
+      case G(KC_D): return EV_DOWN;
+      case G(KC_LEFT): return EV_SNAP_LEFT;
+      case G(KC_RGHT): return EV_SNAP_RIGHT;
+      case KC_WIN_MAXIMIZE: return EV_MAXIMIZE;
+      case KC_URL_COPY: return EV_URL_COPY;
+    }
+  }
+  return EV_NONE;
+}
+
+static void note_event(uint8_t event, uint8_t source, char symbol) {
+  if (event == EV_NONE) {
+    return;
+  }
+  shown.event = event;
+  shown.source = source;
+  shown.symbol = symbol;
+  shown.seq++;
+  event_timer = timer_read();
+}
+
+static bool event_active(void) {
+  return shown.event != EV_NONE && timer_elapsed(event_timer) < EVENT_SHOW_MS;
+}
+
+// USB side: refresh the state from the keyboard and send it when it changes.
+static void oled_state_sync(void) {
+  if (!is_keyboard_master()) {
+    return;
+  }
+  shown.layer = get_highest_layer(layer_state | default_layer_state) % PROFILE_LAYERS;
+  shown.mods = get_mods();
+  shown.flags = (is_mac_profile() ? FLAG_MAC : 0) | (profile_fixed ? FLAG_FIXED : 0) |
+                (gesture_key_held ? FLAG_GESTURE : 0) | (is_minizone_scroll_active() ? FLAG_SCROLL : 0) |
+                (held_mouse_buttons != 0 ? FLAG_CLICK : 0);
+  shown.cpi = keyball_get_cpi();
+  shown.scroll = user_config.scroll_threshold;
+  // Clear an expired event here, on the USB side only; otherwise the 16-bit
+  // timer wraps after 65 s and the old event shows again.
+  if (shown.event != EV_NONE && timer_elapsed(event_timer) >= EVENT_SHOW_MS) {
+    shown.event = EV_NONE;
+  }
+
+  // A failed send leaves `sent` unchanged, so it is retried on the next pass.
+  static oled_state_t sent;
+  if (memcmp(&sent, &shown, sizeof(shown)) != 0 && transaction_rpc_send(USER_OLED_SYNC, sizeof(shown), &shown)) {
+    sent = shown;
+  }
+}
+
+static void oled_state_receive(uint8_t in_len, const void *in_data, uint8_t out_len, void *out_data) {
+  if (in_len != sizeof(oled_state_t)) {
+    return;
+  }
+  uint8_t seq = shown.seq;
+  memcpy(&shown, in_data, sizeof(shown));
+  if (shown.seq != seq) {
+    event_timer = timer_read();
+  }
+}
+
 #ifdef OLED_ENABLE
 
-#include "lib/oledkit/oledkit.h"
-
-static const char *layer_name(uint8_t layer) {
-  switch (layer % PROFILE_LAYERS) {
-    case L_WIN_EDIT:
-      return PSTR("EDIT");
-    case L_WIN_MOUSE:
-      return PSTR("MOUSE");
-    case L_WIN_WINDOW:
-      return PSTR("WINDOW");
-    case L_WIN_NUM:
-      return PSTR("NUM");
-    default:
-      return PSTR("BASE");
-  }
-}
-
-static void write_spaces(uint8_t n) {
-  while (n--) {
-    oled_write_char(' ', false);
-  }
-}
+extern const unsigned char font[] PROGMEM;
 
 // Both halves turn the OLED 180 degrees. The lit area sits off-centre on the
 // glass, and three rows drawn upside down land in the middle of the window,
-// the same trick the Keyball logo uses. It also makes both halves read the same way.
+// the same trick the Keyball logo uses.
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
   return OLED_ROTATION_180;
 }
 
-// Master OLED, 21 x 3 characters. Every row is written at full width so stale
-// characters never remain; the driver only redraws bytes that changed.
-void oledkit_render_info_user(void) {
-  bool mac = is_mac_profile();
-  uint8_t layer = get_highest_layer(layer_state | default_layer_state);
-  const char *name = layer_name(layer);
-  uint8_t mods = get_mods();
+static const char *layer_name(uint8_t layer) {
+  switch (layer) {
+    case L_WIN_EDIT: return PSTR("EDIT");
+    case L_WIN_MOUSE: return PSTR("MOUSE");
+    case L_WIN_WINDOW: return PSTR("WINDOW");
+    case L_WIN_NUM: return PSTR("NUM");
+    default: return PSTR("BASE");
+  }
+}
 
-  // Row 0: profile, layer, AUTO/FIXED
-  oled_set_cursor(0, 0);
-  oled_write_P(mac ? PSTR("MAC  ") : PSTR("WIN  "), false);
-  oled_write_P(name, false);
-  write_spaces(11 - strlen_P(name));
-  oled_write_P(profile_fixed ? PSTR("FIXED") : PSTR(" AUTO"), false);
-
-  // Row 1: held modifiers (blank when not held), then the last combo's symbol
-  // for 1 s, otherwise what the ball is doing.
-  oled_set_cursor(0, 1);
-  oled_write_P(mods & MOD_MASK_SHIFT ? PSTR("SFT ") : PSTR("    "), false);
-  oled_write_P(mods & MOD_MASK_CTRL ? PSTR("CTL ") : PSTR("    "), false);
-  oled_write_P(mods & MOD_MASK_ALT ? (mac ? PSTR("OPT ") : PSTR("ALT ")) : PSTR("    "), false);
-  oled_write_P(mods & MOD_MASK_GUI ? (mac ? PSTR("CMD ") : PSTR("WIN ")) : PSTR("    "), false);
-  if (last_combo_symbol && timer_elapsed(last_combo_timer) < 1000) {
-    write_spaces(4);
-    oled_write_char(last_combo_symbol, false);
-  } else {
-    last_combo_symbol = 0;  // stop the 16-bit timer from showing it again after wrap-around
-    if (gesture_key_held) {
-      oled_write_P(PSTR(" GEST"), false);
-    } else if (is_minizone_scroll_active()) {
-      oled_write_P(PSTR(" SCRL"), false);
-    } else if (held_mouse_buttons != 0) {
-      oled_write_P(PSTR("CLICK"), false);
-    } else {
-      write_spaces(5);
+// Spread 4 bits over 8, each pixel twice as tall.
+static uint8_t double_bits(uint8_t nibble) {
+  uint8_t out = 0;
+  for (uint8_t i = 0; i < 4; i++) {
+    if (nibble & (1 << i)) {
+      out |= 3 << (i * 2);
     }
   }
+  return out;
+}
 
-  // Row 2: ball speed and scroll threshold
+// One character at twice the size over rows 0 and 1; returns the next x.
+static uint8_t write_big_glyph(char c, uint8_t x) {
+  for (uint8_t i = 0; i < OLED_FONT_WIDTH; i++) {
+    uint8_t col = pgm_read_byte(&font[(c - OLED_FONT_START) * OLED_FONT_WIDTH + i]);
+    for (uint8_t twice = 0; twice < 2; twice++, x++) {
+      oled_write_raw_byte(double_bits(col & 0x0F), x);
+      oled_write_raw_byte(double_bits(col >> 4), OLED_DISPLAY_WIDTH + x);
+    }
+  }
+  return x;
+}
+
+static void write_big_P(const char *text) {
+  uint8_t x = 0;
+  for (char c; (c = pgm_read_byte(text)) && x + 2 * OLED_FONT_WIDTH <= OLED_DISPLAY_WIDTH; text++) {
+    x = write_big_glyph(c, x);
+  }
+}
+
+// Left hand: the layer in large letters, the OS, FIX after a manual switch,
+// and the modifiers with the held ones inverted.
+static void render_state(void) {
+  bool mac = shown.flags & FLAG_MAC;
+  write_big_P(layer_name(shown.layer));
+  oled_set_cursor(17, 0);
+  oled_write_P(mac ? PSTR("MAC") : PSTR("WIN"), false);
+  if (shown.flags & FLAG_FIXED) {
+    oled_set_cursor(16, 1);
+    oled_write_P(PSTR(" FIX "), true);
+  }
   oled_set_cursor(0, 2);
-  oled_write_P(PSTR("\xBC\xBD\xB1"), false);
-  oled_write(get_u8_str(keyball_get_cpi(), ' '), false);
-  oled_write_P(PSTR("00       \xBE\xBF\xB1"), false);
-  oled_write(get_u8_str(user_config.scroll_threshold, ' '), false);
+  oled_write_P(PSTR(" SFT "), shown.mods & MOD_MASK_SHIFT);
+  oled_write_P(PSTR(" CTL "), shown.mods & MOD_MASK_CTRL);
+  oled_write_P(mac ? PSTR(" OPT ") : PSTR(" ALT "), shown.mods & MOD_MASK_ALT);
+  oled_write_P(mac ? PSTR(" CMD ") : PSTR(" WIN "), shown.mods & MOD_MASK_GUI);
+}
+
+static const char *event_name(uint8_t event, bool mac) {
+  switch (event) {
+    case EV_DESK_LEFT: return PSTR("<DESKTOP");
+    case EV_DESK_RIGHT: return PSTR("DESKTOP>");
+    case EV_OVERVIEW: return mac ? PSTR("MISSION") : PSTR("TASK VIEW");
+    case EV_DOWN: return mac ? PSTR("APP WINS") : PSTR("DESKTOP");
+    case EV_SNAP_LEFT: return PSTR("LEFT HALF");
+    case EV_SNAP_RIGHT: return PSTR("RIGHT HALF");
+    case EV_MAXIMIZE: return PSTR("MAXIMIZE");
+    default: return PSTR("URL COPY");
+  }
+}
+
+// The keys the host received, so a new layout can be learned from the screen.
+static const char *event_keys(uint8_t event, bool mac) {
+  switch (event) {
+    case EV_DESK_LEFT: return mac ? PSTR("Ctl+Left") : PSTR("Ctl+Win+Left");
+    case EV_DESK_RIGHT: return mac ? PSTR("Ctl+Right") : PSTR("Ctl+Win+Right");
+    case EV_OVERVIEW: return mac ? PSTR("Ctl+Up") : PSTR("Win+Tab");
+    case EV_DOWN: return mac ? PSTR("Ctl+Down") : PSTR("Win+D");
+    case EV_SNAP_LEFT: return mac ? PSTR("F13") : PSTR("Win+Left");
+    case EV_SNAP_RIGHT: return mac ? PSTR("F19") : PSTR("Win+Right");
+    case EV_MAXIMIZE: return mac ? PSTR("F18") : PSTR("Win+Up x2");
+    default: return mac ? PSTR("Shift+Cmd+C") : PSTR("Ctl+L C Esc");
+  }
+}
+
+static void render_logo(void) {
+  char ch = 0x80;
+  for (uint8_t row = 0; row < 3; row++) {
+    oled_set_cursor(2, row);
+    for (uint8_t i = 0; i < 16; i++) {
+      oled_write_char(ch++, false);
+    }
+  }
+}
+
+// Right hand: what just happened, otherwise what the ball is doing, otherwise the logo.
+static void render_activity(void) {
+  bool mac = shown.flags & FLAG_MAC;
+  oled_set_cursor(0, 2);
+  if (event_active()) {
+    if (shown.event == EV_COMBO) {
+      write_big_glyph(shown.symbol, 0);
+      oled_write_P(PSTR(" COMBO "), true);
+      return;
+    }
+    write_big_P(event_name(shown.event, mac));
+    oled_write_P(shown.source == SRC_GESTURE ? PSTR(" GEST ") : PSTR(" KEY "), true);
+    oled_write_char(' ', false);
+    oled_write_P(event_keys(shown.event, mac), false);
+    return;
+  }
+  if (shown.flags & (FLAG_GESTURE | FLAG_SCROLL | FLAG_CLICK)) {
+    write_big_P(shown.flags & FLAG_GESTURE ? PSTR("GESTURE") : shown.flags & FLAG_SCROLL ? PSTR("SCROLL") : PSTR("CLICK"));
+    oled_write_P(PSTR(" BALL "), true);
+    oled_write_P(PSTR(" CPI"), false);
+    oled_write(get_u8_str(shown.cpi, ' '), false);
+    oled_write_P(PSTR("00 SC"), false);
+    oled_write(get_u8_str(shown.scroll, ' '), false);
+    return;
+  }
+  render_logo();
+}
+
+bool oled_task_user(void) {
+  // Redraw only when something on this side's screen changes.
+  static oled_state_t drawn;
+  static bool drawn_active = false;
+  static bool drawn_once = false;
+  bool active = event_active();
+  if (drawn_once && active == drawn_active && memcmp(&drawn, &shown, sizeof(shown)) == 0) {
+    return false;
+  }
+  drawn = shown;
+  drawn_active = active;
+  drawn_once = true;
+  oled_clear();
+  if (is_keyboard_left()) {
+    render_state();
+  } else {
+    render_activity();
+  }
+  return false;
 }
 #endif
