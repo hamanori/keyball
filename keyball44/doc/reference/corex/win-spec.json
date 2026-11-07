@@ -1,0 +1,1975 @@
+{
+  "profile": "win",
+  "layerIds": {
+    "base": 0,
+    "edit": 1,
+    "symbol": 2,
+    "num": 3,
+    "mouse": 4,
+    "settings": 5
+  },
+  "layerInfo": {
+    "base": [
+      "通常",
+      "文字入力"
+    ],
+    "edit": [
+      "編集・移動",
+      "Tab を長押し"
+    ],
+    "symbol": [
+      "記号",
+      "かなを長押し"
+    ],
+    "num": [
+      "数字",
+      "英数を長押し"
+    ],
+    "mouse": [
+      "マウス",
+      "ボールを動かすと入る／かなを長押し"
+    ],
+    "settings": [
+      "設定",
+      "左 Shift ＋ \\ を押している間だけ有効"
+    ]
+  },
+  "layers": {
+    "base": {
+      "0,0": {
+        "code": 41,
+        "label": "Esc",
+        "detail": "Esc",
+        "kind": "key",
+        "sourceCode": 41
+      },
+      "1,0": {
+        "code": 16683,
+        "label": "Tab",
+        "detail": "短押し：Tab ／ 長押し：編集・移動レイヤー",
+        "kind": "dual",
+        "sourceCode": 16683
+      },
+      "2,0": {
+        "code": 225,
+        "label": "Shift",
+        "detail": "Shift",
+        "kind": "key",
+        "sourceCode": 225
+      },
+      "0,1": {
+        "code": 20,
+        "label": "Q",
+        "detail": "Q",
+        "kind": "key",
+        "sourceCode": 20
+      },
+      "1,1": {
+        "code": 4,
+        "label": "A",
+        "detail": "A",
+        "kind": "key",
+        "sourceCode": 4
+      },
+      "2,1": {
+        "code": 29,
+        "label": "Z",
+        "detail": "Z",
+        "kind": "key",
+        "sourceCode": 29
+      },
+      "0,2": {
+        "code": 26,
+        "label": "W",
+        "detail": "W",
+        "kind": "key",
+        "sourceCode": 26
+      },
+      "1,2": {
+        "code": 22,
+        "label": "S",
+        "detail": "S",
+        "kind": "key",
+        "sourceCode": 22
+      },
+      "2,2": {
+        "code": 27,
+        "label": "X",
+        "detail": "X",
+        "kind": "key",
+        "sourceCode": 27
+      },
+      "0,3": {
+        "code": 8,
+        "label": "E",
+        "detail": "E",
+        "kind": "key",
+        "sourceCode": 8
+      },
+      "1,3": {
+        "code": 7,
+        "label": "D",
+        "detail": "D",
+        "kind": "key",
+        "sourceCode": 7
+      },
+      "2,3": {
+        "code": 6,
+        "label": "C",
+        "detail": "C",
+        "kind": "key",
+        "sourceCode": 6
+      },
+      "0,4": {
+        "code": 21,
+        "label": "R",
+        "detail": "R",
+        "kind": "key",
+        "sourceCode": 21
+      },
+      "1,4": {
+        "code": 9,
+        "label": "F",
+        "detail": "F",
+        "kind": "key",
+        "sourceCode": 9
+      },
+      "2,4": {
+        "code": 25,
+        "label": "V",
+        "detail": "V",
+        "kind": "key",
+        "sourceCode": 25
+      },
+      "0,5": {
+        "code": 23,
+        "label": "T",
+        "detail": "T",
+        "kind": "key",
+        "sourceCode": 23
+      },
+      "1,5": {
+        "code": 10,
+        "label": "G",
+        "detail": "G",
+        "kind": "key",
+        "sourceCode": 10
+      },
+      "2,5": {
+        "code": 5,
+        "label": "B",
+        "detail": "B",
+        "kind": "key",
+        "sourceCode": 5
+      },
+      "4,0": {
+        "code": 45,
+        "label": "-",
+        "detail": "-",
+        "kind": "key",
+        "sourceCode": 45
+      },
+      "4,1": {
+        "code": 19,
+        "label": "P",
+        "detail": "P",
+        "kind": "key",
+        "sourceCode": 19
+      },
+      "4,2": {
+        "code": 18,
+        "label": "O",
+        "detail": "O",
+        "kind": "key",
+        "sourceCode": 18
+      },
+      "4,3": {
+        "code": 12,
+        "label": "I",
+        "detail": "I",
+        "kind": "key",
+        "sourceCode": 12
+      },
+      "4,4": {
+        "code": 24,
+        "label": "U",
+        "detail": "U",
+        "kind": "key",
+        "sourceCode": 24
+      },
+      "4,5": {
+        "code": 28,
+        "label": "Y",
+        "detail": "Y",
+        "kind": "key",
+        "sourceCode": 28
+      },
+      "5,0": {
+        "code": 16692,
+        "label": "'",
+        "detail": "短押し：' ／ 長押し：編集・移動レイヤー",
+        "kind": "dual",
+        "sourceCode": 16692
+      },
+      "5,1": {
+        "code": 51,
+        "label": ";",
+        "detail": ";",
+        "kind": "key",
+        "sourceCode": 51
+      },
+      "5,2": {
+        "code": 15,
+        "label": "L",
+        "detail": "L",
+        "kind": "key",
+        "sourceCode": 15
+      },
+      "5,3": {
+        "code": 14,
+        "label": "K",
+        "detail": "K",
+        "kind": "key",
+        "sourceCode": 14
+      },
+      "5,4": {
+        "code": 13,
+        "label": "J",
+        "detail": "J",
+        "kind": "key",
+        "sourceCode": 13
+      },
+      "5,5": {
+        "code": 11,
+        "label": "H",
+        "detail": "H",
+        "kind": "key",
+        "sourceCode": 11
+      },
+      "6,0": {
+        "code": 49,
+        "label": "\\",
+        "detail": "\\",
+        "kind": "key",
+        "sourceCode": 49
+      },
+      "6,1": {
+        "code": 56,
+        "label": "/",
+        "detail": "/",
+        "kind": "key",
+        "sourceCode": 56
+      },
+      "6,2": {
+        "code": 55,
+        "label": ".",
+        "detail": ".",
+        "kind": "key",
+        "sourceCode": 55
+      },
+      "6,3": {
+        "code": 54,
+        "label": ",",
+        "detail": ",",
+        "kind": "key",
+        "sourceCode": 54
+      },
+      "6,4": {
+        "code": 16,
+        "label": "M",
+        "detail": "M",
+        "kind": "key",
+        "sourceCode": 16
+      },
+      "6,5": {
+        "code": 17,
+        "label": "N",
+        "detail": "N",
+        "kind": "key",
+        "sourceCode": 17
+      },
+      "3,1": {
+        "code": 226,
+        "label": "Option",
+        "detail": "Option",
+        "kind": "key",
+        "sourceCode": 226
+      },
+      "3,2": {
+        "code": 224,
+        "label": "Ctrl",
+        "detail": "Ctrl",
+        "kind": "key",
+        "sourceCode": 224
+      },
+      "3,3": {
+        "code": 17297,
+        "label": "英数",
+        "detail": "短押し：英数 ／ 長押し：数字レイヤー",
+        "kind": "dual",
+        "sourceCode": 17297
+      },
+      "3,4": {
+        "code": 8748,
+        "label": "Space",
+        "detail": "短押し：Space ／ 長押し：Shift",
+        "kind": "dual",
+        "sourceCode": 8748
+      },
+      "3,5": {
+        "code": 17040,
+        "label": "かな",
+        "detail": "短押し：かな ／ 長押し：記号レイヤー",
+        "kind": "dual",
+        "sourceCode": 17040
+      },
+      "7,1": {
+        "code": 227,
+        "label": "Command",
+        "detail": "Command",
+        "kind": "key",
+        "sourceCode": 227
+      },
+      "7,4": {
+        "code": 16936,
+        "label": "Enter",
+        "detail": "短押し：Enter ／ 長押し：記号レイヤー",
+        "kind": "dual",
+        "sourceCode": 16936
+      },
+      "7,5": {
+        "code": 42,
+        "label": "⌫",
+        "detail": "⌫",
+        "kind": "key",
+        "sourceCode": 42
+      }
+    },
+    "edit": {
+      "0,0": {
+        "code": 1085,
+        "label": "Alt ＋ F4",
+        "detail": "Alt ＋ F4",
+        "kind": "key",
+        "sourceCode": 1085
+      },
+      "1,0": {
+        "code": 32376,
+        "label": "段落を選択",
+        "detail": "段落を選択する。",
+        "kind": "custom",
+        "sourceCode": 32312
+      },
+      "2,0": {
+        "code": 32377,
+        "label": "行を選択",
+        "detail": "行を選択する。",
+        "kind": "custom",
+        "sourceCode": 32313
+      },
+      "0,1": {
+        "code": 282,
+        "label": "Ctrl ＋ W",
+        "detail": "Ctrl ＋ W",
+        "kind": "key",
+        "sourceCode": 282
+      },
+      "1,1": {
+        "code": 260,
+        "label": "Ctrl ＋ A",
+        "detail": "Ctrl ＋ A",
+        "kind": "key",
+        "sourceCode": 260
+      },
+      "2,1": {
+        "code": 32378,
+        "label": "単語を選択",
+        "detail": "単語を選択する。",
+        "kind": "custom",
+        "sourceCode": 32314
+      },
+      "0,2": {
+        "code": 32372,
+        "label": "全選択して切り取り",
+        "detail": "すべてを選択して切り取る。",
+        "kind": "custom",
+        "sourceCode": 32308
+      },
+      "1,2": {
+        "code": 32374,
+        "label": "行を切り取り",
+        "detail": "行頭から行末まで選択して切り取る。",
+        "kind": "custom",
+        "sourceCode": 32310
+      },
+      "2,2": {
+        "code": 283,
+        "label": "Ctrl ＋ X",
+        "detail": "Ctrl ＋ X",
+        "kind": "key",
+        "sourceCode": 283
+      },
+      "0,3": {
+        "code": 32373,
+        "label": "全選択してコピー",
+        "detail": "すべてを選択してコピーする。",
+        "kind": "custom",
+        "sourceCode": 32309
+      },
+      "1,3": {
+        "code": 32375,
+        "label": "行をコピー",
+        "detail": "行頭から行末まで選択してコピーする。",
+        "kind": "custom",
+        "sourceCode": 32311
+      },
+      "2,3": {
+        "code": 262,
+        "label": "Ctrl ＋ C",
+        "detail": "Ctrl ＋ C",
+        "kind": "key",
+        "sourceCode": 262
+      },
+      "0,4": {
+        "code": 265,
+        "label": "Ctrl ＋ F",
+        "detail": "Ctrl ＋ F",
+        "kind": "key",
+        "sourceCode": 265
+      },
+      "1,4": {
+        "code": 285,
+        "label": "Ctrl ＋ Z",
+        "detail": "Ctrl ＋ Z",
+        "kind": "key",
+        "sourceCode": 285
+      },
+      "2,4": {
+        "code": 32381,
+        "label": "貼り付け",
+        "detail": "貼り付ける。",
+        "kind": "custom",
+        "sourceCode": 32317
+      },
+      "0,5": {
+        "code": 32345,
+        "label": "置換",
+        "detail": "⌥⌘F（Mac）／Ctrl+H（Windows）",
+        "kind": "custom",
+        "sourceCode": 32281
+      },
+      "1,5": {
+        "code": 284,
+        "label": "Ctrl ＋ Y",
+        "detail": "Ctrl ＋ Y",
+        "kind": "key",
+        "sourceCode": 284
+      },
+      "2,5": {
+        "code": 32344,
+        "label": "クリップボード履歴",
+        "detail": "⌘⇧V（Mac）／Win+V（Windows）",
+        "kind": "custom",
+        "sourceCode": 32280
+      },
+      "4,0": {
+        "code": 2063,
+        "label": "Win ＋ L",
+        "detail": "Win ＋ L",
+        "kind": "key",
+        "sourceCode": 2063
+      },
+      "4,1": {
+        "code": 333,
+        "label": "Ctrl ＋ End",
+        "detail": "Ctrl ＋ End",
+        "kind": "key",
+        "sourceCode": 333
+      },
+      "4,2": {
+        "code": 32380,
+        "label": "行末／段落末尾",
+        "detail": "1回押しで行末、すばやく2回押しで段落末尾へ移動する。",
+        "kind": "custom",
+        "sourceCode": 32316
+      },
+      "4,3": {
+        "code": 82,
+        "label": "↑",
+        "detail": "↑",
+        "kind": "key",
+        "sourceCode": 82
+      },
+      "4,4": {
+        "code": 32379,
+        "label": "行頭／段落先頭",
+        "detail": "1回押しで行頭、すばやく2回押しで段落先頭へ移動する。",
+        "kind": "custom",
+        "sourceCode": 32315
+      },
+      "4,5": {
+        "code": 330,
+        "label": "Ctrl ＋ Home",
+        "detail": "Ctrl ＋ Home",
+        "kind": "key",
+        "sourceCode": 330
+      },
+      "5,0": {
+        "code": 2103,
+        "label": "Win ＋ .",
+        "detail": "Win ＋ .",
+        "kind": "key",
+        "sourceCode": 2103
+      },
+      "5,1": {
+        "code": 78,
+        "label": "Page Down",
+        "detail": "Page Down",
+        "kind": "key",
+        "sourceCode": 78
+      },
+      "5,2": {
+        "code": 79,
+        "label": "→",
+        "detail": "→",
+        "kind": "key",
+        "sourceCode": 79
+      },
+      "5,3": {
+        "code": 81,
+        "label": "↓",
+        "detail": "↓",
+        "kind": "key",
+        "sourceCode": 81
+      },
+      "5,4": {
+        "code": 80,
+        "label": "←",
+        "detail": "←",
+        "kind": "key",
+        "sourceCode": 80
+      },
+      "5,5": {
+        "code": 75,
+        "label": "Page Up",
+        "detail": "Page Up",
+        "kind": "key",
+        "sourceCode": 75
+      },
+      "6,0": {
+        "code": 70,
+        "label": "Print Screen",
+        "detail": "Print Screen",
+        "kind": "key",
+        "sourceCode": 70
+      },
+      "6,1": {
+        "code": 32383,
+        "label": "最後のタブ",
+        "detail": "最後のタブへ移動する。",
+        "kind": "custom",
+        "sourceCode": 32319
+      },
+      "6,2": {
+        "code": 334,
+        "label": "Ctrl ＋ Page Down",
+        "detail": "Ctrl ＋ Page Down",
+        "kind": "key",
+        "sourceCode": 334
+      },
+      "6,3": {
+        "code": 32357,
+        "label": "ウィンドウ切替",
+        "detail": "アプリケーションを切り替える。",
+        "kind": "custom",
+        "sourceCode": 32293
+      },
+      "6,4": {
+        "code": 331,
+        "label": "Ctrl ＋ Page Up",
+        "detail": "Ctrl ＋ Page Up",
+        "kind": "key",
+        "sourceCode": 331
+      },
+      "6,5": {
+        "code": 32382,
+        "label": "最初のタブ",
+        "detail": "最初のタブへ移動する。",
+        "kind": "custom",
+        "sourceCode": 32318
+      },
+      "3,1": {
+        "code": 226,
+        "label": "Option",
+        "detail": "Option",
+        "kind": "key",
+        "sourceCode": 226
+      },
+      "3,2": {
+        "code": 224,
+        "label": "Ctrl",
+        "detail": "Ctrl",
+        "kind": "key",
+        "sourceCode": 224
+      },
+      "3,3": {
+        "code": 224,
+        "label": "Ctrl",
+        "detail": "Ctrl",
+        "kind": "key",
+        "sourceCode": 224
+      },
+      "3,4": {
+        "code": 225,
+        "label": "Shift",
+        "detail": "Shift",
+        "kind": "key",
+        "sourceCode": 225
+      },
+      "3,5": {
+        "code": 481,
+        "label": "Ctrl ＋ Shift",
+        "detail": "Ctrl ＋ Shift",
+        "kind": "key",
+        "sourceCode": 481
+      },
+      "7,1": {
+        "code": 227,
+        "label": "Command",
+        "detail": "Command",
+        "kind": "key",
+        "sourceCode": 227
+      },
+      "7,4": {
+        "code": 76,
+        "label": "Delete",
+        "detail": "Delete",
+        "kind": "key",
+        "sourceCode": 76
+      },
+      "7,5": {
+        "code": 42,
+        "label": "⌫",
+        "detail": "⌫",
+        "kind": "key",
+        "sourceCode": 42
+      }
+    },
+    "symbol": {
+      "0,0": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "1,0": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "2,0": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "0,1": {
+        "code": 47,
+        "label": "[",
+        "detail": "[",
+        "kind": "key",
+        "sourceCode": 47
+      },
+      "1,1": {
+        "code": 550,
+        "label": "Shift ＋ 9",
+        "detail": "Shift ＋ 9",
+        "kind": "key",
+        "sourceCode": 550
+      },
+      "2,1": {
+        "code": 559,
+        "label": "Shift ＋ [",
+        "detail": "Shift ＋ [",
+        "kind": "key",
+        "sourceCode": 559
+      },
+      "0,2": {
+        "code": 48,
+        "label": "]",
+        "detail": "]",
+        "kind": "key",
+        "sourceCode": 48
+      },
+      "1,2": {
+        "code": 551,
+        "label": "Shift ＋ 0",
+        "detail": "Shift ＋ 0",
+        "kind": "key",
+        "sourceCode": 551
+      },
+      "2,2": {
+        "code": 560,
+        "label": "Shift ＋ ]",
+        "detail": "Shift ＋ ]",
+        "kind": "key",
+        "sourceCode": 560
+      },
+      "0,3": {
+        "code": 561,
+        "label": "Shift ＋ \\",
+        "detail": "Shift ＋ \\",
+        "kind": "key",
+        "sourceCode": 561
+      },
+      "1,3": {
+        "code": 542,
+        "label": "Shift ＋ 1",
+        "detail": "Shift ＋ 1",
+        "kind": "key",
+        "sourceCode": 542
+      },
+      "2,3": {
+        "code": 565,
+        "label": "Shift ＋ `",
+        "detail": "Shift ＋ `",
+        "kind": "key",
+        "sourceCode": 565
+      },
+      "0,4": {
+        "code": 548,
+        "label": "Shift ＋ 7",
+        "detail": "Shift ＋ 7",
+        "kind": "key",
+        "sourceCode": 548
+      },
+      "1,4": {
+        "code": 568,
+        "label": "Shift ＋ /",
+        "detail": "Shift ＋ /",
+        "kind": "key",
+        "sourceCode": 568
+      },
+      "2,4": {
+        "code": 53,
+        "label": "`",
+        "detail": "`",
+        "kind": "key",
+        "sourceCode": 53
+      },
+      "0,5": {
+        "code": 32384,
+        "label": "角括弧ペア",
+        "detail": "CoreX に登録された定型入力。内容はこの表に表示しません。",
+        "kind": "custom",
+        "sourceCode": 30466
+      },
+      "1,5": {
+        "code": 32385,
+        "label": "丸括弧ペア",
+        "detail": "CoreX に登録された定型入力。内容はこの表に表示しません。",
+        "kind": "custom",
+        "sourceCode": 30467
+      },
+      "2,5": {
+        "code": 32386,
+        "label": "波括弧ペア",
+        "detail": "CoreX に登録された定型入力。内容はこの表に表示しません。",
+        "kind": "custom",
+        "sourceCode": 30468
+      },
+      "4,0": {
+        "code": 557,
+        "label": "Shift ＋ -",
+        "detail": "Shift ＋ -",
+        "kind": "key",
+        "sourceCode": 557
+      },
+      "4,1": {
+        "code": 551,
+        "label": "Shift ＋ 0",
+        "detail": "Shift ＋ 0",
+        "kind": "key",
+        "sourceCode": 551
+      },
+      "4,2": {
+        "code": 550,
+        "label": "Shift ＋ 9",
+        "detail": "Shift ＋ 9",
+        "kind": "key",
+        "sourceCode": 550
+      },
+      "4,3": {
+        "code": 549,
+        "label": "Shift ＋ 8",
+        "detail": "Shift ＋ 8",
+        "kind": "key",
+        "sourceCode": 549
+      },
+      "4,4": {
+        "code": 548,
+        "label": "Shift ＋ 7",
+        "detail": "Shift ＋ 7",
+        "kind": "key",
+        "sourceCode": 548
+      },
+      "4,5": {
+        "code": 32389,
+        "label": "コードブロック",
+        "detail": "CoreX に登録された定型入力。内容はこの表に表示しません。",
+        "kind": "custom",
+        "sourceCode": 30471
+      },
+      "5,0": {
+        "code": 564,
+        "label": "Shift ＋ '",
+        "detail": "Shift ＋ '",
+        "kind": "key",
+        "sourceCode": 564
+      },
+      "5,1": {
+        "code": 563,
+        "label": "Shift ＋ ;",
+        "detail": "Shift ＋ ;",
+        "kind": "key",
+        "sourceCode": 563
+      },
+      "5,2": {
+        "code": 547,
+        "label": "Shift ＋ 6",
+        "detail": "Shift ＋ 6",
+        "kind": "key",
+        "sourceCode": 547
+      },
+      "5,3": {
+        "code": 546,
+        "label": "Shift ＋ 5",
+        "detail": "Shift ＋ 5",
+        "kind": "key",
+        "sourceCode": 546
+      },
+      "5,4": {
+        "code": 545,
+        "label": "Shift ＋ 4",
+        "detail": "Shift ＋ 4",
+        "kind": "key",
+        "sourceCode": 545
+      },
+      "5,5": {
+        "code": 32387,
+        "label": "引用符ペア",
+        "detail": "CoreX に登録された定型入力。内容はこの表に表示しません。",
+        "kind": "custom",
+        "sourceCode": 30469
+      },
+      "6,0": {
+        "code": 561,
+        "label": "Shift ＋ \\",
+        "detail": "Shift ＋ \\",
+        "kind": "key",
+        "sourceCode": 561
+      },
+      "6,1": {
+        "code": 568,
+        "label": "Shift ＋ /",
+        "detail": "Shift ＋ /",
+        "kind": "key",
+        "sourceCode": 568
+      },
+      "6,2": {
+        "code": 544,
+        "label": "Shift ＋ 3",
+        "detail": "Shift ＋ 3",
+        "kind": "key",
+        "sourceCode": 544
+      },
+      "6,3": {
+        "code": 543,
+        "label": "Shift ＋ 2",
+        "detail": "Shift ＋ 2",
+        "kind": "key",
+        "sourceCode": 543
+      },
+      "6,4": {
+        "code": 542,
+        "label": "Shift ＋ 1",
+        "detail": "Shift ＋ 1",
+        "kind": "key",
+        "sourceCode": 542
+      },
+      "6,5": {
+        "code": 32388,
+        "label": "バッククォートペア",
+        "detail": "CoreX に登録された定型入力。内容はこの表に表示しません。",
+        "kind": "custom",
+        "sourceCode": 30470
+      },
+      "3,1": {
+        "code": 566,
+        "label": "Shift ＋ ,",
+        "detail": "Shift ＋ ,",
+        "kind": "key",
+        "sourceCode": 566
+      },
+      "3,2": {
+        "code": 567,
+        "label": "Shift ＋ .",
+        "detail": "Shift ＋ .",
+        "kind": "key",
+        "sourceCode": 567
+      },
+      "3,3": {
+        "code": 557,
+        "label": "Shift ＋ -",
+        "detail": "Shift ＋ -",
+        "kind": "key",
+        "sourceCode": 557
+      },
+      "3,4": {
+        "code": 46,
+        "label": "=",
+        "detail": "=",
+        "kind": "key",
+        "sourceCode": 46
+      },
+      "3,5": {
+        "code": 558,
+        "label": "Shift ＋ =",
+        "detail": "Shift ＋ =",
+        "kind": "key",
+        "sourceCode": 558
+      },
+      "7,1": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "7,4": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "7,5": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      }
+    },
+    "num": {
+      "0,0": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "1,0": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "2,0": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "0,1": {
+        "code": 69,
+        "label": "F12",
+        "detail": "F12",
+        "kind": "key",
+        "sourceCode": 69
+      },
+      "1,1": {
+        "code": 68,
+        "label": "F11",
+        "detail": "F11",
+        "kind": "key",
+        "sourceCode": 68
+      },
+      "2,1": {
+        "code": 67,
+        "label": "F10",
+        "detail": "F10",
+        "kind": "key",
+        "sourceCode": 67
+      },
+      "0,2": {
+        "code": 64,
+        "label": "F7",
+        "detail": "F7",
+        "kind": "key",
+        "sourceCode": 64
+      },
+      "1,2": {
+        "code": 61,
+        "label": "F4",
+        "detail": "F4",
+        "kind": "key",
+        "sourceCode": 61
+      },
+      "2,2": {
+        "code": 58,
+        "label": "F1",
+        "detail": "F1",
+        "kind": "key",
+        "sourceCode": 58
+      },
+      "0,3": {
+        "code": 65,
+        "label": "F8",
+        "detail": "F8",
+        "kind": "key",
+        "sourceCode": 65
+      },
+      "1,3": {
+        "code": 62,
+        "label": "F5",
+        "detail": "F5",
+        "kind": "key",
+        "sourceCode": 62
+      },
+      "2,3": {
+        "code": 59,
+        "label": "F2",
+        "detail": "F2",
+        "kind": "key",
+        "sourceCode": 59
+      },
+      "0,4": {
+        "code": 66,
+        "label": "F9",
+        "detail": "F9",
+        "kind": "key",
+        "sourceCode": 66
+      },
+      "1,4": {
+        "code": 63,
+        "label": "F6",
+        "detail": "F6",
+        "kind": "key",
+        "sourceCode": 63
+      },
+      "2,4": {
+        "code": 60,
+        "label": "F3",
+        "detail": "F3",
+        "kind": "key",
+        "sourceCode": 60
+      },
+      "0,5": {
+        "code": 54,
+        "label": ",",
+        "detail": ",",
+        "kind": "key",
+        "sourceCode": 54
+      },
+      "1,5": {
+        "code": 55,
+        "label": ".",
+        "detail": ".",
+        "kind": "key",
+        "sourceCode": 55
+      },
+      "2,5": {
+        "code": 563,
+        "label": "Shift ＋ ;",
+        "detail": "Shift ＋ ;",
+        "kind": "key",
+        "sourceCode": 563
+      },
+      "4,0": {
+        "code": 549,
+        "label": "Shift ＋ 8",
+        "detail": "Shift ＋ 8",
+        "kind": "key",
+        "sourceCode": 549
+      },
+      "4,1": {
+        "code": 56,
+        "label": "/",
+        "detail": "/",
+        "kind": "key",
+        "sourceCode": 56
+      },
+      "4,2": {
+        "code": 38,
+        "label": "9",
+        "detail": "9",
+        "kind": "key",
+        "sourceCode": 38
+      },
+      "4,3": {
+        "code": 37,
+        "label": "8",
+        "detail": "8",
+        "kind": "key",
+        "sourceCode": 37
+      },
+      "4,4": {
+        "code": 36,
+        "label": "7",
+        "detail": "7",
+        "kind": "key",
+        "sourceCode": 36
+      },
+      "4,5": {
+        "code": 46,
+        "label": "=",
+        "detail": "=",
+        "kind": "key",
+        "sourceCode": 46
+      },
+      "5,0": {
+        "code": 558,
+        "label": "Shift ＋ =",
+        "detail": "Shift ＋ =",
+        "kind": "key",
+        "sourceCode": 558
+      },
+      "5,1": {
+        "code": 45,
+        "label": "-",
+        "detail": "-",
+        "kind": "key",
+        "sourceCode": 45
+      },
+      "5,2": {
+        "code": 35,
+        "label": "6",
+        "detail": "6",
+        "kind": "key",
+        "sourceCode": 35
+      },
+      "5,3": {
+        "code": 34,
+        "label": "5",
+        "detail": "5",
+        "kind": "key",
+        "sourceCode": 34
+      },
+      "5,4": {
+        "code": 33,
+        "label": "4",
+        "detail": "4",
+        "kind": "key",
+        "sourceCode": 33
+      },
+      "5,5": {
+        "code": 32392,
+        "label": "00入力",
+        "detail": "CoreX に登録された定型入力。内容はこの表に表示しません。",
+        "kind": "custom",
+        "sourceCode": 30474
+      },
+      "6,0": {
+        "code": 46,
+        "label": "=",
+        "detail": "=",
+        "kind": "key",
+        "sourceCode": 46
+      },
+      "6,1": {
+        "code": 55,
+        "label": ".",
+        "detail": ".",
+        "kind": "key",
+        "sourceCode": 55
+      },
+      "6,2": {
+        "code": 32,
+        "label": "3",
+        "detail": "3",
+        "kind": "key",
+        "sourceCode": 32
+      },
+      "6,3": {
+        "code": 31,
+        "label": "2",
+        "detail": "2",
+        "kind": "key",
+        "sourceCode": 31
+      },
+      "6,4": {
+        "code": 30,
+        "label": "1",
+        "detail": "1",
+        "kind": "key",
+        "sourceCode": 30
+      },
+      "6,5": {
+        "code": 39,
+        "label": "0",
+        "detail": "0",
+        "kind": "key",
+        "sourceCode": 39
+      },
+      "3,1": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "3,2": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "3,3": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "3,4": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "3,5": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "7,1": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "7,4": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "7,5": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      }
+    },
+    "mouse": {
+      "0,0": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "1,0": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "2,0": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "0,1": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "1,1": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "2,1": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "0,2": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "1,2": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "2,2": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "0,3": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "1,3": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "2,3": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "0,4": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "1,4": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "2,4": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "0,5": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "1,5": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "2,5": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "4,0": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "4,1": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "4,2": {
+        "code": 32352,
+        "label": "ウィンドウジェスチャー",
+        "detail": "押しながらボールを動かしてウィンドウを操作する。",
+        "kind": "custom",
+        "sourceCode": 32288
+      },
+      "4,3": {
+        "code": 32348,
+        "label": "画面ジェスチャー",
+        "detail": "押しながらボールを動かして画面を切り替える。",
+        "kind": "custom",
+        "sourceCode": 32284
+      },
+      "4,4": {
+        "code": 32371,
+        "label": "ズームジェスチャー",
+        "detail": "押しながらボールを動かして拡大・縮小する。",
+        "kind": "custom",
+        "sourceCode": 32307
+      },
+      "4,5": {
+        "code": 32355,
+        "label": "精密操作",
+        "detail": "ポインターを精密に動かす。",
+        "kind": "custom",
+        "sourceCode": 32291
+      },
+      "5,0": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "5,1": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "5,2": {
+        "code": 32321,
+        "label": "右クリック",
+        "detail": "右クリックする。",
+        "kind": "custom",
+        "sourceCode": 210
+      },
+      "5,3": {
+        "code": 17363,
+        "label": "中クリック",
+        "detail": "短押し：中クリック ／ 長押し：数字レイヤー",
+        "kind": "dual",
+        "sourceCode": 17363
+      },
+      "5,4": {
+        "code": 32320,
+        "label": "左クリック",
+        "detail": "左クリック。押したままでドラッグする。",
+        "kind": "custom",
+        "sourceCode": 209
+      },
+      "5,5": {
+        "code": 32354,
+        "label": "ドラッグ固定",
+        "detail": "ドラッグを固定する。",
+        "kind": "custom",
+        "sourceCode": 32290
+      },
+      "6,0": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "6,1": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "6,2": {
+        "code": 32324,
+        "label": "進む",
+        "detail": "マウスの進むボタンを押す。",
+        "kind": "custom",
+        "sourceCode": 213
+      },
+      "6,3": {
+        "code": 32353,
+        "label": "タブジェスチャー",
+        "detail": "押しながらボールを動かしてタブを切り替える。",
+        "kind": "custom",
+        "sourceCode": 32289
+      },
+      "6,4": {
+        "code": 32323,
+        "label": "戻る",
+        "detail": "マウスの戻るボタンを押す。",
+        "kind": "custom",
+        "sourceCode": 212
+      },
+      "6,5": {
+        "code": 32356,
+        "label": "ダブルクリック",
+        "detail": "ダブルクリックする。",
+        "kind": "custom",
+        "sourceCode": 32292
+      },
+      "3,1": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "3,2": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "3,3": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "3,4": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "3,5": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "7,1": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "7,4": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      },
+      "7,5": {
+        "code": 1,
+        "label": "▽",
+        "detail": "下のレイヤーを使う",
+        "kind": "trns",
+        "sourceCode": 1
+      }
+    },
+    "settings": {
+      "0,0": {
+        "code": 169,
+        "label": "音量＋",
+        "detail": "音量を上げる。",
+        "kind": "key",
+        "sourceCode": 0
+      },
+      "1,0": {
+        "code": 170,
+        "label": "音量−",
+        "detail": "音量を下げる。",
+        "kind": "key",
+        "sourceCode": 0
+      },
+      "2,0": {
+        "code": 168,
+        "label": "消音",
+        "detail": "音を消す。",
+        "kind": "key",
+        "sourceCode": 0
+      },
+      "0,1": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "1,1": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "2,1": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "0,2": {
+        "code": 32370,
+        "label": "Mac／Windows切替",
+        "detail": "Mac と Windows の設定を切り替える。",
+        "kind": "custom",
+        "sourceCode": 32306
+      },
+      "1,2": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "2,2": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "0,3": {
+        "code": 32358,
+        "label": "カーソルを遅く",
+        "detail": "カーソル速度を下げる。",
+        "kind": "custom",
+        "sourceCode": 32294
+      },
+      "1,3": {
+        "code": 32360,
+        "label": "スクロールを少なく",
+        "detail": "スクロール量を下げる。",
+        "kind": "custom",
+        "sourceCode": 32296
+      },
+      "2,3": {
+        "code": 32362,
+        "label": "ジェスチャー感度を下げる",
+        "detail": "ジェスチャー感度を下げる。",
+        "kind": "custom",
+        "sourceCode": 32298
+      },
+      "0,4": {
+        "code": 32359,
+        "label": "カーソルを速く",
+        "detail": "カーソル速度を上げる。",
+        "kind": "custom",
+        "sourceCode": 32295
+      },
+      "1,4": {
+        "code": 32361,
+        "label": "スクロールを多く",
+        "detail": "スクロール量を上げる。",
+        "kind": "custom",
+        "sourceCode": 32297
+      },
+      "2,4": {
+        "code": 32363,
+        "label": "ジェスチャー感度を上げる",
+        "detail": "ジェスチャー感度を上げる。",
+        "kind": "custom",
+        "sourceCode": 32299
+      },
+      "0,5": {
+        "code": 32364,
+        "label": "自動マウスを切替",
+        "detail": "自動マウスレイヤーを切り替える。",
+        "kind": "custom",
+        "sourceCode": 32300
+      },
+      "1,5": {
+        "code": 32365,
+        "label": "スクロール反転",
+        "detail": "スクロール方向を反転する。",
+        "kind": "custom",
+        "sourceCode": 32301
+      },
+      "2,5": {
+        "code": 32366,
+        "label": "状態を表示",
+        "detail": "現在の状態を表示する。",
+        "kind": "custom",
+        "sourceCode": 32302
+      },
+      "4,0": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 32261
+      },
+      "4,1": {
+        "code": 107,
+        "label": "F16",
+        "detail": "CoreX の F16 操作に使う。",
+        "kind": "key",
+        "sourceCode": 0
+      },
+      "4,2": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 32259
+      },
+      "4,3": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 32258
+      },
+      "4,4": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 32257
+      },
+      "4,5": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 32256
+      },
+      "5,0": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "5,1": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "5,2": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "5,3": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 32305
+      },
+      "5,4": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 32304
+      },
+      "5,5": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 32263
+      },
+      "6,0": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "6,1": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "6,2": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "6,3": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "6,4": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "6,5": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "3,1": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "3,2": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "3,3": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "3,4": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "3,5": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "7,1": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "7,4": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      },
+      "7,5": {
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
+      }
+    }
+  },
+  "source": {
+    "firmware_version": "v0.13.0",
+    "corex_rmk_commit": "0e7cc27",
+    "backup_file": "after-flash-now.json",
+    "backup_sha256": "9e54fc9578fa269bd02b1b2312a6d8d90e531e50dd263d91d46f96ac2c1313bd",
+    "keymap_coordinates": "CoreX Studio row,column; device matrix numbering translated with generate_windows_bank.device_positions()",
+    "profile_layers": {
+      "mac": {
+        "base": 0,
+        "edit": 1,
+        "symbol": 2,
+        "num": 3,
+        "mouse": 5,
+        "settings": 6
+      },
+      "win": {
+        "base": 7,
+        "edit": 8,
+        "symbol": 9,
+        "num": 10,
+        "mouse": 12,
+        "settings": 13
+      }
+    }
+  },
+  "combos": [
+    {
+      "id": "COMBO_SETTINGS",
+      "keys": [
+        225,
+        49,
+        0,
+        0
+      ],
+      "positions": [
+        "2,0",
+        "6,0"
+      ],
+      "label": "設定",
+      "detail": "左 Shift ＋ \\ を押している間、設定レイヤーを使う。"
+    },
+    {
+      "id": "COMBO_PRIVATE_1",
+      "keys": [
+        4,
+        22,
+        7,
+        9
+      ],
+      "positions": [
+        "1,1",
+        "1,2",
+        "1,3",
+        "1,4"
+      ],
+      "label": "個人用文字列1",
+      "detail": "A ＋ S ＋ D ＋ F を同時押しで登録済みの文字列を入力する。文字列の内容は表示しません。"
+    },
+    {
+      "id": "COMBO_PRIVATE_2",
+      "keys": [
+        13,
+        14,
+        15,
+        51
+      ],
+      "positions": [
+        "5,4",
+        "5,3",
+        "5,2",
+        "5,1"
+      ],
+      "label": "個人用文字列2",
+      "detail": "J ＋ K ＋ L ＋ ; を同時押しで登録済みの文字列を入力する。文字列の内容は表示しません。"
+    }
+  ]
+}

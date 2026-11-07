@@ -1,9 +1,22 @@
 #!/bin/sh
-# Regenerate the hamanori_corex static keymaps and the cheat sheet from the saved inputs.
+# Regenerate the Keyball44 specs, firmware include, and Mac/Windows cheat sheet.
 set -eu
-cd "$(dirname "$0")"
-REF=../../reference/corex
-KM=../../../../qmk_firmware/keyboards/keyball/keyball44/keymaps/hamanori_corex
-python3 mac_spec.py "$REF/corex-mac-20261103.json" "$REF/corex-layer-notes-20261103.json" "$REF/mac-spec.json"
-python3 gen_firmware.py "$REF/mac-spec.json" "$REF/keyball-windows-remap-20261103.json" "$KM/corex_keymaps.inc"
-python3 gen_html.py "$REF/mac-spec.json" ../../keyball44-mac-cheatsheet.html
+
+if [ "$#" -gt 1 ]; then
+  echo "usage: regen.sh [OUTPUT_ROOT]" >&2
+  exit 2
+fi
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/../../../.." && pwd)
+OUTPUT_ROOT=${1:-$ROOT}
+SNAPSHOT="$ROOT/keyball44/doc/reference/corex/corex-v0.13.0-20261106.json"
+REFERENCE="$OUTPUT_ROOT/keyball44/doc/reference/corex"
+KEYMAP="$OUTPUT_ROOT/qmk_firmware/keyboards/keyball/keyball44/keymaps/hamanori_corex/corex_keymaps.inc"
+HTML="$OUTPUT_ROOT/keyball44/doc/keyball44-cheatsheet.html"
+
+mkdir -p "$REFERENCE" "$(dirname -- "$KEYMAP")" "$(dirname -- "$HTML")"
+uv run --no-project python "$SCRIPT_DIR/mac_spec.py" "$SNAPSHOT" "$REFERENCE/mac-spec.json"
+uv run --no-project python "$SCRIPT_DIR/win_spec.py" "$SNAPSHOT" "$REFERENCE/win-spec.json"
+uv run --no-project python "$SCRIPT_DIR/gen_firmware.py" "$REFERENCE/mac-spec.json" "$REFERENCE/win-spec.json" "$KEYMAP"
+uv run --no-project python "$SCRIPT_DIR/gen_html.py" "$REFERENCE/mac-spec.json" "$REFERENCE/win-spec.json" "$HTML"
