@@ -10,3 +10,5 @@ COMBO_ENABLE = yes
 EXTRAKEY_ENABLE = yes
 
 OS_DETECTION_ENABLE = yes
+
+SRC += corex_edit.c corex_gesture.c

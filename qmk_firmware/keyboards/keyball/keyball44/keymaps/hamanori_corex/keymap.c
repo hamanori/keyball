@@ -34,97 +34,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #  define HAS_OS_DETECTION 0
 #endif
 
-// Text for the Windows macro keys lives outside Git (see .gitignore).
-#if defined(__has_include)
+// Private CoreX combo text is supplied only to local builds (see .gitignore).
+#if defined(__has_include) && !defined(COREX_HOST_TEST)
 #  if __has_include("secrets.h")
 #    include "secrets.h"
 #  endif
 #endif
 
-// コード表
-// ## 特殊キーコード
-
-// | キーコード | Remap上での表記 | 値       | 説明                                                              |
-// |:-----------|:----------------|:---------|:------------------------------------------------------------------|
-// | `KBC_RST`  | `Kb 0`          | `0x7e00` | Keyball設定[^2]のリセット                                         |
-// | `KBC_SAVE` | `Kb 1`          | `0x7e01` | 現在のKeyball設定[^2]をEEPROMに保存します                         |
-// | `CPI_I100` | `Kb 2`          | `0x7e02` | CPIを100増加させます(最大:12000)                                  |
-// | `CPI_D100` | `Kb 3`          | `0x7e03` | CPIを100減少させます(最小:100)                                    |
-// | `CPI_I1K`  | `Kb 4`          | `0x7e04` | CPIを1000増加させます(最大:12000)                                 |
-// | `CPI_D1K`  | `Kb 5`          | `0x7e05` | CPIを1000減少させます(最小:100)                                   |
-// | `SCRL_TO`  | `Kb 6`          | `0x7e06` | タップごとにスクロールモードのON/OFFを切り替えます                |
-// | `SCRL_MO`  | `Kb 7`          | `0x7e07` | キーを押している間、スクロールモードになります                    |
-// | `SCRL_DVI` | `Kb 8`          | `0x7e08` | スクロール除数を１つ上げます(max D7 = 1/128)←最もスクロール遅い   |
-// | `SCRL_DVD` | `Kb 9`          | `0x7e09` | スクロール除数を１つ下げます(min D0 = 1/1)←最もスクロール速い     |
-// | `AML_TO`   | `Kb 10`         | `0x7e0a` | 自動マウスレイヤーをトグルします。                                |
-// | `AML_I50`  | `Kb 11`         | `0x7e0b` | 自動マウスレイヤーのタイムアウトを50msec増やします (max 1000ms)   |
-// | `AML_D50`  | `Kb 12`         | `0x7e0c` | 自動マウスレイヤーのタイムアウトを50msec減らします (min 100ms)    |
-// | `SSNP_VRT` | `Kb 13`         | `0x7e0d` | スクロールスナップモードを垂直にする                              |
-// | `SSNP_HOR` | `Kb 14`         | `0x7e0e` | スクロールスナップモードを水平にする                              |
-// | `SSNP_FRE` | `Kb 15`         | `0x7e0f` | スクロールスナップモードを無効にする(自由スクロール)              |
-
-////////////////////////////////////
-///
-/// 自動マウスレイヤーの実装 ここから
-/// 参考にさせていただいたページ
-/// https://zenn.dev/takashicompany/articles/69b87160cda4b9
-///
-////////////////////////////////////
-
-enum custom_keycodes {
-  // corex_keymaps.inc refers to these by value (User 0-11), so keep them stable.
-  KC_MY_BTN1            = KEYBALL_SAFE_RANGE + 0,  // User0
-  KC_MY_BTN2            = KEYBALL_SAFE_RANGE + 1,  // User1
-  KC_MY_BTN3            = KEYBALL_SAFE_RANGE + 2,  // User2
-  KC_MY_BTN4            = KEYBALL_SAFE_RANGE + 3,  // User3
-  KC_MY_BTN5            = KEYBALL_SAFE_RANGE + 4,  // User4
-  KC_GESTURE            = KEYBALL_SAFE_RANGE + 5,  // User5 押しながらボールを動かした方向の操作
-  KC_TO_CLICKABLE_INC   = KEYBALL_SAFE_RANGE + 6,  // User6 (reserved)
-  KC_TO_CLICKABLE_DEC   = KEYBALL_SAFE_RANGE + 7,  // User7 (reserved)
-  KC_SCR_SPD_INC        = KEYBALL_SAFE_RANGE + 8,  // User8 スクロール閾値を下げて速度アップ
-  KC_SCR_SPD_DEC        = KEYBALL_SAFE_RANGE + 9,  // User9 スクロール閾値を上げて速度ダウン
-  KC_SCR_RST            = KEYBALL_SAFE_RANGE + 10, // User10 スクロール閾値を初期値に戻す
-  KC_URL_COPY           = KEYBALL_SAFE_RANGE + 11, // Windows: アドレス欄の URL をコピー
-  KC_WIN_MAXIMIZE       = KEYBALL_SAFE_RANGE + 12  // Windows: 左右に寄せた窓も最大化する
-};
-
-// Both profiles carry the CoreX layers: Windows 0-4, macOS 5-9.
-// The connected OS picks the default layer at boot; Shift + \ (held) switches by hand.
-enum layers {
-  L_WIN_BASE = 0,
-  L_WIN_EDIT,
-  L_WIN_MOUSE,
-  L_WIN_WINDOW,
-  L_WIN_NUM,
-  L_MAC_BASE,
-  L_MAC_EDIT,
-  L_MAC_MOUSE,
-  L_MAC_WINDOW,
-  L_MAC_NUM,
-};
-#define PROFILE_LAYERS (L_MAC_BASE - L_WIN_BASE)
+#include "corex_port.h"
+#include "corex_edit.h"
+#include "corex_gesture.h"
 
 static bool is_mac_profile(void) {
   return default_layer_state & ((layer_state_t)1 << L_MAC_BASE);
 }
 
-enum oled_event {
-  EV_NONE,
-  EV_DESK_LEFT,
-  EV_DESK_RIGHT,
-  EV_OVERVIEW,
-  EV_DOWN,
-  EV_SNAP_LEFT,
-  EV_SNAP_RIGHT,
-  EV_MAXIMIZE,
-  EV_URL_COPY,
-  EV_COMBO,
-};
-
-enum oled_event_source { SRC_KEY, SRC_GESTURE, SRC_COMBO };
-
-static void note_event(uint8_t event, uint8_t source, char symbol);
-static uint8_t event_for_keycode(uint16_t kc);
+static void note_event(uint8_t event);
 static void oled_state_sync(void);
 static void oled_state_receive(uint8_t in_len, const void *in_data, uint8_t out_len, void *out_data);
 
@@ -132,16 +57,12 @@ static uint8_t mouse_layer(void) {
   return is_mac_profile() ? L_MAC_MOUSE : L_WIN_MOUSE;
 }
 
-// Mouse-layer K: tap = middle click, hold = window layer (ball scrolls there).
+// Mouse-layer K: tap = middle click, hold = numbers and scrolling.
 static bool is_mouse_middle(uint16_t keycode) {
-  return keycode == LT(L_MAC_WINDOW, KC_BTN3) || keycode == LT(L_WIN_WINDOW, KC_BTN3);
+  return keycode == LT(L_MAC_NUM, KC_BTN3) || keycode == LT(L_WIN_NUM, KC_BTN3);
 }
 
-static bool is_mouse_layer(uint8_t layer) {
-  return layer == L_MAC_MOUSE || layer == L_WIN_MOUSE;
-}
-
-#define SCROLL_LAYERS_MASK (((layer_state_t)1 << L_WIN_WINDOW) | ((layer_state_t)1 << L_MAC_WINDOW))
+#define SCROLL_LAYERS_MASK (((layer_state_t)1 << L_WIN_NUM) | ((layer_state_t)1 << L_MAC_NUM))
 #define MOUSE_LAYERS_MASK (((layer_state_t)1 << L_WIN_MOUSE) | ((layer_state_t)1 << L_MAC_MOUSE))
 // Every momentary layer except the mouse layers takes priority over a mouse session.
 #define MOUSE_BLOCKING_LAYERS_MASK (~(MOUSE_LAYERS_MASK | ((layer_state_t)1 << L_WIN_BASE) | ((layer_state_t)1 << L_MAC_BASE)))
@@ -197,8 +118,6 @@ static uint8_t mouse_session_settle_reports = 0;
 static bool mouse_session_ball_settled = false;
 static bool mouse_session_used_scroll = false;
 static bool pending_dual_role = false;
-// True while the mouse layer is held by hand (CoreX: かな長押し). The session must not drop it.
-static bool mouse_layer_held = false;
 static keypos_t pending_dual_role_position;
 static keypos_t held_mouse_positions[MOUSE_POSITION_COUNT];
 static uint8_t held_mouse_position_mask = 0;
@@ -214,7 +133,7 @@ static void mouse_layer_on(void) {
 }
 
 static void mouse_layer_off(void) {
-  if (!mouse_layer_held && layer_state_is(mouse_layer())) {
+  if (layer_state_is(mouse_layer())) {
     layer_off(mouse_layer());
   }
 }
@@ -225,63 +144,28 @@ static bool is_minizone_scroll_active(void) {
 
 int16_t my_abs(int16_t num);
 
-// CoreX gesture: while the gesture key is held, each ball move past the
-// threshold runs its direction once, then motion is ignored for a short pause.
-static int16_t gesture_x = 0;
-static int16_t gesture_y = 0;
-static uint16_t gesture_timer = 0;
-static bool gesture_paused = false;
+static bool drag_locked, precision, window_switch_held;
+static int8_t precision_x, precision_y;
+static bool aml_enabled = true;
+static uint8_t held_gesture_kind;
+static bool profile_fixed;
 
-static void reset_gesture(void) {
-  gesture_x = 0;
-  gesture_y = 0;
-  gesture_paused = false;
+static uint8_t gesture_kind(uint16_t kc) {
+  switch (kc) {
+    case KC_GESTURE_SCREEN: return 1;
+    case KC_GESTURE_WINDOW: return 2;
+    case KC_GESTURE_TAB: return 3;
+    case KC_GESTURE_ZOOM: return 4;
+    default: return 0;
+  }
 }
 
-// A clear direction once one axis passes the threshold and dominates.
-static bool gesture_decided(int16_t ax, int16_t ay) {
-  return (ax >= GESTURE_THRESHOLD && ax * 2 > ay * 3) || (ay >= GESTURE_THRESHOLD && ay * 2 > ax * 3);
-}
-
-// Left/right: desktops. Up: overview. Down: Mac app windows, Windows desktop.
-static uint16_t gesture_action(int16_t ax, int16_t ay) {
-  bool mac = is_mac_profile();
-  if (ax > ay) {
-    return gesture_x < 0 ? (mac ? C(KC_LEFT) : C(G(KC_LEFT))) : (mac ? C(KC_RGHT) : C(G(KC_RGHT)));
+static void release_window_switch(void) {
+  if (window_switch_held) {
+    del_weak_mods(MOD_LALT);
+    send_keyboard_report();
+    window_switch_held = false;
   }
-  if (gesture_y < 0) {
-    return mac ? C(KC_UP) : G(KC_TAB);
-  }
-  return mac ? C(KC_DOWN) : G(KC_D);
-}
-
-static void gesture_motion(int16_t dx, int16_t dy) {
-  if (gesture_paused) {
-    if (timer_elapsed(gesture_timer) < GESTURE_REPEAT_INTERVAL) {
-      return;
-    }
-    gesture_paused = false;
-  }
-  gesture_x += dx;
-  gesture_y += dy;
-  int16_t ax = my_abs(gesture_x);
-  int16_t ay = my_abs(gesture_y);
-  if (ax < GESTURE_THRESHOLD && ay < GESTURE_THRESHOLD) {
-    return;
-  }
-  if (!gesture_decided(ax, ay)) {
-    if (ax >= GESTURE_THRESHOLD * 4 || ay >= GESTURE_THRESHOLD * 4) {
-      reset_gesture();  // stayed diagonal: drop it
-    }
-    return;
-  }
-  uint16_t action = gesture_action(ax, ay);
-  reset_gesture();
-  // Pause after a gesture so the end of the flick does not fire again.
-  gesture_paused = true;
-  gesture_timer = timer_read();
-  tap_code16(action);
-  note_event(event_for_keycode(action), SRC_GESTURE, 0);
 }
 
 static void reset_scroll_counters(void) {
@@ -353,13 +237,16 @@ static void mouse_session_release_held_operations(void) {
     }
   }
   held_mouse_buttons = 0;
+  drag_locked = precision = false;
+  precision_x = precision_y = 0;
 
   if (gesture_key_held) {
     if (held_mouse_position_mask & (1U << MOUSE_POSITION_GESTURE)) {
       remember_forced_release(held_mouse_positions[MOUSE_POSITION_GESTURE]);
     }
     gesture_key_held = false;
-    reset_gesture();
+    held_gesture_kind = 0;
+    corex_gesture_cancel();
   }
   held_mouse_position_mask = 0;
 }
@@ -398,6 +285,10 @@ static void mouse_session_finish_operation(void) {
   if (held_mouse_buttons != 0 || gesture_key_held) {
     return;
   }
+  if (precision) {
+    mouse_session_enter_ready();
+    return;
+  }
   if (mouse_session_used_scroll || mouse_session_drag_distance >= MOUSE_SESSION_DRAG_THRESHOLD) {
     mouse_session_enter_wait();
   } else {
@@ -427,6 +318,11 @@ static bool mouse_session_meaningful_movement(uint16_t movement) {
 
 static void set_profile(bool mac) {
   mouse_session_force_normal(true);
+  corex_edit_cancel();
+  corex_gesture_cancel();
+  release_window_switch();
+  clear_keyboard();
+  layer_clear();
   default_layer_set((layer_state_t)1 << (mac ? L_MAC_BASE : L_WIN_BASE));
   invert_scroll = !mac;  // Windows scrolls inverted, as with OS detection
 }
@@ -563,13 +459,69 @@ static bool send_as_jis(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
 
-static void tap_key_sequence(const uint16_t *keys, uint8_t count) {
-  for (uint8_t i = 0; i < count; i++) {
-    tap_code16(pgm_read_word(&keys[i]));
+/* Emit complete chords without borrowing held thumb modifiers. */
+void corex_edit_emit(uint16_t chord) {
+  uint8_t mods = get_mods(), weak = get_weak_mods();
+  clear_mods();
+  clear_weak_mods();
+  send_keyboard_report();
+  tap_code16(chord);
+  set_mods(mods);
+  set_weak_mods(weak);
+  send_keyboard_report();
+}
+
+void corex_gesture_emit(uint16_t chord) {
+  note_event(held_gesture_kind);
+  corex_edit_emit(chord);
+}
+
+static void type_us_key(uint16_t kc) {
+  uint16_t target = is_mac_profile() ? 0 : jis_key(kc & 0xFF, (kc >> 8) & MOD_LSFT);
+  corex_edit_emit(target ? target : kc);
+}
+
+#if defined(COREX_PRIVATE_1) || defined(COREX_PRIVATE_2)
+static void type_private_P(const uint16_t *keys, uint8_t length) {
+  for (uint8_t i = 0; i < length; i++) type_us_key(pgm_read_word(&keys[i]));
+}
+#endif
+
+static void run_macro(uint16_t kc) {
+  static const uint16_t PROGMEM pairs[][2] = {
+    {KC_LBRC, KC_RBRC}, {S(KC_9), S(KC_0)}, {S(KC_LBRC), S(KC_RBRC)},
+    {S(KC_QUOT), S(KC_QUOT)}, {KC_GRV, KC_GRV}
+  };
+  if (kc >= KC_PAIR_BRACKETS && kc <= KC_PAIR_TICKS) {
+    uint8_t pair = kc - KC_PAIR_BRACKETS;
+    type_us_key(pgm_read_word(&pairs[pair][0]));
+    type_us_key(pgm_read_word(&pairs[pair][1]));
+    corex_edit_emit(KC_LEFT);
+  } else if (kc == KC_CODE_BLOCK) {
+    for (uint8_t i = 0; i < 3; i++) type_us_key(KC_GRV);
+    corex_edit_emit(KC_ENT); corex_edit_emit(KC_ENT);
+    for (uint8_t i = 0; i < 3; i++) type_us_key(KC_GRV);
+    corex_edit_emit(KC_UP);
+  } else if (kc == KC_DOUBLE_ZERO) {
+    corex_edit_emit(KC_0); corex_edit_emit(KC_0);
   }
+#ifdef COREX_PRIVATE_1
+  else if (kc == KC_PRIVATE_1) {
+    static const uint16_t PROGMEM keys[] = COREX_PRIVATE_1;
+    type_private_P(keys, sizeof(keys) / sizeof(keys[0]));
+  }
+#endif
+#ifdef COREX_PRIVATE_2
+  else if (kc == KC_PRIVATE_2) {
+    static const uint16_t PROGMEM keys[] = COREX_PRIVATE_2;
+    type_private_P(keys, sizeof(keys) / sizeof(keys[0]));
+  }
+#endif
 }
 
 bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
+  // QMK clears weak modifiers before every physical key press.
+  if (window_switch_held) add_weak_mods(MOD_LALT);
   if (IS_QK_LAYER_TAP(keycode)) {
     // Both the tap and hold meanings leave the mouse session, so exit before
     // QMK resolves a following key against the mouse layer. The mouse-layer K
@@ -593,8 +545,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
   if (consume_forced_release(record)) {
     return false;
   }
-  if (record->event.pressed) {
-    note_event(event_for_keycode(keycode), SRC_KEY, 0);
+  uint8_t action_id = keycode >= KEYBALL_SAFE_RANGE && keycode < KEYBALL_SAFE_RANGE + 64
+                      ? keycode - KEYBALL_SAFE_RANGE : 0;
+  if (corex_edit_process(action_id, record->event.pressed, is_mac_profile(),
+                         (get_mods() | get_weak_mods()) & MOD_MASK_SHIFT, timer_read())) {
+    if (record->event.pressed) mouse_session_force_normal(true);
+    return false;
   }
 
   bool is_mod_tap = IS_QK_MOD_TAP(keycode);
@@ -615,11 +571,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
   }
 
   if (is_layer_tap && record->tap.count == 0) {
-    if (is_mouse_layer(QK_LAYER_TAP_GET_LAYER(keycode))) {
-      // Holding かな opens the mouse layer by hand, like CoreX.
-      mouse_layer_held = record->event.pressed;
-      return true;
-    }
     if (record->event.pressed && mouse_session_state != MOUSE_SESSION_NORMAL) {
       leave_mouse_session();
     }
@@ -650,7 +601,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
     uint8_t button_index = keycode - KC_MY_BTN1;
     uint8_t button_mask = 1 << button_index;
 
-    register_mouse(KC_MS_BTN1 + button_index, record->event.pressed);
+    if (button_index == 0 && record->event.pressed) drag_locked = false;
+    if (!(button_index == 0 && drag_locked && !record->event.pressed))
+      register_mouse(KC_MS_BTN1 + button_index, record->event.pressed);
     if (record->event.pressed) {
       if (mouse_session_state != MOUSE_SESSION_HELD) {
         mouse_session_drag_distance = 0;
@@ -661,7 +614,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
       mouse_session_state = MOUSE_SESSION_HELD;
       mouse_layer_on();
     } else {
-      held_mouse_buttons &= ~button_mask;
+      if (!(button_index == 0 && drag_locked)) held_mouse_buttons &= ~button_mask;
       forget_held_mouse_position(button_index);
       if (mouse_session_state == MOUSE_SESSION_HELD) {
         mouse_session_finish_operation();
@@ -670,96 +623,99 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
     return false;
   }
 
-  case KC_GESTURE:
-    if (gesture_key_held != record->event.pressed) {
-      gesture_key_held = record->event.pressed;
-      reset_gesture();
-      if (record->event.pressed) {
-        if (mouse_session_state != MOUSE_SESSION_HELD) {
-          mouse_session_drag_distance = 0;
-          mouse_session_used_scroll = false;
-        }
-        remember_held_mouse_position(MOUSE_POSITION_GESTURE, record->event.key);
-        mouse_session_state = MOUSE_SESSION_HELD;
-        mouse_layer_on();
-      } else {
-        forget_held_mouse_position(MOUSE_POSITION_GESTURE);
-        if (mouse_session_state == MOUSE_SESSION_HELD) {
-          mouse_session_finish_operation();
-        }
+  case KC_GESTURE_SCREEN:
+  case KC_GESTURE_WINDOW:
+  case KC_GESTURE_TAB:
+  case KC_GESTURE_ZOOM: {
+    uint8_t kind = gesture_kind(keycode);
+    if (record->event.pressed && held_gesture_kind && kind != held_gesture_kind) return false;
+    if (!record->event.pressed && kind != held_gesture_kind) return false;
+    corex_gesture_key(kind, record->event.pressed, is_mac_profile(), timer_read());
+    gesture_key_held = record->event.pressed;
+    if (record->event.pressed) {
+      if (mouse_session_state != MOUSE_SESSION_HELD) {
+        mouse_session_drag_distance = 0;
+        mouse_session_used_scroll = false;
       }
+      held_gesture_kind = kind;
+      remember_held_mouse_position(MOUSE_POSITION_GESTURE, record->event.key);
+      mouse_session_state = MOUSE_SESSION_HELD;
+      mouse_layer_on();
+    } else {
+      held_gesture_kind = 0;
+      forget_held_mouse_position(MOUSE_POSITION_GESTURE);
+      mouse_session_finish_operation();
     }
     return false;
-
-#ifdef WIN_MACRO_11_KEYS
-  case QK_MACRO_11:
+  }
+  case KC_DRAG_LOCK:
     if (record->event.pressed) {
-      static const uint16_t PROGMEM keys[] = WIN_MACRO_11_KEYS;
-      tap_key_sequence(keys, sizeof(keys) / sizeof(keys[0]));
+      drag_locked = !drag_locked;
+      bool down = drag_locked || (held_mouse_position_mask & 1);
+      register_mouse(KC_MS_BTN1, down);
+      if (down) { held_mouse_buttons |= 1; mouse_session_state = MOUSE_SESSION_HELD; }
+      else { held_mouse_buttons &= ~1; mouse_session_finish_operation(); }
     }
     return false;
-#endif
-#ifdef WIN_MACRO_12_KEYS
-  case QK_MACRO_12:
+  case KC_PRECISION:
     if (record->event.pressed) {
-      static const uint16_t PROGMEM keys[] = WIN_MACRO_12_KEYS;
-      tap_key_sequence(keys, sizeof(keys) / sizeof(keys[0]));
+      precision = !precision;
+      precision_x = precision_y = 0;
+      if (precision) {
+        if (!held_mouse_buttons && !gesture_key_held) mouse_session_enter_ready();
+      } else mouse_session_finish_operation();
     }
     return false;
-#endif
-
-  case KC_SCR_SPD_INC:
+  case KC_DOUBLE_CLICK:
     if (record->event.pressed) {
-      user_config.scroll_threshold -= 5;
-      if (user_config.scroll_threshold < 1) {
-        user_config.scroll_threshold = 1;
+      for (uint8_t i = 0; i < 2; i++) {
+        register_mouse(KC_MS_BTN1, true); wait_ms(40);
+        register_mouse(KC_MS_BTN1, false); wait_ms(40);
       }
+      mouse_session_enter_grace();
+    }
+    return false;
+  case KC_WINDOW_SWITCH:
+    if (record->event.pressed) {
+      add_weak_mods(MOD_LALT);
+      window_switch_held = true;
+      tap_code(KC_TAB);
+    }
+    return false;
+  case KC_CURSOR_SLOWER:
+  case KC_CURSOR_FASTER:
+    if (record->event.pressed) {
+      uint8_t cpi = keyball_get_cpi();
+      if (keycode == KC_CURSOR_FASTER && cpi < 120) cpi++;
+      if (keycode == KC_CURSOR_SLOWER && cpi > 1) cpi--;
+      keyball_set_cpi(cpi);
+    }
+    return false;
+  case KC_SCROLL_LESS:
+  case KC_SCROLL_MORE:
+    if (record->event.pressed) {
+      int16_t speed = user_config.scroll_threshold + (keycode == KC_SCROLL_LESS ? 5 : -5);
+      user_config.scroll_threshold = speed < 1 ? 1 : speed > 200 ? 200 : speed;
       eeconfig_update_user(user_config.raw);
-      if (mouse_session_state != MOUSE_SESSION_NORMAL) {
-        leave_mouse_session();
-      }
     }
     return false;
-
-  case KC_SCR_SPD_DEC:
-    if (record->event.pressed) {
-      user_config.scroll_threshold += 5;
-      if (user_config.scroll_threshold > 200) {
-        user_config.scroll_threshold = 200;
-      }
-      eeconfig_update_user(user_config.raw);
-      if (mouse_session_state != MOUSE_SESSION_NORMAL) {
-        leave_mouse_session();
-      }
-    }
+  case KC_GESTURE_DULLER:
+  case KC_GESTURE_SHARPER:
+    if (record->event.pressed) corex_gesture_sensitivity(keycode == KC_GESTURE_SHARPER ? 1 : -1);
     return false;
-
-  case KC_URL_COPY:
-    if (record->event.pressed) {
-      // The press returns false, so the mouse layer can go off right away.
-      mouse_session_force_normal(true);
-      tap_code16(C(KC_L));
-      tap_code16(C(KC_C));
-      tap_code(KC_ESC);
-    }
+  case KC_AML_TOGGLE:
+    if (record->event.pressed) { aml_enabled = !aml_enabled; mouse_session_force_normal(true); }
     return false;
-
-  case KC_WIN_MAXIMIZE:
-    if (record->event.pressed) {
-      // A window snapped to one side moves to a quarter on the first Win+Up.
-      tap_code16(G(KC_UP));
-      tap_code16(G(KC_UP));
-    }
+  case KC_SCROLL_INVERT:
+    if (record->event.pressed) invert_scroll = !invert_scroll;
     return false;
-
-  case KC_SCR_RST:
-    if (record->event.pressed) {
-      user_config.scroll_threshold = 30;
-      eeconfig_update_user(user_config.raw);
-      if (mouse_session_state != MOUSE_SESSION_NORMAL) {
-        leave_mouse_session();
-      }
-    }
+  case KC_PROFILE:
+    if (record->event.pressed) { set_profile(!is_mac_profile()); profile_fixed = true; }
+    return false;
+  case KC_SHOW_STATUS:
+    return false; /* Both OLEDs continuously display status. */
+  case KC_PAIR_BRACKETS ... KC_PRIVATE_2:
+    if (record->event.pressed) run_macro(keycode);
     return false;
 
   default:
@@ -850,10 +806,10 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
   int16_t current_v = mouse_report.v;
   uint16_t raw_movement = my_abs(current_x) + my_abs(current_y);
 
-  mouse_session_process_pointing(raw_movement);
+  if (aml_enabled) mouse_session_process_pointing(raw_movement);
 
   if (gesture_key_held) {
-    gesture_motion(current_x, current_y);
+    corex_gesture_motion(current_x, current_y, is_mac_profile(), timer_read());
     current_x = 0;
     current_y = 0;
   } else if (is_minizone_scroll_active() && (current_x != 0 || current_y != 0)) {
@@ -899,6 +855,11 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
       current_y = 0;
   }
 
+  if (precision && !scroll_layer_active && !gesture_key_held) {
+    current_x += precision_x; current_y += precision_y;
+    precision_x = current_x % 4; precision_y = current_y % 4;
+    current_x /= 4; current_y /= 4;
+  }
   mouse_report.x = current_x;
   mouse_report.y = current_y;
   mouse_report.h = current_h;
@@ -909,8 +870,9 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report)
 }
 
 void housekeeping_task_user(void) {
+  corex_edit_tick(is_mac_profile(), timer_read());
   oled_state_sync();
-  if (pending_dual_role) {
+  if (pending_dual_role || precision) {
     return;
   }
 
@@ -935,55 +897,29 @@ void housekeeping_task_user(void) {
 
 #include "corex_keymaps.inc"
 
-// CoreX TD(0): 英数 tap / window layer hold, judged at 250 ms.
-uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-  return IS_QK_LAYER_TAP(keycode) && QK_LAYER_TAP_GET_TAP_KEYCODE(keycode) == KC_LNG2 ? 250 : TAPPING_TERM;
-}
-
-// Each profile has its own Shift + \\ toggle combo; the symbol combos run on both.
 bool combo_should_trigger(uint16_t combo_index, combo_t *combo, uint16_t keycode, keyrecord_t *record) {
-  if (combo_index == COMBO_TOGGLE_MAC) {
-    return is_mac_profile();
-  }
-  if (combo_index == COMBO_TOGGLE_WIN) {
-    return !is_mac_profile();
-  }
-  return true;
+  return get_highest_layer(layer_state | default_layer_state) % PROFILE_LAYERS == L_WIN_BASE;
 }
 
-// True after the profile was switched by hand; replugging returns to OS detection.
-static bool profile_fixed = false;
-
-
-// The profile toggle shares its keys with "|" (Shift + \\), so it fires only when held.
 bool get_combo_must_hold(uint16_t combo_index, combo_t *combo) {
-  return combo_index >= SYMBOL_COMBO_COUNT;
+  return combo_index == COMBO_SETTINGS;
 }
 
 void process_combo_event(uint16_t combo_index, bool pressed) {
-  static uint16_t held_symbol = KC_NO;
-  if (combo_index >= SYMBOL_COMBO_COUNT) {
-    if (pressed) {
-      set_profile(!is_mac_profile());
-      profile_fixed = true;
-    }
-    return;
+  if (combo_index == COMBO_SETTINGS) {
+    uint8_t settings = is_mac_profile() ? L_MAC_SETTINGS : L_WIN_SETTINGS;
+    if (pressed) { mouse_session_force_normal(true); layer_on(settings); }
+    else layer_off(settings);
+  } else if (pressed) {
+    mouse_session_force_normal(true);
+    run_macro(combo_index == COMBO_PRIVATE_1 ? KC_PRIVATE_1 : KC_PRIVATE_2);
   }
-  if (!pressed) {
-    unregister_code16(held_symbol);
-    held_symbol = KC_NO;
-    return;
-  }
-  // A combo is keyboard input, so it ends a mouse session like any other key.
-  mouse_session_force_normal(true);
-  // Held like a normal key so the symbol auto-repeats, as on CoreX.
-  held_symbol = pgm_read_word(is_mac_profile() ? &combo_mac_output[combo_index] : &combo_win_output[combo_index]);
-  register_code16(held_symbol);
-  note_event(EV_COMBO, SRC_COMBO, pgm_read_byte(&combo_symbol[combo_index]));
 }
 
 layer_state_t layer_state_set_user(layer_state_t ly_state)
 {
+  if (!(ly_state & (((layer_state_t)1 << L_WIN_EDIT) | ((layer_state_t)1 << L_MAC_EDIT))))
+    release_window_switch();
   bool next_scroll_layer_active = (ly_state & SCROLL_LAYERS_MASK) != 0;
   bool blocking_layer_active = (ly_state & MOUSE_BLOCKING_LAYERS_MASK) != 0;
   bool mouse_layer_active = (ly_state & MOUSE_LAYERS_MASK) != 0;
@@ -998,9 +934,6 @@ layer_state_t layer_state_set_user(layer_state_t ly_state)
       mouse_session_force_normal(false);
     }
     ly_state &= ~MOUSE_LAYERS_MASK;
-  } else if (!mouse_layer_active && mouse_layer_held) {
-    // かな is still held after a momentary layer (e.g. K hold) ends.
-    ly_state |= (layer_state_t)1 << mouse_layer();
   } else if (!mouse_layer_active && session_requires_mouse_layer) {
     // Also recover safely if a mouse layer is disabled outside the session module.
     mouse_session_force_normal(false);
@@ -1034,12 +967,10 @@ enum oled_flag {
 };
 
 typedef struct {
-  uint8_t layer;   // 0-4, the same on both profiles
+  uint8_t layer;   // 0-5, the same on both profiles
   uint8_t mods;
   uint8_t flags;
   uint8_t event;
-  uint8_t source;
-  char symbol;     // combo symbol for EV_COMBO
   uint8_t seq;     // changes with every event, so the other side restarts its timer
   uint8_t cpi;
   uint8_t scroll;
@@ -1048,46 +979,15 @@ typedef struct {
 static oled_state_t shown;        // what this side's screen shows
 static uint16_t event_timer = 0;
 
-static uint8_t event_for_keycode(uint16_t kc) {
-  if (is_mac_profile()) {
-    switch (kc) {
-      case C(KC_LEFT): return EV_DESK_LEFT;
-      case C(KC_RGHT): return EV_DESK_RIGHT;
-      case C(KC_UP): return EV_OVERVIEW;
-      case C(KC_DOWN): return EV_DOWN;
-      case KC_F13: return EV_SNAP_LEFT;
-      case KC_F19: return EV_SNAP_RIGHT;
-      case KC_F18: return EV_MAXIMIZE;
-      case S(G(KC_C)): return EV_URL_COPY;
-    }
-  } else {
-    switch (kc) {
-      case C(G(KC_LEFT)): return EV_DESK_LEFT;
-      case C(G(KC_RGHT)): return EV_DESK_RIGHT;
-      case G(KC_TAB): return EV_OVERVIEW;
-      case G(KC_D): return EV_DOWN;
-      case G(KC_LEFT): return EV_SNAP_LEFT;
-      case G(KC_RGHT): return EV_SNAP_RIGHT;
-      case KC_WIN_MAXIMIZE: return EV_MAXIMIZE;
-      case KC_URL_COPY: return EV_URL_COPY;
-    }
-  }
-  return EV_NONE;
-}
-
-static void note_event(uint8_t event, uint8_t source, char symbol) {
-  if (event == EV_NONE) {
-    return;
-  }
+static void note_event(uint8_t event) {
+  if (!event) return;
   shown.event = event;
-  shown.source = source;
-  shown.symbol = symbol;
   shown.seq++;
   event_timer = timer_read();
 }
 
 static bool event_active(void) {
-  return shown.event != EV_NONE && timer_elapsed(event_timer) < EVENT_SHOW_MS;
+  return shown.event != 0 && timer_elapsed(event_timer) < EVENT_SHOW_MS;
 }
 
 // USB side: refresh the state from the keyboard and send it when it changes.
@@ -1104,8 +1004,8 @@ static void oled_state_sync(void) {
   shown.scroll = user_config.scroll_threshold;
   // Clear an expired event here, on the USB side only; otherwise the 16-bit
   // timer wraps after 65 s and the old event shows again.
-  if (shown.event != EV_NONE && timer_elapsed(event_timer) >= EVENT_SHOW_MS) {
-    shown.event = EV_NONE;
+  if (shown.event != 0 && timer_elapsed(event_timer) >= EVENT_SHOW_MS) {
+    shown.event = 0;
   }
 
   // A failed send leaves `sent` unchanged, so it is retried on the next pass.
@@ -1146,7 +1046,8 @@ static const char *layer_name(uint8_t layer) {
   switch (layer) {
     case L_WIN_EDIT: return PSTR("EDIT");
     case L_WIN_MOUSE: return PSTR("MOUSE");
-    case L_WIN_WINDOW: return PSTR("WINDOW");
+    case L_WIN_SYMBOL: return PSTR("SYMBOL");
+    case L_WIN_SETTINGS: return PSTR("SETTINGS");
     case L_WIN_NUM: return PSTR("NUM");
     default: return PSTR("BASE");
   }
@@ -1163,10 +1064,15 @@ static uint8_t double_bits(uint8_t nibble) {
   return out;
 }
 
+static uint16_t glyph_offset(char c) {
+  uint8_t glyph = c == ' ' ? 0 : c >= 'A' ? c - 'A' + 11 : c - '0' + 1;
+  return glyph * OLED_FONT_WIDTH;
+}
+
 // One character at twice the size over rows 0 and 1; returns the next x.
 static uint8_t write_big_glyph(char c, uint8_t x) {
   for (uint8_t i = 0; i < OLED_FONT_WIDTH; i++) {
-    uint8_t col = pgm_read_byte(&font[(c - OLED_FONT_START) * OLED_FONT_WIDTH + i]);
+    uint8_t col = pgm_read_byte(&font[glyph_offset(c) + i]);
     for (uint8_t twice = 0; twice < 2; twice++, x++) {
       uint16_t at = top_row() * OLED_DISPLAY_WIDTH + x;
       oled_write_raw_byte(double_bits(col & 0x0F), at);
@@ -1183,87 +1089,54 @@ static void write_big_P(const char *text) {
   }
 }
 
-// Left hand: the layer in large letters, the OS, FIX after a manual switch,
-// and the modifiers with the held ones inverted.
+static void small_char(char c, uint8_t column, uint8_t row, bool invert) {
+  for (uint8_t i = 0; i < OLED_FONT_WIDTH; i++) {
+    uint8_t pixel = pgm_read_byte(&font[glyph_offset(c) + i]);
+    oled_write_raw_byte(invert ? ~pixel : pixel, row * OLED_DISPLAY_WIDTH + column * OLED_FONT_WIDTH + i);
+  }
+}
+
+static void small_P(const char *text, uint8_t column, uint8_t row, bool invert) {
+  char c;
+  while ((c = pgm_read_byte(text++))) small_char(c, column++, row, invert);
+}
+
+static void small_number(uint8_t value, uint8_t column, uint8_t row) {
+  small_char('0' + value / 100, column, row, false);
+  small_char('0' + value / 10 % 10, column + 1, row, false);
+  small_char('0' + value % 10, column + 2, row, false);
+}
+
 static void render_state(void) {
   bool mac = shown.flags & FLAG_MAC;
   write_big_P(layer_name(shown.layer));
-  oled_set_cursor(17, 1);
-  oled_write_P(mac ? PSTR("MAC") : PSTR("WIN"), false);
-  if (shown.flags & FLAG_FIXED) {
-    oled_set_cursor(16, 2);
-    oled_write_P(PSTR(" FIX "), true);
-  }
-  oled_set_cursor(0, 3);
-  oled_write_P(PSTR(" SFT "), shown.mods & MOD_MASK_SHIFT);
-  oled_write_P(PSTR(" CTL "), shown.mods & MOD_MASK_CTRL);
-  oled_write_P(mac ? PSTR(" OPT ") : PSTR(" ALT "), shown.mods & MOD_MASK_ALT);
-  oled_write_P(mac ? PSTR(" CMD ") : PSTR(" WIN "), shown.mods & MOD_MASK_GUI);
+  small_P(mac ? PSTR("MAC") : PSTR("WIN"), 17, 1, false);
+  if (shown.flags & FLAG_FIXED) small_P(PSTR("FIX"), 17, 2, true);
+  small_P(PSTR("SFT"), 0, 3, shown.mods & MOD_MASK_SHIFT);
+  small_P(PSTR("CTL"), 5, 3, shown.mods & MOD_MASK_CTRL);
+  small_P(mac ? PSTR("OPT") : PSTR("ALT"), 10, 3, shown.mods & MOD_MASK_ALT);
+  small_P(mac ? PSTR("CMD") : PSTR("WIN"), 15, 3, shown.mods & MOD_MASK_GUI);
 }
 
-static const char *event_name(uint8_t event, bool mac) {
+static const char *event_name(uint8_t event) {
   switch (event) {
-    case EV_DESK_LEFT: return PSTR("<DESKTOP");
-    case EV_DESK_RIGHT: return PSTR("DESKTOP>");
-    case EV_OVERVIEW: return mac ? PSTR("MISSION") : PSTR("TASK VIEW");
-    case EV_DOWN: return mac ? PSTR("APP WINS") : PSTR("DESKTOP");
-    case EV_SNAP_LEFT: return PSTR("LEFT HALF");
-    case EV_SNAP_RIGHT: return PSTR("RIGHT HALF");
-    case EV_MAXIMIZE: return PSTR("MAXIMIZE");
-    default: return PSTR("URL COPY");
+    case 1: return PSTR("SCREEN");
+    case 2: return PSTR("WINDOW");
+    case 3: return PSTR("TAB");
+    default: return PSTR("ZOOM");
   }
 }
 
-// The keys the host received, so a new layout can be learned from the screen.
-static const char *event_keys(uint8_t event, bool mac) {
-  switch (event) {
-    case EV_DESK_LEFT: return mac ? PSTR("Ctl+Left") : PSTR("Ctl+Win+Left");
-    case EV_DESK_RIGHT: return mac ? PSTR("Ctl+Right") : PSTR("Ctl+Win+Right");
-    case EV_OVERVIEW: return mac ? PSTR("Ctl+Up") : PSTR("Win+Tab");
-    case EV_DOWN: return mac ? PSTR("Ctl+Down") : PSTR("Win+D");
-    case EV_SNAP_LEFT: return mac ? PSTR("F13") : PSTR("Win+Left");
-    case EV_SNAP_RIGHT: return mac ? PSTR("F19") : PSTR("Win+Right");
-    case EV_MAXIMIZE: return mac ? PSTR("F18") : PSTR("Win+Up x2");
-    default: return mac ? PSTR("Shift+Cmd+C") : PSTR("Ctl+L C Esc");
-  }
-}
-
-static void render_logo(void) {
-  char ch = 0x80;
-  for (uint8_t row = 0; row < 3; row++) {
-    oled_set_cursor(2, row);
-    for (uint8_t i = 0; i < 16; i++) {
-      oled_write_char(ch++, false);
-    }
-  }
-}
-
-// Right hand: what just happened, otherwise what the ball is doing, otherwise the logo.
 static void render_activity(void) {
-  bool mac = shown.flags & FLAG_MAC;
-  oled_set_cursor(0, 2);
-  if (event_active()) {
-    if (shown.event == EV_COMBO) {
-      write_big_glyph(shown.symbol, 0);
-      oled_write_P(PSTR(" COMBO "), true);
-      return;
-    }
-    write_big_P(event_name(shown.event, mac));
-    oled_write_P(shown.source == SRC_GESTURE ? PSTR(" GEST ") : PSTR(" KEY "), true);
-    oled_write_char(' ', false);
-    oled_write_P(event_keys(shown.event, mac), false);
-    return;
-  }
-  if (shown.flags & (FLAG_GESTURE | FLAG_SCROLL | FLAG_CLICK)) {
-    write_big_P(shown.flags & FLAG_GESTURE ? PSTR("GESTURE") : shown.flags & FLAG_SCROLL ? PSTR("SCROLL") : PSTR("CLICK"));
-    oled_write_P(PSTR(" BALL "), true);
-    oled_write_P(PSTR(" CPI"), false);
-    oled_write(get_u8_str(shown.cpi, ' '), false);
-    oled_write_P(PSTR("00 SC"), false);
-    oled_write(get_u8_str(shown.scroll, ' '), false);
-    return;
-  }
-  render_logo();
+  const char *label = event_active() ? event_name(shown.event) :
+      shown.flags & FLAG_GESTURE ? PSTR("GESTURE") :
+      shown.flags & FLAG_SCROLL ? PSTR("SCROLL") :
+      shown.flags & FLAG_CLICK ? PSTR("CLICK") : PSTR("READY");
+  write_big_P(label);
+  small_P(PSTR("CPI"), 0, 2, false);
+  small_number(shown.cpi, 3, 2);
+  small_P(PSTR("00 SC"), 6, 2, false);
+  small_number(shown.scroll, 11, 2);
 }
 
 bool oled_task_user(void) {

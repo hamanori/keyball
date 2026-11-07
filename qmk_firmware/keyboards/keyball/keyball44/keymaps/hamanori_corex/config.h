@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* タップ系の微調整（そのまま） */
 #define TAP_CODE_DELAY 5
 
-// Mouse session. The mouse layers (2 and 7) are owned by the keymap state machine instead of
+// Mouse session. The mouse layers (4 and 10) are owned by the keymap state machine instead of
 // QMK's built-in Auto Mouse lifecycle.
 #define MOUSE_SESSION_READY_TIMEOUT 10000
 // CoreX gesture: ball travel that triggers a direction, and the pause after it.
@@ -39,20 +39,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define TAPPING_TERM 200
 // CoreX "balanced" hold decision on both profiles.
 #define PERMISSIVE_HOLD
-#define TAPPING_TERM_PER_KEY
 
 //  quick tap term
 // This is the time to wait for a quick tap before sending a hold event.
 #define QUICK_TAP_TERM 0
 
-// Increase the number of layers to 7
 
 #define KEYBALL_CPI_DEFAULT 700      // 光学センサーPMW3360DM の解像度 (CPI) の規定値
 #define KEYBALL_SCROLL_DIV_DEFAULT 4 // スクロール速度の規定値
 // Scrolling is done by this keymap, never by Keyball's scroll mode, so its snapping is unused.
 #define KEYBALL_SCROLLSNAP_ENABLE 0
 
-// Layers 0-9 (Windows 0-4, macOS 5-9).
+// Six layers per OS: Windows 0-5, macOS 6-11.
 #undef LAYER_STATE_8BIT
 #define LAYER_STATE_16BIT
 
@@ -62,7 +60,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // No one-shot keys in either profile.
 #define NO_ACTION_ONESHOT
+#define NO_ACTION_MACRO
+#define NO_ACTION_FUNCTION
 #define COMBO_MUST_HOLD_PER_COMBO
 
 // Lets the USB side send the OLED state to the other half.
 #define SPLIT_TRANSACTION_IDS_USER USER_OLED_SYNC
+
+// Status uses uppercase ASCII; the logo and unused glyphs are omitted for AVR capacity.
+#undef OLED_FONT_H
+#undef OLED_FONT_START
+#undef OLED_FONT_END
+#define OLED_FONT_H "corex_font.c"
+#define OLED_FONT_START 0
+#define OLED_FONT_END 36
