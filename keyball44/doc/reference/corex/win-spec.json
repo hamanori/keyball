@@ -324,11 +324,11 @@
         "sourceCode": 17040
       },
       "7,1": {
-        "code": 227,
-        "label": "Command",
-        "detail": "Command",
+        "code": 107,
+        "label": "F16",
+        "detail": "F16",
         "kind": "key",
-        "sourceCode": 227
+        "sourceCode": 107
       },
       "7,4": {
         "code": 16936,
@@ -634,11 +634,11 @@
         "sourceCode": 481
       },
       "7,1": {
-        "code": 227,
-        "label": "Command",
-        "detail": "Command",
-        "kind": "key",
-        "sourceCode": 227
+        "code": 0,
+        "label": "—",
+        "detail": "割り当てなし",
+        "kind": "none",
+        "sourceCode": 0
       },
       "7,4": {
         "code": 76,
@@ -944,11 +944,11 @@
         "sourceCode": 558
       },
       "7,1": {
-        "code": 1,
-        "label": "▽",
-        "detail": "下のレイヤーを使う",
-        "kind": "trns",
-        "sourceCode": 1
+        "code": 557,
+        "label": "Shift ＋ -",
+        "detail": "Shift ＋ -",
+        "kind": "key",
+        "sourceCode": 557
       },
       "7,4": {
         "code": 1,
@@ -1254,11 +1254,11 @@
         "sourceCode": 1
       },
       "7,1": {
-        "code": 1,
-        "label": "▽",
-        "detail": "下のレイヤーを使う",
-        "kind": "trns",
-        "sourceCode": 1
+        "code": 546,
+        "label": "Shift ＋ 5",
+        "detail": "Shift ＋ 5",
+        "kind": "key",
+        "sourceCode": 546
       },
       "7,4": {
         "code": 1,

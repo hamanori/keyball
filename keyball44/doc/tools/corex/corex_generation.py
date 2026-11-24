@@ -54,7 +54,7 @@ def _keyball_positions() -> dict[tuple[int, int], tuple[int, int]]:
         (3, 3): (7, 3),
         (3, 4): (7, 4),
         (3, 5): (7, 5),
-        (7, 1): (7, 0),  # extra thumb: Control / Ctrl
+        (7, 1): (3, 2),  # outer right thumb: CoreX F16 (dictation), beside Enter
         (7, 4): (3, 3),
         (7, 5): (3, 5),
     })
